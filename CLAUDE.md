@@ -165,7 +165,9 @@ run, write down what we expect — when we are wrong, that gap is the finding.
 - **Windows + WSL (Ubuntu).** VS Code connected to WSL via the WSL extension.
 - **The project lives in the Linux filesystem** — `~/capstone-ids/`. Never under
   `/mnt/c/...`; crossing the boundary is slow on multi-GB pcaps.
-- Suricata 7.x from the OISF PPA, not the Ubuntu default repo (distro version lags).
+-  Suricata 8.0.6 (OISF PPA). Use version-matched docs:
+  docs.suricata.io/en/suricata-8.0.6/ — a lot of tutorials online target 6.x and
+  some rule keywords and eve.json fields have changed.
 - `jq` — the context bundle is built out of `jq` queries over `eve.json`. Core, not optional.
 - `tshark` / `editcap` — pcap slicing.
 - Python 3 in a venv. Never system Python.
@@ -178,6 +180,7 @@ editcap -r Monday-WorkingHours.pcap slices/monday-10k.pcap 1 10000
 
 Iterate against the slice; run the full file only to confirm a result. This is the
 difference between ten experiments a day and two.
+
 
 ---
 
