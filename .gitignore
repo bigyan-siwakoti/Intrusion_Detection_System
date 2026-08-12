@@ -1,0 +1,5 @@
+data/pcaps/
+data/slices/
+logs/
+__pycache__/
+.venv/
