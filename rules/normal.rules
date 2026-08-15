@@ -1,16 +1,26 @@
-# rules/normal.rules  v0  (15 Aug 2026)
-# Normality allowlist + catch-all, written against Monday/run05 composition.
-# NOTE: $HOME_NET in the system yaml includes 172.16.0.0/12, which contains the
-# CIC attacker (172.16.0.1). $EXTERNAL_NET therefore excludes the attacker and
-# MUST NOT be used. Explicit CIDRs throughout.
-# SIDs 1000001+ = local range.
+# rules/normal.rules  v1  (15 Aug 2026)
+# Allowlist + enumerated unmodelled + failed catch-all. Written against run05.
+# $EXTERNAL_NET unusable (HOME_NET contains CIC attacker 172.16.0.1). Explicit any.
+# TRIGGER DESIGN: enumeration fails open; src/bundle reconciliation check is the
+# fail-closed backstop. See PROJECT_STATE §2.
 
-# --- ALLOWLIST: protocol-identified normal traffic (~93% of Monday flows) ---
+# --- ALLOWLIST: modelled normal traffic ---
 pass dns  any any -> any any (msg:"NORMAL dns";  bypass; sid:1000001; rev:1;)
 pass tls  any any -> any any (msg:"NORMAL tls";  bypass; sid:1000002; rev:1;)
 pass http any any -> any any (msg:"NORMAL http"; bypass; sid:1000003; rev:1;)
 
-# --- CATCH-ALL: everything the allowlist did not account for ---
-alert ip any any -> any any (msg:"CATCHALL unmatched flow"; flow:established; app-layer-protocol:failed; \
-    threshold:type limit, track by_flow, count 1, seconds 3600; \
-    sid:1000900; rev:1;)
+# --- UNMODELLED: identified, not yet modelled. One alert per flow. ---
+alert ntp      any any -> any any (msg:"UNMODELLED ntp";      threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000101; rev:1;)
+alert ssh      any any -> any any (msg:"UNMODELLED ssh";      threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000102; rev:1;)
+alert ldap     any any -> any any (msg:"UNMODELLED ldap";     threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000103; rev:1;)
+alert quic     any any -> any any (msg:"UNMODELLED quic";     threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000104; rev:1;)
+alert krb5     any any -> any any (msg:"UNMODELLED krb5";     threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000105; rev:1;)
+alert ftp      any any -> any any (msg:"UNMODELLED ftp";      threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000106; rev:1;)
+alert ftp-data any any -> any any (msg:"UNMODELLED ftp-data"; threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000107; rev:1;)
+alert smb      any any -> any any (msg:"UNMODELLED smb";      threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000108; rev:1;)
+alert dcerpc   any any -> any any (msg:"UNMODELLED dcerpc";   threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000109; rev:1;)
+alert mdns     any any -> any any (msg:"UNMODELLED mdns";     threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000110; rev:1;)
+alert websocket any any -> any any (msg:"UNMODELLED websocket"; threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000111; rev:1;)
+
+# --- CATCH-ALL: attempted identification, failed ---
+alert ip any any -> any any (msg:"CATCHALL app-layer failed"; flow:established; app-layer-protocol:failed; threshold:type limit, track by_flow, count 1, seconds 3600; sid:1000900; rev:1;)
