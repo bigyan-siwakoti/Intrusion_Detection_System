@@ -64,21 +64,34 @@ for the life of every connection.
 pass → drop → reject → alert, so "put the catch-all last in the file" does nothing.
 Do not rely on file position for precedence.
 
-### 3.2 Rules encode *normality*, and fire on its negation
+### 3.2 Stock community ruleset + threshold-based suppression
 
-The knowledge in a rule is about **normal traffic for a specific service**. The trigger
-condition is the negation of that.
+~~(Superseded. Original approach was hand-written normality rules that fire on
+negation. Replaced with the approach below after baseline profiling work.)~~
 
-Example: normal HTTP on this service uses GET and POST → the rule fires on anything that
-is *not* GET or POST, including methods nobody on the team has heard of.
+Start with the **ET Open ruleset** (52,647 rules, pulled via `suricata-update`). Run
+benign traffic (Monday CIC-IDS2017). Every alert on known-benign traffic is a false
+positive — suppress it in `config/threshold.config` with a documented reason. The tuned
+sensor is the baseline: anything it alerts on attack-day traffic is a real detection
+candidate.
 
-**Why:** describing abnormality means enumerating known attacks, which only catches what
-is already catalogued — the exact limitation the project exists to fix. Describing
-normality and negating it covers the infinite remainder without enumerating it.
+**Why the change:** the normality-encoding approach required writing rules from scratch
+for every service. Starting from a mature community ruleset and tuning is what a real SOC
+engineer does, produces a wider detection surface immediately, and is more defensible in
+the report.
 
-**Consequence:** the rule set is **service-specific, not universal**. Always say "normal
-traffic *for this service*". Sloppiness here invites "why wouldn't these rules work
-everywhere?"
+**Key principle preserved:** rules are still `alert` only (§3.1 still holds). All tuning
+lives in `threshold.config` — the ET Open ruleset (`rules/suricata.rules`) is never
+edited directly. This keeps the community rules intact and all local decisions in one
+auditable file.
+
+**Baseline definition (explicit decision):** normal ≡ everything CIC-IDS2017 Monday
+triggered. 80 unconditional suppressions. Consequence: any genuinely malicious traffic
+present in the benign-labelled capture is defined as normal. Accepted because Monday is
+the labelled benign corpus (529,918 flows, all BENIGN per ground truth). Revisit if a
+Tue–Fri detection is traced to a Monday-suppressed SID.
+
+**The old `rules/normal.rules` is kept in the repo for history but is not loaded.**
 
 ### 3.3 Context bundle, not a bare packet
 
@@ -104,12 +117,12 @@ cross-organisation signal. Two of four, not four. Say this in the report.
 The model chooses between:
 
 - **Threat** → author a detection rule → validate → **auto-deploy**
-- **Unprofiled but legitimate** → author a *normality* rule → validate → **human approval
-  required**
+- **Unprofiled but legitimate** → author a suppress rule for `threshold.config` →
+  validate → **human approval required**
 
-**Why the two exits:** most alerts from a normality-based system are benign true
-positives — legitimate traffic nobody profiled. With only one exit the model can only add
-detection rules forever and never correct the profile that produced the false alarm.
+**Why the two exits:** most alerts from a tuned sensor hitting new traffic are benign true
+positives — legitimate traffic the baseline didn't cover. With only one exit the model can
+only add detection rules forever and never reduce the noise that produced the false alarm.
 
 **Why the asymmetry:** a model that resolves everything as "legitimate, widen the profile"
 degrades the IDS to passing everything. Wrong-way-safe is an over-alerting IDS; wrong-way-
@@ -189,22 +202,26 @@ difference between ten experiments a day and two.
 ```
 ~/capstone-ids/
 ├── CLAUDE.md
+├── PROJECT_STATE.txt           # detailed project state for session continuity
 ├── data/
-│   ├── pcaps/          # gitignored — multi-GB
-│   ├── slices/         # small cuts for fast iteration
-│   └── labels/         # ground-truth CSVs
+│   ├── pcaps/                  # gitignored — multi-GB
+│   ├── slices/                 # small cuts for fast iteration
+│   └── labels/                 # ground-truth CSVs (TrafficLabelling/)
 ├── rules/
-│   ├── normal.rules    # hand-written negated-normality set
-│   └── generated/      # rules authored by the LLM
+│   ├── suricata.rules          # ET Open ruleset — NEVER edit directly
+│   ├── normal.rules            # old approach, superseded, kept for history
+│   └── generated/              # rules authored by the LLM
 ├── config/
-│   ├── suricata.yaml
-│   └── assets.txt      # hand-maintained destination context
-├── logs/               # eve.json — gitignored
+│   ├── suricata.yaml           # project-local config (HOME_NET, checksums, paths)
+│   ├── threshold.config        # all suppress/threshold tuning lives here
+│   ├── classification.config   # copied from ET Open
+│   └── assets.txt              # hand-maintained destination context
+├── logs/                       # per-run subdirectories, gitignored
 ├── src/
-│   ├── bundle/         # builds the context bundle from eve.json
-│   ├── llm/            # API calls, prompts
-│   └── eval/           # scoring against ground truth
-└── docs/               # minutes, charter, findings log
+│   ├── bundle/                 # builds the context bundle from eve.json
+│   ├── llm/                    # API calls, prompts
+│   └── eval/                   # scoring against ground truth
+└── docs/                       # minutes, charter, findings log
 ```
 
 **`.gitignore` the pcaps and logs from the first commit.** Multi-GB files in git are
@@ -231,7 +248,8 @@ painful to undo.
 - **Git:** one repo, four GitHub accounts. Everyone commits their own work even when
   sharing one machine. There is no other record of individual contribution, and the
   supervisor has already noticed the group tends to speak through one person.
-- Rules carry a comment stating **which characteristic of normal traffic** they negate.
+- Suppress lines in `threshold.config` carry a comment stating **why this alert is
+  normal for this capture**. The ET Open ruleset is never edited directly.
 - Generated rules land in `rules/generated/` and are never hand-edited in place — if a
   generated rule is wrong, that is a finding, so record it.
 - Record expected outcome before each experimental run.

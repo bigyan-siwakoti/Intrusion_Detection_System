@@ -1,0 +1,349 @@
+================================================================================
+PROJECT_STATE.txt — Capstone IDS (Group 13)
+Last updated: 2026-09-01
+================================================================================
+
+NOTE: This document supersedes CLAUDE.md §3.1–3.2 (the custom normal.rules
+approach). The project now uses the ET Open ruleset + threshold-based suppression
+instead of hand-written normality rules. CLAUDE.md §3.3–3.5, §3.6, and all other
+sections still stand. CLAUDE.md should be updated to reflect this change.
+
+================================================================================
+1. WHERE WE ARE — COMPLETED WORK
+================================================================================
+
+1.1 BASELINE PROFILING (COMPLETE)
+---------------------------------
+
+We followed a real SOC engineer workflow:
+  - Start with stock community ruleset (ET Open, 52,647 rules)
+  - Run benign traffic (Monday)
+  - Identify and suppress all false positives
+  - Verify baseline is clean
+  - Run attack traffic (Tuesday) and confirm real detections surface
+
+BASELINE DEFINITION (explicit decision):
+  Normal ≡ everything CIC-IDS2017 Monday triggered. 80 unconditional
+  suppressions in config/threshold.config. Consequence: any genuinely malicious
+  traffic present in the benign-labelled capture is defined as normal. Accepted
+  because Monday is the labelled benign corpus (529,918 flows, all BENIGN per
+  ground truth CSV). The alternative (per-IP suppression) needs asset context
+  we don't have yet.
+
+  TRIPWIRE: if a Tue–Fri detection is traced back to a Monday-suppressed SID,
+  revisit that suppression. Some suppressions are hypotheses, not certainties:
+    - SID 2400065 ET DROP Spamhaus DROP Inbound (7) — called "stale intel"
+    - SID 2018959 PE EXE/DLL download (1) — called "normal Windows updates"
+    - SID 2028795/2028780/2028782 JA3 adware (~6,100) — called "stale JA3"
+    - SID 2053892/2053893 polyfill.io (17) — called "benign"
+  These are defensible but unverified. Document this in the report.
+
+
+1.2 CONFIG CHANGES MADE
+------------------------
+
+File: config/suricata.yaml (copied from /etc/suricata/suricata.yaml, modified)
+
+  Change 1 — HOME_NET:
+    Before: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
+    After:  "[192.168.10.0/24]"
+    Why:    CIC-IDS2017 victims are 192.168.10.x. Old config included
+            172.16.0.0/12, which contains the attacker 172.16.0.1. This meant
+            ET rules checking $EXTERNAL_NET -> $HOME_NET would never match
+            attack traffic. Fix makes attacker correctly external.
+    STATUS: Verified for Monday and Tuesday only. Must verify per-day before
+            running Wednesday–Friday (see §3.1 PRE-FLIGHT).
+
+  Change 2 — Checksum validation:
+    Before: checksum-validation: yes
+    After:  checksum-validation: no
+    Why:    CIC-IDS2017 pcaps captured with NIC checksum offloading. Packets
+            have placeholder checksums (capture artifact). With validation on:
+            (a) 1.86M false checksum alerts
+            (b) ~16% of TCP traffic silently rejected from reassembly — the
+                app-layer rules (HTTP, TLS, DNS) never saw that data.
+            Disabling is standard practice for offline pcap replay.
+    Evidence: Run02→Run03 count deltas confirmed reassembly was broken:
+            - HTTP excessive headers: 5,593 → 7,172 (+28%)
+            - Kerberos weak encryption: 454 → 634 (+40%)
+            - HTTP response mismatch: 1,834 → 219 (-88%)
+            These shifts prove Suricata was seeing incomplete traffic in run02.
+
+  Change 3 — Local paths:
+    default-rule-path:    /home/bigyan/capstone-ids/rules
+    classification-file:  /home/bigyan/capstone-ids/config/classification.config
+    threshold-file:       /home/bigyan/capstone-ids/config/threshold.config
+
+
+1.3 FILES IN THE PROJECT
+--------------------------
+
+  config/
+    suricata.yaml           — project-local config with all changes above
+    classification.config   — copied from /var/lib/suricata/rules/
+    threshold.config        — 80 suppress lines, each with a reason comment
+
+  rules/
+    suricata.rules          — stock ET Open ruleset (52,647 rules), UNTOUCHED
+    normal.rules            — old approach, superseded (kept for history)
+    generated/              — empty, will hold LLM-authored rules
+
+  data/
+    pcaps/                  — CIC-IDS2017 full pcaps (gitignored, ~50GB total)
+      Monday-WorkingHours.pcap    (11 GB, benign only)
+      Tuesday-WorkingHours.pcap   (11 GB, FTP-Patator + SSH-Patator)
+      Wednesday-workingHours.pcap (13 GB, DoS attacks)
+      Thursday-WorkingHours.pcap  (7.8 GB, Web attacks + Infiltration)
+      Friday-WorkingHours.pcap    (8.3 GB, DDoS + PortScan + Botnet)
+    slices/                 — small cuts for fast iteration
+      monday-10k.pcap, monday-mid.pcap, test.pcap
+    labels/
+      TrafficLabelling/     — ground truth CSVs, last column is "Label"
+
+  logs/                     — run outputs, organised by what changed
+    run01/                  — first attempt, process killed before completion
+    run02/                  — full Monday, old checksum-validation:yes (BAD)
+    run03/                  — full Monday, checksum-validation:no (GOOD)
+    threshold-v1-suppress-all/  — Monday with all 68 suppressions → 0 alerts
+    tuesday-threshold-v1/       — Tuesday with Monday suppressions → 2,613 alerts
+    tuesday-threshold-v2/       — Tuesday with all 80 suppressions → 2,404 alerts
+
+  src/                      — EMPTY, pipeline code to be built
+    bundle/                 — context bundler (will build from jq queries)
+    llm/                    — LLM API calls and prompts
+    eval/                   — scoring against ground truth
+
+
+1.4 TUESDAY TRIAGE (MANUAL, COMPLETE)
+--------------------------------------
+
+Ground truth: 432,074 BENIGN + 7,938 FTP-Patator + 5,897 SSH-Patator
+
+After suppression: 2,404 alerts, 2 signatures:
+  - ET SCAN Potential FTP Brute-Force attempt response (SID 2002383): 2,373
+  - ET SCAN Potential SSH Scan (SID 2001219): 31
+
+FTP investigation (complete):
+  - Attacker: 172.16.0.1 → Victim: 192.168.10.50
+  - 11,891 failed logins (code 530), 1 successful login (code 230)
+  - Successful login at 2017-07-04T21:47:57
+  - Post-login: attacker checked system type (215), then continued brute-forcing
+  - Attacker did NOT exploit the access
+
+SSH investigation (INCOMPLETE):
+  - Attacker: 172.16.0.1 → Victim: 192.168.10.50
+  - 31 alerts, but 5,897 attack flows in ground truth
+  - Rule analysis: SID 2001219 has threshold (type both, track by_src, count 5,
+    seconds 120) AND only matches SYN packets to port 22 (flags:S,12).
+    It detects CONNECTION ATTEMPTS, not auth failures. There is no ET rule in
+    our set that detects "SSH auth failed repeatedly" the way SID 2002383 does
+    for FTP. This is a genuine coverage gap, not just rate limiting.
+  - UNFINISHED: Did the SSH brute-force succeed? Not checked yet.
+    Need to look at SSH events for 172.16.0.1 → 192.168.10.50 similar to
+    how we checked FTP completion codes.
+
+
+================================================================================
+2. DECISIONS MADE
+================================================================================
+
+2.1 APPROACH CHANGE
+  From: custom normal.rules (normality encoding, fire on negation)
+  To:   ET Open ruleset + threshold.config suppression
+  Why:  more practical, mirrors real SOC workflow, more defensible in report
+
+2.2 TOOL CHOICES
+  - Suricata 8.0.6 (OISF PPA)
+  - jq 1.7 for eve.json analysis
+  - Python 3 (in venv) for the pipeline
+  - Claude API (Opus 4.6 or Opus 5) for the LLM triage
+  - MCP (Model Context Protocol) for giving the model project access
+
+2.3 PROJECT DELIVERY MODEL
+  The project ships as an engine. Users bring their own:
+  - Pcap files
+  - Claude API key
+  Config is driven by suricata.yaml — swap rules/config, not code.
+
+2.4 PIPELINE DESIGN (AGREED, NOT YET BUILT)
+  Architecture:
+    Suricata → eve.json → MCP Server (Python) → Claude API → Web UI
+
+  The MCP server exposes tools:
+    - Query eve.json (jq-style queries)
+    - Read files (rules, config, assets.txt)
+    - Write files (threshold.config, new rules)
+    - Run suricata
+    - Read assets (destination context)
+    - Send report
+
+  The model uses these tools to do triage step-by-step, exactly as a human
+  analyst would. The web UI streams the model's actions in real-time so the
+  viewer can watch the triage happen live.
+
+  Two exits from triage (per CLAUDE.md §3.4):
+    - Threat → model writes a detection rule → validate → auto-deploy
+    - Legitimate unmodelled → model suggests suppress → human approval required
+
+
+================================================================================
+3. WHAT TO DO NEXT
+================================================================================
+
+3.1 PRE-FLIGHT: VERIFY HOME_NET FOR REMAINING DAYS
+---------------------------------------------------
+Before running Wednesday–Friday, check each day's IP addresses to confirm
+192.168.10.0/24 covers all internal hosts. CIC-IDS2017 topology may include
+addresses outside that /24, especially Thursday's infiltration scenario.
+
+Run per day (after initial suricata run produces eve.json):
+  jq -r 'select(.event_type=="flow") | .src_ip, .dest_ip' <eve.json> \
+    | sort -u | grep -v '^192\.168\.10\.'
+
+Anything that looks like lab infrastructure (not public internet) is a
+HOME_NET question. Add to HOME_NET if needed before the real analysis run.
+
+
+3.2 FINISH SSH INVESTIGATION
+-----------------------------
+Check if the SSH brute-force succeeded:
+  jq 'select(.event_type=="ssh" and .src_ip=="172.16.0.1")' \
+    logs/tuesday-threshold-v2/eve.json
+
+Look for successful authentication events. This was done for FTP (found 1
+successful login) but not completed for SSH.
+
+
+3.3 BUILD THE PIPELINE (src/)
+------------------------------
+Order of implementation:
+
+  Step 1: MCP Server skeleton
+    - Python project setup (venv, dependencies)
+    - MCP server with basic tool definitions
+    - Tool: query_eve_json — runs jq queries on eve.json
+    - Tool: read_file — reads any project file
+    - Tool: write_file — writes to threshold.config or rules/generated/
+    - Tool: run_suricata — runs suricata on a pcap with project config
+
+  Step 2: Claude API integration
+    - Connect MCP server to Claude API
+    - System prompt: "you are an IDS analyst, here are your tools, here is
+      the triage procedure"
+    - Agentic loop: model calls tools, gets results, continues until done
+
+  Step 3: Triage prompt engineering
+    - Encode the manual triage workflow as instructions
+    - Test on Tuesday (known answers) — does the model find the FTP brute-force?
+    - Iterate on prompt until model performs triage correctly
+
+  Step 4: Web UI
+    - Real-time streaming of model actions
+    - Show: alerts received, investigations, decisions, rules written
+    - Final report view for the engineer
+
+  Step 5: Test on Wednesday–Friday
+    - Run the pipeline on remaining attack days
+    - Compare AI triage decisions against ground truth
+    - Measure: what did it catch, what did it miss, how accurate were decisions
+
+
+3.4 EXPERIMENTS (from CLAUDE.md §4)
+-------------------------------------
+  Experiment 1: Does context matter?
+    Run same alerts with bare packet info vs full context bundle.
+    Score against ground truth. Either result is a finding.
+
+  Experiment 2: Are the authored rules any good?
+    For threats: does the LLM-written rule validate (suricata -T)?
+    Does it catch the attack on replay? Compare against ET rule.
+
+  Experiment 3: Does the profile converge?
+    Replay benign traffic over N cycles with normality-widening loop.
+    Does alert volume fall across iterations?
+
+
+================================================================================
+4. OPEN QUESTIONS (STILL UNDECIDED)
+================================================================================
+
+From CLAUDE.md §9, still relevant:
+
+  1. Human-in-the-loop asymmetry (§3.4): approve-normality / auto-deploy-
+     detection. Team has not formally adopted. Pipeline design will force
+     this decision.
+
+  2. Label join: CIC-IDS2017 ground truth is per-flow (keyed by IP tuple +
+     timestamp). Our alerts come from eve.json (keyed by IP + timestamp).
+     How cleanly these join is unknown until inspected. Experiment 1's
+     strength depends on this join quality. Must test before running
+     Experiment 1.
+
+  3. Network-based vs host-based IDS — not settled by supervisor.
+
+  4. Project charter — overdue, confirm if still required.
+
+
+================================================================================
+5. REPRODUCE COMMANDS
+================================================================================
+
+# Pull ET Open rules (one-time setup)
+sudo suricata-update
+
+# Copy rules into project (one-time)
+sudo cp /var/lib/suricata/rules/suricata.rules ~/capstone-ids/rules/
+sudo cp /var/lib/suricata/rules/classification.config ~/capstone-ids/config/
+sudo chown bigyan:bigyan ~/capstone-ids/rules/suricata.rules \
+                          ~/capstone-ids/config/classification.config
+
+# Run suricata on any pcap
+mkdir -p ~/capstone-ids/logs/<run-name>
+suricata -r ~/capstone-ids/data/pcaps/<file>.pcap \
+         -l ~/capstone-ids/logs/<run-name>/ \
+         -c ~/capstone-ids/config/suricata.yaml
+
+# Analyze alerts
+jq -c 'select(.event_type=="alert") | {sig: .alert.signature, sid: .alert.signature_id}' \
+  ~/capstone-ids/logs/<run-name>/eve.json | sort | uniq -c | sort -rn
+
+# Check ground truth labels
+awk -F',' '{print $NF}' ~/capstone-ids/data/labels/TrafficLabelling/<day>.pcap_ISCX.csv \
+  | sort | uniq -c
+
+# Verify HOME_NET coverage for a new day (pre-flight)
+jq -r 'select(.event_type=="flow") | .src_ip, .dest_ip' \
+  ~/capstone-ids/logs/<run-name>/eve.json | sort -u | grep -v '^192\.168\.10\.'
+
+
+================================================================================
+6. KEY LEARNINGS (for the report)
+================================================================================
+
+- Checksum offloading in pcaps is a known capture artifact. Disabling
+  checksum-validation is standard for offline replay. Without this fix,
+  ~16% of traffic was silently dropped from TCP reassembly.
+
+- HOME_NET misconfiguration can structurally blind the IDS. If the attacker
+  IP falls inside HOME_NET, rules checking $EXTERNAL_NET → $HOME_NET
+  never match. This is not a rule quality issue — it's a deployment issue.
+
+- The SSH detection gap (31 alerts for 5,897 attack flows) is NOT just rate
+  limiting. The ET SSH scan rule only matches SYN packets — it detects
+  connection attempts, not authentication failures. There is no ET rule
+  equivalent to the FTP brute-force response rule for SSH. This is a
+  genuine coverage gap in the ruleset.
+
+- Baseline definition matters: suppressing everything Monday triggers is a
+  defensible choice, but it must be documented as a decision, not assumed
+  as ground truth. Some suppressions (JA3, Spamhaus, polyfill) silence
+  potentially real observations.
+
+- The 11→76 signature jump between the 10k slice and full Monday is
+  explained by sample size (10k vs 11.7M packets), NOT by the HOME_NET
+  change. The HOME_NET fix's value is demonstrated by Tuesday's attack
+  attribution (172.16.0.1 correctly classified as external).
+
+================================================================================
+END OF PROJECT_STATE.txt
+================================================================================

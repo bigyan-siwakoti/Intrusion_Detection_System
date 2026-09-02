@@ -1,0 +1,439 @@
+================================================================================
+PROJECT_STATE_v2.txt — Capstone IDS (Group 13)
+Created: 2026-09-01
+Continues from: PROJECT_STATE.txt (v1)
+================================================================================
+
+This file captures everything built and learned since PROJECT_STATE.txt was
+written. v1 covered: baseline profiling, config changes, manual Tuesday
+investigation. v2 covers: SSH investigation conclusion, full AI triage
+pipeline build, test runs, discovered issues, and next steps.
+
+================================================================================
+1. COMPLETED SINCE v1
+================================================================================
+
+1.1 SSH INVESTIGATION — CONCLUDED
+----------------------------------
+
+FINDING: SSH brute-force success is INVISIBLE to a network-based IDS.
+
+What we checked:
+  jq 'select(.event_type=="ssh" and .src_ip=="172.16.0.1")' \
+    logs/tuesday-threshold-v2/eve.json
+
+What Suricata logs for SSH:
+  - ssh.client.software_version: "paramiko_2.0.0"
+  - ssh.server.software_version: "OpenSSH_7.2p2 Ubuntu-4ubuntu2.2"
+  - ssh.client.proto_version / ssh.server.proto_version: "2.0"
+
+What Suricata CANNOT log for SSH:
+  - Authentication result (success/failure) — encrypted inside the tunnel
+  - Username attempted — encrypted
+  - Number of auth attempts per connection — encrypted
+
+Contrast with FTP:
+  FTP sends completion codes in plaintext (530 = fail, 230 = success).
+  Suricata captures these in .ftp.completion_code and .ftp.command fields.
+  SSH auth is encrypted after key exchange — there is no equivalent field.
+
+Conclusion: This is a STRUCTURAL limitation of network-based IDS for
+encrypted protocols. It is not a Suricata bug or a rule gap. It means:
+  - We can detect SSH brute-force ATTEMPTS (SYN packets, paramiko fingerprint)
+  - We CANNOT determine if the brute-force SUCCEEDED
+  - This is a real finding for the report — the boundary of what network IDS
+    can see without TLS termination / host-based augmentation.
+
+
+1.2 AI TRIAGE PIPELINE — FULLY BUILT
+--------------------------------------
+
+Architecture (changed from MCP to direct tool use):
+  Suricata → eve.json → Python tools → Claude API (tool use) → Web UI (SSE)
+
+Why not MCP: The MCP approach would have added a layer of indirection.
+Direct tool use with Claude API is simpler and gives us fine-grained control
+over streaming events for the web UI. Same capability, less plumbing.
+
+FILES BUILT:
+
+  src/__init__.py          — package init
+  src/tools.py             — 7 tool functions with security controls
+  src/prompts.py           — system prompt (~3,300 chars, 6-step triage)
+  src/engine.py            — agentic loop with streaming, compaction, approval gate
+  src/cli.py               — terminal runner with colored output
+  src/server.py            — FastAPI SSE server
+  src/static/index.html    — real-time dark-themed web UI with export
+  requirements.txt         — anthropic, fastapi, uvicorn
+
+TOOL INVENTORY (src/tools.py):
+
+  Tool               Description                                 Security
+  ─────────────────────────────────────────────────────────────────────────
+  query_eve_json      jq queries on eve.json                     path-restricted
+  count_alerts        streaming signature aggregation             path-restricted
+  read_file           reads project files                         path-restricted
+  write_file          writes to config/threshold.config or        allowlist only
+                      rules/generated/*
+  append_to_file      appends to same writable paths              allowlist only
+  run_suricata        runs suricata -r with project config        10min timeout
+  list_directory      lists project directories                   path-restricted
+
+  Key design: WRITABLE_PATHS allowlist = [config/threshold.config, rules/generated/].
+  Model cannot modify suricata.rules, suricata.yaml, or any other file.
+
+ENGINE DESIGN (src/engine.py):
+
+  - Manual agentic loop (not tool runner) for fine-grained streaming control
+  - MAX_TURNS = 30 per triage session
+  - MAX_TOOL_RESULT_CHARS = 15,000 per tool result
+  - Streaming: yields event dicts (thinking, text, tool_call, tool_result,
+    suppress_proposal, usage, done, error) for UI consumption
+  - Adaptive thinking: thinking={"type": "adaptive"}
+  - Suppress approval gate: any write to threshold.config containing
+    "suppress" is blocked → yields suppress_proposal event → requires
+    approve_suppress callback to return True
+  - Conversation compaction: on 413 BadRequestError, _compact_messages()
+    trims tool results in older turns to 500 chars and drops thinking blocks
+  - Handles pause_turn stop_reason for long-running turns
+
+WEB UI (src/static/index.html):
+
+  - Dark-themed, real-time streaming via Server-Sent Events
+  - Controls: run selector (auto-populated from /api/runs), model selector
+    (Sonnet 5, Opus 5, Opus 4.6, Haiku 4.5), start/stop buttons
+  - Status bar: status, turn count, input/output token counters
+  - Event rendering:
+    - Thinking: dim, left-bordered, italic
+    - Text: green, streaming
+    - Tool calls: collapsible panels with input/output, auto-collapse >15 lines
+    - Suppress proposals: yellow warning box
+    - Done: green badge + rendered report (simple markdown→HTML)
+    - Errors: red bordered box
+  - Auto-scroll with scroll-position detection
+  - Export Log button: downloads full timestamped .txt transcript of entire
+    triage session (thinking, tool calls, results, report, token counts)
+
+
+1.3 TEST RUNS ON TUESDAY DATA
+-------------------------------
+
+Two triage runs completed on logs/tuesday-threshold-v2/eve.json (2,404 alerts).
+Same data. Same prompt. Same model (claude-sonnet-5). Different results.
+
+RUN 1 — CLI (src/cli.py):
+  - 19 turns, ~10 minutes
+  - Found FTP brute-force: 11,713 failures (code 530), 500 successes (code 230)
+  - Found SSH brute-force: 2,976 paramiko_2.0.0 connections
+  - Generated 4 rules: rules/generated/tuesday_bruteforce.rules
+    - SID 9000001: FTP repeated 530 failures threshold
+    - SID 9000002: FTP failure hostbit tracking
+    - SID 9000003: FTP success (230) after hostbit flagged failures
+    - SID 9000004: SSH paramiko client fingerprint threshold
+  - Used hostbit chaining (failure sets hostbit → success checks hostbit)
+  - Correctly identified attack window: FTP 21:49-22:50, SSH 02:39-03:40
+
+RUN 2 — Web UI:
+  - ~15 turns
+  - Found FTP brute-force: identified attack, but inferred from flow byte
+    counts instead of querying FTP completion codes directly
+  - Found SSH brute-force: identified paramiko connections
+  - Generated 2 rules: rules/generated/bruteforce_campaigns.rules
+    - SID 9500001: FTP brute-force campaign confirmed (threshold on "Login incorrect")
+    - SID 9500002: SSH campaign confirmed (SYN threshold over 1 hour)
+  - MISSED: FTP brute-force success — concluded "no evidence of successful
+    login" based on byte-count analysis instead of checking completion codes
+  - FALSE CLAIM: stated "FTP app-layer logging isn't enabled" — disproven by
+    the fact that event_type="ftp" queries returned results in both runs
+
+
+1.4 GENERATED RULES INVENTORY
+-------------------------------
+
+File: rules/generated/tuesday_bruteforce.rules (CLI run)
+  SID 9000001 — FTP Brute-Force repeated 530 failures      (threshold by_src, 10/120s)
+  SID 9000002 — FTP failure hostbit tracking                (hostbits:set, expire 600)
+  SID 9000003 — FTP success after failure (230 + hostbit)   (hostbits:isset, priority:1)
+  SID 9000004 — SSH paramiko client fingerprint             (threshold by_src, 5/60s)
+
+File: rules/generated/bruteforce_campaigns.rules (Web UI run)
+  SID 9500001 — FTP campaign confirmed (sustained 530s)     (threshold by_dst, 20/120s)
+  SID 9500002 — SSH campaign confirmed (sustained SYNs)     (threshold by_src, 10/3600s)
+
+STATUS: None of these have been validated with suricata -T or tested on
+replay. Validation is Experiment 2 (see §3.4).
+
+
+================================================================================
+2. DISCOVERED ISSUES — MUST FIX
+================================================================================
+
+2.1 LLM NON-DETERMINISM / TOOL-RESULT SHAPING
+-----------------------------------------------
+
+PROBLEM: Same prompt + same data → materially different triage conclusions.
+
+CLI run found FTP success via completion codes. Web run found "no evidence"
+via byte-count inference. The user noticed and asked why.
+
+DIAGNOSIS (from advisor review):
+
+  1. The two runs did NOT see identical data. Between runs, tools.py and
+     engine.py were patched (jq error capping, MAX_TOOL_RESULT_CHARS). The
+     web run hit a jq error early, got the syntax hint, and was shaped by
+     that interaction. Different tool surfaces → different reasoning paths.
+
+  2. LLM temperature is a factor, but the mechanical cause is more
+     interesting for the report: "identical prompt, identical model,
+     different tool-result shaping → materially different conclusions."
+     This is directly relevant to Experiment 1 (what context matters).
+
+  3. The prompt's Step 3 says "Look at the protocol details (FTP completion
+     codes, HTTP methods, SSH versions, etc.)" — this is a SUGGESTION,
+     not a MANDATE. The model can choose to skip it.
+
+
+2.2 FTP SUCCESS COUNT — UNVERIFIED
+------------------------------------
+
+Three different numbers exist for FTP brute-force successes:
+  - Manual investigation (v1):  1 successful login
+  - CLI triage run:            500 total (40 in attack window)
+  - Web UI triage run:         0 (no evidence)
+
+THESE CANNOT ALL BE RIGHT.
+
+The CLI run's "500" came from counting all FTP PASS commands with completion
+code 230 across the ENTIRE 8-hour capture, including benign iscxtap service
+traffic. The 40-in-window number may also include benign traffic.
+
+The manual investigation's "1" may have been filtered to the attacker IP.
+
+BLOCKING VERIFICATION NEEDED:
+  jq -c 'select(.event_type=="ftp" and .ftp.command=="PASS" and
+    (.ftp.completion_code|index("230")) and .src_ip=="172.16.0.1") |
+    .timestamp' logs/tuesday-threshold-v2/eve.json | sort | head -60
+
+If this returns nothing, retry with dest_ip=="172.16.0.1" (alert direction
+may differ from FTP event direction).
+
+This BLOCKS prompt improvement work — we cannot tune the prompt to get the
+"right" answer if we don't know what the right answer is.
+
+
+2.3 PROMPT NEEDS ATTACK-AGNOSTIC IMPROVEMENT
+----------------------------------------------
+
+DO NOT add "always check FTP completion codes" — that hardcodes Tuesday's
+answer. Wednesday is DoS (no FTP, no SSH). The fix must generalise.
+
+Advisor-recommended prompt addition (attack-agnostic):
+
+  "When determining whether an attack succeeded, prefer application-layer
+   protocol events (event_type of ftp, ssh, http, dns, etc.) over flow-level
+   byte counts. Before concluding a protocol's data is unavailable, list
+   which event_type values are present in the log and confirm. Never claim
+   a Suricata configuration setting is enabled or disabled without reading
+   config/suricata.yaml."
+
+This would have caught BOTH web-run errors:
+  1. Using byte counts instead of FTP completion codes
+  2. Claiming FTP app-layer logging was disabled
+
+
+2.4 JQ ERROR HANDLING — FIXED BUT WORTH DOCUMENTING
+-----------------------------------------------------
+
+INCIDENT: Model wrote jq queries using unique/unique_by/group_by on
+line-delimited JSON without slurping. This generates one error per line
+in eve.json (millions of lines). First time: crashed the session (tool
+result too large → 413 API error). Second time: error capping + hint
+worked, model recovered.
+
+FIXES APPLIED:
+  - jq stderr capped at 10 lines + syntax hint about streaming (tools.py)
+  - Tool results capped at 15,000 chars (engine.py)
+  - Conversation compaction on 413 errors (engine.py)
+
+POTENTIAL ADDITIONAL FIX (advisor suggestion):
+  Add a count_event_types tool that returns distinct event_type values with
+  counts. This is the orientation query both runs needed and neither could
+  express cleanly. Same reasoning that made count_alerts worth having.
+
+
+2.5 SUPPRESS APPROVAL GATE — UNTESTED EDGE CASE
+-------------------------------------------------
+
+The gate checks: "threshold.config" in file_path AND "suppress" in
+content.lower(). A proposal phrased without the word "suppress" (e.g.
+using "threshold" syntax instead) would bypass the gate. Not yet
+triggered in practice, but Wednesday's DoS volume may produce suppress
+proposals we haven't seen yet.
+
+
+================================================================================
+3. WHAT TO DO NEXT (ORDERED)
+================================================================================
+
+3.1 VERIFY FTP SUCCESS COUNT (BLOCKS EVERYTHING)
+  Run the jq command in §2.2. Establish the real number attributed to the
+  attacker IP. This determines whether the CLI run was right, the web run
+  was right, or neither was right.
+
+3.2 IMPROVE SYSTEM PROMPT (ATTACK-AGNOSTIC)
+  Apply the evidence-quality rule from §2.3 to src/prompts.py.
+  Optionally add a count_event_types tool to src/tools.py.
+
+3.3 RETEST ON TUESDAY
+  Run the improved prompt on the same Tuesday data. Compare against v1 runs.
+  If the model now consistently queries protocol-level events, the fix works.
+
+3.4 RUN WEDNESDAY (FIRST TRUE UNKNOWN TEST)
+  Before running:
+    a. Pre-flight: verify HOME_NET covers Wednesday's IP space
+    b. Write down expected outcome (CLAUDE.md §4 discipline clause)
+    c. Run suricata -r Wednesday pcap
+    d. Run AI triage on the output
+  Wednesday has DoS attacks — very different from Tuesday's brute-force.
+  Alert volume will be much higher. Expect the 15,000-char cap to bind
+  harder. Monitor for truncated-data reasoning.
+
+3.5 RUN THURSDAY AND FRIDAY
+  Thursday: Web attacks (XSS, SQL injection, brute-force) + Infiltration
+  Friday: DDoS + PortScan + Botnet
+
+3.6 EXPERIMENTS (from CLAUDE.md §4)
+  Experiment 1: bare packet vs full context bundle — score against ground truth
+  Experiment 2: validate generated rules (suricata -T, replay, compare to ET)
+  Experiment 3: profile convergence over N cycles on benign traffic
+
+
+================================================================================
+4. CURRENT FILE INVENTORY
+================================================================================
+
+  config/
+    suricata.yaml           — project-local config (HOME_NET, checksums, paths)
+    threshold.config        — 80 suppress lines, each with reason comment
+    classification.config   — copied from ET Open
+
+  rules/
+    suricata.rules          — stock ET Open ruleset (52,647 rules), UNTOUCHED
+    normal.rules            — old approach, superseded, kept for history
+    generated/
+      tuesday_bruteforce.rules      — CLI run output (SIDs 9000001–9000004)
+      bruteforce_campaigns.rules    — Web UI run output (SIDs 9500001–9500002)
+
+  src/
+    __init__.py             — package init
+    tools.py                — 7 tools with path security (13.3 KB)
+    prompts.py              — system prompt, 6-step triage procedure (3.4 KB)
+    engine.py               — agentic loop, streaming, compaction (7.6 KB)
+    cli.py                  — terminal runner with ANSI colors (3.6 KB)
+    server.py               — FastAPI + SSE endpoint (2.1 KB)
+    static/index.html       — web UI with live streaming + export log
+    bundle/                 — empty (context bundler, future)
+    eval/                   — empty (ground truth scoring, future)
+    llm/                    — empty (superseded by engine.py + prompts.py)
+
+  data/
+    pcaps/                  — full CIC-IDS2017 pcaps (gitignored)
+    slices/                 — small cuts for fast iteration
+    labels/TrafficLabelling/ — ground truth CSVs
+
+  logs/
+    run01/                  — first attempt (killed early)
+    run02/                  — Monday, checksum-validation:yes (BAD)
+    run03/                  — Monday, checksum-validation:no (GOOD)
+    threshold-v1-suppress-all/  — Monday with 68 suppressions → 0 alerts
+    tuesday-threshold-v1/   — Tuesday with Monday suppressions → 2,613 alerts
+    tuesday-threshold-v2/   — Tuesday with all 80 suppressions → 2,404 alerts
+    eve.json, fast.log etc  — leftover from a stale top-level run
+
+  Other:
+    PROJECT_STATE.txt       — v1 state document (this file continues it)
+    PROJECT_STATE_v2.txt    — this file
+    CLAUDE.md               — project instructions (updated for new approach)
+    requirements.txt        — anthropic, fastapi, uvicorn
+    .gitignore              — pcaps, logs, venv, __pycache__
+
+
+================================================================================
+5. REPRODUCE COMMANDS
+================================================================================
+
+# Setup Python environment
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+# Set API key
+export ANTHROPIC_API_KEY="sk-ant-..."
+
+# Run CLI triage on any eve.json
+python -m src.cli logs/tuesday-threshold-v2/eve.json --model claude-sonnet-5
+
+# Run web UI
+python -m uvicorn src.server:app --host 0.0.0.0 --port 8000
+# Then open http://localhost:8000
+
+# Run Suricata on a new day
+mkdir -p logs/<run-name>
+suricata -r data/pcaps/<Day>-WorkingHours.pcap \
+         -l logs/<run-name>/ \
+         -c config/suricata.yaml
+
+# Verify FTP success count (BLOCKING — run this next)
+jq -c 'select(.event_type=="ftp" and .ftp.command=="PASS" and
+  (.ftp.completion_code|index("230")) and .src_ip=="172.16.0.1") |
+  .timestamp' logs/tuesday-threshold-v2/eve.json | sort | head -60
+
+# Count alerts for any run
+jq -c 'select(.event_type=="alert") | {sig: .alert.signature, sid: .alert.signature_id}' \
+  logs/<run-name>/eve.json | sort | uniq -c | sort -rn
+
+
+================================================================================
+6. KEY LEARNINGS SINCE v1 (for the report)
+================================================================================
+
+- SSH auth results are encrypted. Network-based IDS can fingerprint the
+  client (paramiko_2.0.0) and count connections, but cannot determine if
+  a brute-force attack succeeded. This is a structural boundary of NIDS
+  without TLS termination. FTP is the opposite — plaintext protocol means
+  full visibility into auth outcomes.
+
+- Same prompt, same model, same data → different triage conclusions. The
+  mechanical cause is tool-result shaping: jq error recovery paths, output
+  truncation, and hint text all influence the model's reasoning chain.
+  This is a stronger and more defensible finding than "LLMs are
+  non-deterministic" and is directly relevant to Experiment 1.
+
+- jq queries on multi-GB eve.json files need streaming patterns. Using
+  slurp operators (unique, group_by, [., inputs]) on 700MB+ files either
+  times out or produces millions of error lines. Streaming (select + pipe
+  to sort | uniq -c) handles any size.
+
+- The suppress approval gate (human-in-the-loop for widening the profile)
+  works as designed. The model proposed suppress rules during triage; the
+  gate blocked the write and surfaced the proposal to the engineer.
+
+- Conversation compaction (trimming old tool results on 413 errors) is
+  essential for long triage sessions. Without it, a single bad jq query
+  that produces large error output can permanently crash the session.
+
+- A good tool surface matters more than a good prompt. The model's
+  reasoning quality depends heavily on what tools are available and what
+  their output looks like. count_alerts existing as a dedicated tool
+  (instead of requiring the model to construct a complex jq pipeline)
+  means the model reliably gets orientation data on turn 1.
+
+- Export/logging is essential for reproducibility and the report. The web
+  UI Export Log button captures the full transcript — every thinking block,
+  tool call, tool result, and final report — as a timestamped .txt file.
+  This is the evidence trail for the experiments.
+
+
+================================================================================
+END OF PROJECT_STATE_v2.txt
+================================================================================

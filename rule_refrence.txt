@@ -1,0 +1,82 @@
+Mandatory / near-mandatory
+Option	Purpose
+sid:N;	Signature ID, unique. Required. 1,000,000+ is your range
+msg:"...";	Human label. Becomes alert.signature in eve.json
+rev:N;	Revision, bump on every edit
+Metadata
+Option	Purpose
+classtype:name;	Category from classification.config, sets default priority
+priority:N;	1–255, lower = more urgent. Overrides classtype
+reference:type,value;	Link out — cve,2021-44228 or url,...
+metadata:key value, ...;	Free-form tags: created_at, mitre ids, etc.
+`target:src_ip	dest_ip;`
+Flow and state
+Option	Purpose
+flow:established;	Handshake done (TCP) / one packet each way (UDP)
+flow:to_server; to_client;	Direction of this packet within the flow
+flow:stateless;	Match regardless of flow state
+flow:not_established;	Before establishment
+flowbits:set,name;	Set a marker on the flow
+flowbits:isset,name;	Match only if marker set — chains rules together
+flowbits:noalert;	Match and set state but don't alert
+app-layer-protocol:failed;	Parsers tried, all failed. Your catch-all
+app-layer-protocol:!dns;	Identified as something other than DNS
+Packet-level
+Option	Purpose
+dsize:N; dsize:>100;	Payload size
+ttl:N;	IP time-to-live
+flags:S; flags:SA;	TCP flags — S=SYN, A=ACK, F=FIN, R=RST, P=PSH, U=URG
+itype: icode:	ICMP type and code
+ip_proto:N;	IP protocol number
+fragbits:	IP fragmentation flags
+id:N; seq:N; ack:N;	IP id, TCP sequence, TCP ack
+Content matching
+Option	Purpose
+content:"text";	Match bytes. Hex with pipes: `content:"
+content:!"text";	Negated — must NOT be present
+nocase;	Case-insensitive (modifies preceding content)
+depth:N;	Only look in first N bytes of buffer
+offset:N;	Start looking N bytes in
+distance:N;	At least N bytes after previous match
+within:N;	Within N bytes of previous match
+startswith;	Must be at buffer start
+endswith;	Must be at buffer end
+bsize:N;	Buffer is exactly N bytes
+pcre:"/regex/i";	Regex. Slow — always anchor with a content first
+byte_test: byte_jump: byte_extract:	Numeric operations on raw bytes
+Sticky buffers — set what content inspects
+Buffer	Contains
+http.uri http.uri.raw	Request URI
+http.method	GET, POST…
+http.host	Host header
+http.user_agent	UA string
+http.request_body http.response_body	Bodies
+http.header http.cookie http.stat_code	Headers, cookies, status
+dns.query	Queried name
+tls.sni tls.cert_subject tls.cert_issuer ja3.hash	TLS fields
+ssh.software ssh.proto	SSH banner
+smb.named_pipe smb.share	SMB
+file.data	File content crossing the wire
+file.name file.magic	Filename, type
+pkt_data	Reset to raw packet
+
+Everything after a buffer name applies to that buffer until the next one.
+
+Rate and volume
+Option	Purpose
+threshold: type limit, track by_src, count N, seconds M;	Alert at most N times per M sec — noise suppression
+threshold: type threshold, track by_src, count N, seconds M;	Alert only after N hits in M sec — volumetric detection
+threshold: type both, ...;	Both behaviours
+detection_filter: track by_src, count N, seconds M;	Match still happens, alerting gated
+
+track takes by_src, by_dst, by_rule, by_flow.
+
+Flow control
+Option	Purpose
+bypass;	Stop inspecting this flow entirely. Performance win, blindness cost
+noalert;	Match and act, but write no alert
+Logging
+Option	Purpose
+tag:session,N,packets;	Log following packets after a match
+xbits:	Like flowbits but persists across flows, keyed by host
+
