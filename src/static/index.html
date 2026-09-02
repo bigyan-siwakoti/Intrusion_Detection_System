@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IDS Triage Engine</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --border: #30363d;
+    --text: #e6edf3;
+    --text-dim: #8b949e;
+    --accent: #58a6ff;
+    --green: #3fb950;
+    --yellow: #d29922;
+    --red: #f85149;
+    --orange: #db6d28;
+    --purple: #bc8cff;
+    --font-mono: 'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, monospace;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .header .badge {
+    background: var(--accent);
+    color: var(--bg);
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .controls {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 12px 24px;
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+
+  select, button {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    cursor: pointer;
+  }
+
+  select:focus, button:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
+
+  button.primary {
+    background: var(--accent);
+    color: var(--bg);
+    border-color: var(--accent);
+    font-weight: 600;
+  }
+
+  button.primary:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  button.stop {
+    background: var(--red);
+    color: #fff;
+    border-color: var(--red);
+    font-weight: 600;
+  }
+
+  button.export {
+    background: var(--purple);
+    color: var(--bg);
+    border-color: var(--purple);
+    font-weight: 600;
+    margin-left: auto;
+  }
+
+  button.export:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .status-bar {
+    padding: 8px 24px;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    gap: 24px;
+  }
+
+  .status-bar .stat { display: flex; gap: 6px; }
+  .status-bar .label { color: var(--text-dim); }
+  .status-bar .value { color: var(--text); font-weight: 600; }
+
+  .main {
+    display: flex;
+    height: calc(100vh - 140px);
+  }
+
+  .stream-panel {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 24px;
+    scroll-behavior: smooth;
+  }
+
+  .event {
+    margin-bottom: 8px;
+    animation: fadeIn 0.15s ease-out;
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+  .event-thinking {
+    color: var(--text-dim);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 8px 12px;
+    background: rgba(139,148,158,0.05);
+    border-left: 2px solid var(--border);
+    border-radius: 0 4px 4px 0;
+    margin-bottom: 4px;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .event-text {
+    color: var(--text);
+    font-size: 14px;
+    line-height: 1.7;
+    padding: 8px 0;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .event-text h1, .event-text h2, .event-text h3 {
+    color: var(--accent);
+    margin-top: 16px;
+    margin-bottom: 8px;
+  }
+
+  .event-tool-call {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+    margin: 8px 0;
+  }
+
+  .tool-header {
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(88,166,255,0.08);
+    border-bottom: 1px solid var(--border);
+    cursor: pointer;
+  }
+
+  .tool-header .tool-icon {
+    color: var(--accent);
+    font-size: 13px;
+    font-weight: 700;
+  }
+
+  .tool-header .tool-name {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--accent);
+  }
+
+  .tool-header .tool-status {
+    margin-left: auto;
+    font-size: 11px;
+  }
+
+  .tool-body {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+
+  .tool-input {
+    padding: 8px 12px;
+    background: rgba(88,166,255,0.03);
+    border-bottom: 1px solid var(--border);
+    color: var(--text-dim);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .tool-output {
+    padding: 8px 12px;
+    color: var(--text);
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  .tool-output.truncated { color: var(--yellow); }
+
+  .event-suppress {
+    background: rgba(210,153,34,0.1);
+    border: 1px solid var(--yellow);
+    border-radius: 8px;
+    padding: 12px 16px;
+    margin: 12px 0;
+  }
+
+  .event-suppress .suppress-title {
+    color: var(--yellow);
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+
+  .event-suppress pre {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    background: var(--bg);
+    padding: 8px;
+    border-radius: 4px;
+    overflow-x: auto;
+  }
+
+  .event-done {
+    border-top: 2px solid var(--green);
+    margin-top: 24px;
+    padding-top: 16px;
+  }
+
+  .event-done .done-badge {
+    display: inline-block;
+    background: var(--green);
+    color: var(--bg);
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 13px;
+    margin-bottom: 12px;
+  }
+
+  .event-error {
+    background: rgba(248,81,73,0.1);
+    border: 1px solid var(--red);
+    border-radius: 8px;
+    padding: 12px 16px;
+    color: var(--red);
+    font-family: var(--font-mono);
+    font-size: 13px;
+  }
+
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    color: var(--text-dim);
+    text-align: center;
+    gap: 12px;
+  }
+
+  .welcome .big { font-size: 48px; }
+  .welcome p { max-width: 400px; line-height: 1.6; }
+
+  .spinner {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border: 2px solid var(--border);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .collapsed .tool-body { display: none; }
+  .collapsed .tool-header .caret { transform: rotate(-90deg); }
+  .caret { transition: transform 0.15s; font-size: 10px; color: var(--text-dim); }
+
+  /* Simple markdown-like rendering for the report */
+  .report-content h2 { font-size: 16px; color: var(--accent); border-bottom: 1px solid var(--border); padding-bottom: 4px; margin: 20px 0 8px; }
+  .report-content h3 { font-size: 14px; color: var(--purple); margin: 16px 0 6px; }
+  .report-content table { border-collapse: collapse; margin: 8px 0; font-size: 13px; }
+  .report-content th, .report-content td { border: 1px solid var(--border); padding: 4px 10px; text-align: left; }
+  .report-content th { background: var(--surface); color: var(--accent); }
+  .report-content strong { color: var(--green); }
+  .report-content code { font-family: var(--font-mono); background: var(--surface); padding: 1px 4px; border-radius: 3px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>IDS Triage Engine</h1>
+  <span class="badge">AI-Powered</span>
+</div>
+
+<div class="controls">
+  <label style="color: var(--text-dim); font-size: 13px;">Run:</label>
+  <select id="runSelect">
+    <option value="">Loading runs...</option>
+  </select>
+
+  <label style="color: var(--text-dim); font-size: 13px; margin-left: 8px;">Model:</label>
+  <select id="modelSelect">
+    <option value="claude-sonnet-5">Sonnet 5 (fast, cheaper)</option>
+    <option value="claude-opus-5">Opus 5 (best, pricier)</option>
+    <option value="claude-opus-4-6">Opus 4.6</option>
+    <option value="claude-haiku-4-5-20251001">Haiku 4.5 (cheapest)</option>
+  </select>
+
+  <button id="startBtn" class="primary" disabled>Start Triage</button>
+  <button id="stopBtn" class="stop" style="display:none;">Stop</button>
+  <button id="exportBtn" class="export" disabled>Export Log</button>
+</div>
+
+<div class="status-bar" id="statusBar">
+  <div class="stat"><span class="label">Status:</span> <span class="value" id="statusText">Ready</span></div>
+  <div class="stat"><span class="label">Turn:</span> <span class="value" id="turnCount">—</span></div>
+  <div class="stat"><span class="label">Input tokens:</span> <span class="value" id="inputTokens">—</span></div>
+  <div class="stat"><span class="label">Output tokens:</span> <span class="value" id="outputTokens">—</span></div>
+</div>
+
+<div class="main">
+  <div class="stream-panel" id="streamPanel">
+    <div class="welcome" id="welcomeMsg">
+      <div class="big">&#x1F6E1;</div>
+      <p>Select a Suricata run and click <strong>Start Triage</strong> to watch the AI analyst investigate alerts in real-time.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+const panel = document.getElementById('streamPanel');
+const runSelect = document.getElementById('runSelect');
+const modelSelect = document.getElementById('modelSelect');
+const startBtn = document.getElementById('startBtn');
+const stopBtn = document.getElementById('stopBtn');
+const exportBtn = document.getElementById('exportBtn');
+const statusText = document.getElementById('statusText');
+const turnCount = document.getElementById('turnCount');
+const inputTokens = document.getElementById('inputTokens');
+const outputTokens = document.getElementById('outputTokens');
+const welcomeMsg = document.getElementById('welcomeMsg');
+
+let eventSource = null;
+let currentThinkingEl = null;
+let currentTextEl = null;
+let autoScroll = true;
+
+// Event log for export
+let triageLog = [];
+let triageStartTime = null;
+let triageRunName = '';
+let triageModel = '';
+
+// Track scroll — stop auto-scroll if user scrolls up
+panel.addEventListener('scroll', () => {
+  const atBottom = panel.scrollHeight - panel.scrollTop - panel.clientHeight < 80;
+  autoScroll = atBottom;
+});
+
+function scrollToBottom() {
+  if (autoScroll) {
+    panel.scrollTop = panel.scrollHeight;
+  }
+}
+
+// Load available runs
+async function loadRuns() {
+  try {
+    const resp = await fetch('/api/runs');
+    const runs = await resp.json();
+    runSelect.innerHTML = '';
+    if (runs.length === 0) {
+      runSelect.innerHTML = '<option value="">No runs found in logs/</option>';
+      return;
+    }
+    runs.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r.eve_path;
+      opt.textContent = `${r.name} (${r.size_mb} MB)`;
+      runSelect.appendChild(opt);
+    });
+    startBtn.disabled = false;
+  } catch (e) {
+    runSelect.innerHTML = '<option value="">Error loading runs</option>';
+  }
+}
+
+function renderMarkdown(text) {
+  // Very simple markdown → HTML for the report
+  let html = text
+    .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+    .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/\n\n/g, '<br><br>')
+    .replace(/\n/g, '<br>');
+
+  // Simple table rendering
+  const tableRegex = /\|(.+)\|\n\|[-| ]+\|\n((?:\|.+\|\n?)+)/g;
+  html = html.replace(tableRegex, (match, headerRow, bodyRows) => {
+    const headers = headerRow.split('|').filter(c => c.trim()).map(c => `<th>${c.trim()}</th>`).join('');
+    const rows = bodyRows.trim().split('\n').map(row => {
+      const cells = row.split('|').filter(c => c.trim()).map(c => `<td>${c.trim()}</td>`).join('');
+      return `<tr>${cells}</tr>`;
+    }).join('');
+    return `<table><thead><tr>${headers}</tr></thead><tbody>${rows}</tbody></table>`;
+  });
+
+  return html;
+}
+
+function addEvent(html) {
+  const div = document.createElement('div');
+  div.className = 'event';
+  div.innerHTML = html;
+  panel.appendChild(div);
+  scrollToBottom();
+  return div;
+}
+
+function startTriage() {
+  const evePath = runSelect.value;
+  const model = modelSelect.value;
+  if (!evePath) return;
+
+  // Clear panel and log
+  panel.innerHTML = '';
+  welcomeMsg?.remove();
+  currentThinkingEl = null;
+  currentTextEl = null;
+  autoScroll = true;
+  triageLog = [];
+  triageStartTime = new Date();
+  triageRunName = runSelect.options[runSelect.selectedIndex].textContent;
+  triageModel = model;
+  exportBtn.disabled = true;
+
+  startBtn.disabled = true;
+  startBtn.style.display = 'none';
+  stopBtn.style.display = '';
+  statusText.textContent = 'Running';
+  statusText.style.color = 'var(--accent)';
+  turnCount.textContent = '—';
+  inputTokens.textContent = '—';
+  outputTokens.textContent = '—';
+
+  eventSource = new EventSource(`/api/triage?eve_path=${encodeURIComponent(evePath)}&model=${encodeURIComponent(model)}`);
+
+  eventSource.onmessage = (e) => {
+    const event = JSON.parse(e.data);
+    handleEvent(event);
+  };
+
+  eventSource.onerror = () => {
+    eventSource.close();
+    statusText.textContent = 'Disconnected';
+    statusText.style.color = 'var(--red)';
+    startBtn.disabled = false;
+    startBtn.style.display = '';
+    stopBtn.style.display = 'none';
+  };
+}
+
+function stopTriage() {
+  if (eventSource) {
+    eventSource.close();
+    eventSource = null;
+  }
+  statusText.textContent = 'Stopped';
+  statusText.style.color = 'var(--yellow)';
+  startBtn.disabled = false;
+  startBtn.style.display = '';
+  stopBtn.style.display = 'none';
+}
+
+function handleEvent(event) {
+  const t = event.type;
+
+  // Log every event with timestamp
+  triageLog.push({ ...event, _ts: new Date().toISOString() });
+
+  if (t === 'thinking_start') {
+    currentTextEl = null;
+    currentThinkingEl = addEvent('<div class="event-thinking"></div>').querySelector('.event-thinking');
+  }
+  else if (t === 'thinking' && currentThinkingEl) {
+    currentThinkingEl.textContent += event.text;
+    scrollToBottom();
+  }
+  else if (t === 'text_start') {
+    currentThinkingEl = null;
+    currentTextEl = addEvent('<div class="event-text"></div>').querySelector('.event-text');
+  }
+  else if (t === 'text' && currentTextEl) {
+    currentTextEl.textContent += event.text;
+    scrollToBottom();
+  }
+  else if (t === 'tool_call') {
+    currentThinkingEl = null;
+    currentTextEl = null;
+    const inputStr = JSON.stringify(event.input, null, 2);
+    const id = `tool-${event.tool_use_id}`;
+    addEvent(`
+      <div class="event-tool-call" id="${id}">
+        <div class="tool-header" onclick="this.parentElement.classList.toggle('collapsed')">
+          <span class="caret">&#9660;</span>
+          <span class="tool-icon">&#9654;</span>
+          <span class="tool-name">${escapeHtml(event.name)}</span>
+          <span class="tool-status"><span class="spinner"></span> running</span>
+        </div>
+        <div class="tool-body">
+          <div class="tool-input">${escapeHtml(inputStr)}</div>
+        </div>
+      </div>
+    `);
+  }
+  else if (t === 'tool_result') {
+    const id = `tool-${event.tool_use_id}`;
+    const el = document.getElementById(id);
+    if (el) {
+      const body = el.querySelector('.tool-body');
+      const status = el.querySelector('.tool-status');
+      const isTruncated = event.output.includes('[TRUNCATED');
+      body.innerHTML += `<div class="tool-output ${isTruncated ? 'truncated' : ''}">${escapeHtml(event.output)}</div>`;
+      status.innerHTML = '<span style="color: var(--green);">&#10003; done</span>';
+      // Auto-collapse large results
+      if (event.output.split('\n').length > 15) {
+        el.classList.add('collapsed');
+      }
+    }
+  }
+  else if (t === 'suppress_proposal') {
+    addEvent(`
+      <div class="event-suppress">
+        <div class="suppress-title">&#9888; Suppress Proposal — Requires Approval</div>
+        <p style="color: var(--text-dim); margin-bottom: 8px;">File: ${escapeHtml(event.file_path)}</p>
+        <pre>${escapeHtml(event.content)}</pre>
+      </div>
+    `);
+  }
+  else if (t === 'usage') {
+    turnCount.textContent = event.turn;
+    inputTokens.textContent = event.input_tokens.toLocaleString();
+    outputTokens.textContent = event.output_tokens.toLocaleString();
+  }
+  else if (t === 'done') {
+    const reportHtml = renderMarkdown(event.report);
+    addEvent(`
+      <div class="event-done">
+        <div class="done-badge">TRIAGE COMPLETE</div>
+        <div class="report-content">${reportHtml}</div>
+      </div>
+    `);
+    statusText.textContent = 'Complete';
+    statusText.style.color = 'var(--green)';
+    startBtn.disabled = false;
+    startBtn.style.display = '';
+    stopBtn.style.display = 'none';
+    exportBtn.disabled = false;
+    if (eventSource) { eventSource.close(); eventSource = null; }
+  }
+  else if (t === 'error') {
+    addEvent(`<div class="event-error">Error: ${escapeHtml(event.message)}</div>`);
+    statusText.textContent = 'Error';
+    statusText.style.color = 'var(--red)';
+    startBtn.disabled = false;
+    startBtn.style.display = '';
+    stopBtn.style.display = 'none';
+    exportBtn.disabled = false;
+    if (eventSource) { eventSource.close(); eventSource = null; }
+  }
+  else if (t === 'stream_end') {
+    if (eventSource) { eventSource.close(); eventSource = null; }
+    if (statusText.textContent === 'Running') {
+      statusText.textContent = 'Complete';
+      statusText.style.color = 'var(--green)';
+    }
+    startBtn.disabled = false;
+    startBtn.style.display = '';
+    stopBtn.style.display = 'none';
+    exportBtn.disabled = false;
+  }
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function exportLog() {
+  if (triageLog.length === 0) return;
+
+  const lines = [];
+  const endTime = new Date();
+  const durationSec = Math.round((endTime - triageStartTime) / 1000);
+  const durationMin = Math.floor(durationSec / 60);
+  const durationRemSec = durationSec % 60;
+
+  // Header
+  lines.push('=' .repeat(72));
+  lines.push('IDS TRIAGE ENGINE — SESSION TRANSCRIPT');
+  lines.push('='.repeat(72));
+  lines.push(`Run:      ${triageRunName}`);
+  lines.push(`Model:    ${triageModel}`);
+  lines.push(`Started:  ${triageStartTime.toISOString()}`);
+  lines.push(`Ended:    ${endTime.toISOString()}`);
+  lines.push(`Duration: ${durationMin}m ${durationRemSec}s`);
+
+  // Find final usage
+  const usageEvents = triageLog.filter(e => e.type === 'usage');
+  if (usageEvents.length > 0) {
+    const last = usageEvents[usageEvents.length - 1];
+    lines.push(`Turns:    ${last.turn}`);
+    lines.push(`Tokens:   ${last.input_tokens.toLocaleString()} input / ${last.output_tokens.toLocaleString()} output`);
+  }
+  lines.push('='.repeat(72));
+  lines.push('');
+
+  // Build the transcript
+  let currentThinking = '';
+  let currentText = '';
+  let turnNum = 0;
+  // Map tool_use_id → {name, input, output}
+  const toolMap = {};
+
+  for (const ev of triageLog) {
+    if (ev.type === 'thinking_start') {
+      if (currentText) {
+        lines.push('[AGENT TEXT]');
+        lines.push(currentText.trim());
+        lines.push('');
+        currentText = '';
+      }
+      currentThinking = '';
+    }
+    else if (ev.type === 'thinking') {
+      currentThinking += ev.text;
+    }
+    else if (ev.type === 'text_start') {
+      if (currentThinking) {
+        lines.push('[THINKING]');
+        lines.push(currentThinking.trim());
+        lines.push('');
+        currentThinking = '';
+      }
+      currentText = '';
+    }
+    else if (ev.type === 'text') {
+      currentText += ev.text;
+    }
+    else if (ev.type === 'tool_call') {
+      // Flush any pending text
+      if (currentThinking) {
+        lines.push('[THINKING]');
+        lines.push(currentThinking.trim());
+        lines.push('');
+        currentThinking = '';
+      }
+      if (currentText) {
+        lines.push('[AGENT TEXT]');
+        lines.push(currentText.trim());
+        lines.push('');
+        currentText = '';
+      }
+      toolMap[ev.tool_use_id] = { name: ev.name, input: ev.input };
+      lines.push('-'.repeat(72));
+      lines.push(`[TOOL CALL] ${ev.name}`);
+      lines.push(JSON.stringify(ev.input, null, 2));
+    }
+    else if (ev.type === 'tool_result') {
+      lines.push(`[TOOL RESULT] ${ev.name}`);
+      lines.push(ev.output);
+      lines.push('-'.repeat(72));
+      lines.push('');
+    }
+    else if (ev.type === 'suppress_proposal') {
+      lines.push('*'.repeat(72));
+      lines.push('[SUPPRESS PROPOSAL — REQUIRES APPROVAL]');
+      lines.push(`File: ${ev.file_path}`);
+      lines.push(ev.content);
+      lines.push('*'.repeat(72));
+      lines.push('');
+    }
+    else if (ev.type === 'usage') {
+      turnNum = ev.turn;
+      lines.push(`--- Turn ${ev.turn} | ${ev.input_tokens.toLocaleString()} in / ${ev.output_tokens.toLocaleString()} out ---`);
+      lines.push('');
+    }
+    else if (ev.type === 'done') {
+      if (currentText) {
+        lines.push('[AGENT TEXT]');
+        lines.push(currentText.trim());
+        lines.push('');
+        currentText = '';
+      }
+      lines.push('');
+      lines.push('='.repeat(72));
+      lines.push('FINAL TRIAGE REPORT');
+      lines.push('='.repeat(72));
+      lines.push(ev.report);
+    }
+    else if (ev.type === 'error') {
+      lines.push(`[ERROR] ${ev.message}`);
+      lines.push('');
+    }
+  }
+
+  // Flush remaining
+  if (currentThinking) {
+    lines.push('[THINKING]');
+    lines.push(currentThinking.trim());
+    lines.push('');
+  }
+  if (currentText) {
+    lines.push('[AGENT TEXT]');
+    lines.push(currentText.trim());
+    lines.push('');
+  }
+
+  // Download
+  const blob = new Blob([lines.join('\n')], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const dateStr = triageStartTime.toISOString().slice(0, 19).replace(/[T:]/g, '-');
+  a.href = url;
+  a.download = `triage-${dateStr}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+startBtn.addEventListener('click', startTriage);
+stopBtn.addEventListener('click', stopTriage);
+exportBtn.addEventListener('click', exportLog);
+loadRuns();
+</script>
+
+</body>
+</html>
