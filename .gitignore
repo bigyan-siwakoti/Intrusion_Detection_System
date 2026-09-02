@@ -1,5 +1,21 @@
+# Large data files — download from CIC-IDS2017
 data/pcaps/
 data/slices/
+data/labels/
+
+# Suricata run outputs
 logs/
-__pycache__/
+
+# ET Open ruleset — regenerate with: suricata-update
+rules/suricata.rules
+config/classification.config
+
+# Python
+venv/
 .venv/
+__pycache__/
+*.pyc
+
+# Secrets
+*.env
+capstone-ids_apis.txt
