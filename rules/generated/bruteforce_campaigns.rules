@@ -1,0 +1,26 @@
+# =============================================================================
+# Custom aggregate/confirmation rules for brute-force campaigns
+# Written after triage of logs/tuesday-threshold-v2/eve.json
+#
+# Context: ET SCAN sigs 2002383 (FTP Brute-Force attempt response) and
+# 2001219 (Potential SSH Scan) fired thousands of times against victim
+# 192.168.10.50 from known attacker 172.16.0.1 (confirmed true positives —
+# FTP-Patator / SSH-Patator style brute force). The ET rules already alert
+# per-attempt, which is correct but noisy (2,373 FTP alerts). These rules
+# add a higher-fidelity "campaign confirmed" alert that fires once a volume
+# threshold is crossed, to help prioritize triage without replacing the
+# underlying per-attempt detections.
+# =============================================================================
+
+# FTP brute-force campaign confirmed: many "Login incorrect" responses sent
+# from a HOME_NET FTP server to the same remote host in a short window.
+# Tuned from observed traffic: attacker received failure responses at
+# ~30/minute for over an hour (2,373 total responses across 1,928 flows).
+alert tcp $HOME_NET 21 -> $EXTERNAL_NET any (msg:"CUSTOM FTP Brute-Force Campaign Confirmed - sustained login failures to single remote host"; flow:established,to_client; content:"Login incorrect"; nocase; threshold: type threshold, track by_dst, count 20, seconds 120; classtype:attempted-recon; sid:9500001; rev:1;)
+
+# SSH brute-force campaign confirmed: sustained low-and-slow SSH connection
+# attempts from a single external host against a HOME_NET SSH server.
+# Tuned from observed traffic: attacker made 31 distinct connection
+# attempts to port 22 spaced ~2 minutes apart over ~62 minutes (evasive,
+# below typical fast-scan thresholds but clearly a sustained campaign).
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"CUSTOM SSH Brute-Force Campaign Confirmed - sustained connection attempts over time"; flow:to_server; flags:S; threshold: type threshold, track by_src, count 10, seconds 3600; classtype:attempted-recon; sid:9500002; rev:1;)

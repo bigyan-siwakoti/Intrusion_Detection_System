@@ -1,0 +1,47 @@
+# Custom detection rules — Tuesday brute-force campaign (172.16.0.1 -> 192.168.10.50)
+# Confirmed via triage of logs/tuesday-threshold-v2/eve.json
+#
+# CORRECTION (this triage pass): a prior version of this file's comment block
+# stated "500 successes (230)" for the FTP campaign. Re-verified directly against
+# eve.json with a src_ip=172.16.0.1 filter on event_type=ftp:
+#   - completion_code 530 (Login incorrect): 11,891 events
+#   - completion_code 230 (Login successful): 1 event only
+# The single success occurred at 2017-07-04T21:47:57 using USER=iscxtap PASS=1234,
+# BEFORE the large dictionary run (11,891 subsequent failed PASS attempts with the
+# same username against a rotating password list, 21:49-22:52). Post-login activity
+# on that one successful session was limited to a single SYST command; the session
+# then idled and was closed by the server with "421 Timeout" ~5 minutes later — no
+# RETR/STOR/LIST or other file activity observed. Numbers below corrected accordingly.
+#
+# Findings:
+#  - FTP-Patator style brute force: 172.16.0.1 -> 192.168.10.50:21, username "iscxtap"
+#    reused across ~11,892 login attempts (21:47-22:52, filter: src_ip=172.16.0.1 and
+#    event_type=ftp and ftp.command=="PASS"). 11,891 failures (530), 1 success (230).
+#    Existing ET SCAN sid 2002383 fires on generic FTP responses (2,373 alerts, matches
+#    count_alerts output for this eve.json) but does not distinguish failure-flood from
+#    successful-login-after-brute-force, which is the higher-value signal.
+#  - SSH-Patator style brute force: 172.16.0.1 -> 192.168.10.50:22, client software
+#    "paramiko_2.0.0" (Python SSH library used by brute-force tools, e.g. Patator/
+#    Hydra modules) across 2,979 ssh app-layer events / 2,980 flows to port 22
+#    (filter: src_ip=172.16.0.1 and event_type=ssh, 02:39-03:40). Existing ET SCAN sid
+#    2001219 only fired 31 times due to its internal by_src threshold, undercounting
+#    the true scale of the campaign by two orders of magnitude. paramiko client
+#    fingerprint is a high-fidelity indicator since legitimate admin/monitoring
+#    traffic on this network uses JSCH (Java) or OpenSSH clients, not paramiko.
+#    SSH is encrypted so auth outcome cannot be confirmed from ssh.software/banner
+#    fields alone; flow byte-size comparison across the 2,980 sessions to port 22
+#    showed no standout large/long session, i.e. no direct evidence of a successful
+#    interactive session in this capture, but this is inferential, not a protocol-
+#    level confirmation.
+
+# --- FTP brute force: flag source after repeated authentication failures ---
+alert ftp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"CUSTOM FTP Brute-Force - Repeated Authentication Failures (530) From Single Source"; flow:established,to_client; ftp.completion_code; content:"530"; threshold: type threshold, track by_src, count 10, seconds 120; classtype:attempted-recon; sid:9000001; rev:1;)
+
+# --- FTP brute force: track failure state per attacker host ---
+alert ftp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"CUSTOM FTP Brute-Force - Failure Tracking Hostbit Set"; flow:established,to_client; ftp.completion_code; content:"530"; threshold: type threshold, track by_src, count 5, seconds 120; hostbits:set,ftp_bruteforce_src,src,expire 600; classtype:attempted-recon; sid:9000002; rev:1;)
+
+# --- FTP brute force success: successful login (230) from a host already flagged for failures ---
+alert ftp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"CUSTOM FTP Brute-Force SUCCESS - Login Granted After Repeated Failures From Same Source"; flow:established,to_client; ftp.completion_code; content:"230"; hostbits:isset,ftp_bruteforce_src,src; classtype:successful-user; sid:9000003; rev:1; priority:1;)
+
+# --- SSH brute force tool fingerprint: paramiko client library connecting repeatedly ---
+alert ssh $EXTERNAL_NET any -> $HOME_NET 22 (msg:"CUSTOM SSH Brute-Force Tool - Paramiko Library Client (Patator/Hydra-style)"; flow:to_server,established; ssh.software; content:"paramiko"; nocase; threshold: type threshold, track by_src, count 5, seconds 60; classtype:attempted-recon; sid:9000004; rev:1;)
