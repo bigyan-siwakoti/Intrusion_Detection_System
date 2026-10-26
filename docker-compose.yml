@@ -1,0 +1,33 @@
+# triage.bigyan.work — runs next to fairfix on the same VM.
+#
+# fairfix's Caddy container owns ports 80/443 and handles HTTPS. This service publishes NO ports: it joins fairfix's
+# Docker network so Caddy can reach it as "triage:8000" (block in fairfix's deploy/Caddyfile).
+#
+# On the server:  ~/triage       = git clone of this repo (updated by GitHub Actions)
+#                 ~/triage/.env  = DEEPSEEK_API_KEY=...   (created by hand, never committed)
+#                 ~/triage-data  = data bundle copied once with scp (rulesets, NVD copy, capture slices, report)
+services:
+  triage:
+    build: .
+    container_name: triage
+    restart: unless-stopped
+    env_file: .env
+    environment:
+      TRIAGE_PUBLIC: "1"
+      DEMO_MODEL: deepseek-v4-pro
+    volumes:
+      - ${DATA_DIR:-../triage-data}/suricata.rules:/home/bigyan/capstone-ids/rules/suricata.rules:ro
+      - ${DATA_DIR:-../triage-data}/extra:/home/bigyan/capstone-ids/rules/extra:ro
+      - ${DATA_DIR:-../triage-data}/classification.config:/home/bigyan/capstone-ids/config/classification.config:ro
+      - ${DATA_DIR:-../triage-data}/kb:/home/bigyan/capstone-ids/data/kb:ro
+      - ${DATA_DIR:-../triage-data}/slices:/home/bigyan/capstone-ids/data/slices:ro
+      - ${DATA_DIR:-../triage-data}/report:/home/bigyan/capstone-ids/demo/report:ro
+      - ${DATA_DIR:-../triage-data}/runs:/home/bigyan/capstone-ids/demo-runs
+    mem_limit: 1500m
+    cpus: 1.5
+    networks:
+      - fairfix_default
+
+networks:
+  fairfix_default:
+    external: true

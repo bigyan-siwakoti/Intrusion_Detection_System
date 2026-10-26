@@ -1,0 +1,69 @@
+{
+  "capture": "data/pcaps/unsw/3.pcap",
+  "replay_seconds": 20,
+  "examples": [
+    {
+      "sid": 7799001,
+      "rule": "smtp $EXTERNAL_NET -> $HOME_NET content:\"MAIL FROM\"",
+      "kind": "topology",
+      "as_written": {
+        "ext->int": 173,
+        "int->int": 0
+      },
+      "widened": {
+        "ext->int": 173,
+        "int->int": 1668
+      },
+      "verdict": "FAIL"
+    },
+    {
+      "sid": 7799002,
+      "rule": "http $EXTERNAL_NET -> $HOME_NET http.uri content:\"../\"",
+      "kind": "behavioural",
+      "as_written": {
+        "ext->int": 10,
+        "int->int": 0
+      },
+      "widened": {
+        "ext->int": 10,
+        "int->int": 0
+      },
+      "verdict": "PASS"
+    }
+  ],
+  "protocol_records_by_source_role_capture3": {
+    "dns": {
+      "internal_client": 14502,
+      "external": 2632
+    },
+    "ftp": {
+      "internal_client": 8581,
+      "external": 644
+    },
+    "http": {
+      "internal_client": 6303,
+      "external": 1277
+    },
+    "pop3": {
+      "internal_client": 0,
+      "external": 352
+    },
+    "sip": {
+      "internal_client": 0,
+      "external": 342
+    },
+    "smb": {
+      "internal_client": 0,
+      "external": 321
+    },
+    "smtp": {
+      "internal_client": 3005,
+      "external": 297
+    },
+    "ssh": {
+      "internal_client": 1223,
+      "external": 2
+    }
+  },
+  "note": "Source role by subnet: 59.166.0.0/24 internal clients (normal per testbed docs); external = outside HOME_NET. Records from server hosts (149.171.126.x, responses) excluded."
+}

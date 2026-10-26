@@ -1,0 +1,373 @@
+================================================================================
+POST AI INTEGRATION PROJECT STATE — Capstone IDS (Group 13)
+Last updated: 2026-09-04
+================================================================================
+
+This document supersedes PROJECT_STATE.txt. It reflects the state of the project
+after the AI triage engine was built, integrated, and tested on Tuesday and
+Wednesday attack days.
+
+================================================================================
+1. WHAT HAS BEEN BUILT
+================================================================================
+
+1.1 AI TRIAGE ENGINE (COMPLETE)
+-------------------------------
+
+Architecture:
+  Suricata (pcap) --> eve.json --> AI Triage Engine --> Rules + Suppress Proposals
+                                       |
+                                   Web UI (live stream)
+
+The engine is ~1,075 lines of Python across 6 files in src/:
+
+  src/engine.py      (133 lines)  Agentic triage loop. Provider-agnostic.
+                                  Sends messages, executes tool calls, handles
+                                  streaming, enforces safety gate (suppress
+                                  proposals need human approval). MAX_TURNS=100.
+
+  src/tools.py       (380 lines)  8 tools the AI can use:
+                                    - query_eve_json: run jq on eve.json
+                                    - count_alerts: group alerts by signature
+                                    - count_by: generic NDJSON aggregation
+                                    - read_file: read any project file
+                                    - write_file: write to threshold.config
+                                                  or rules/generated/
+                                    - append_to_file: append to writable files
+                                    - run_suricata: run Suricata on a pcap
+                                    - list_directory: list files with sizes
+
+  src/providers.py   (319 lines)  Provider adapters for Claude (Anthropic API)
+                                  and DeepSeek (OpenAI-compatible API). Same
+                                  triage loop, swappable model backend. Handles
+                                  streaming, tool call format conversion,
+                                  context compaction.
+
+  src/prompts.py     (79 lines)   System prompt with 6-step triage procedure:
+                                  1. Big picture (count_alerts)
+                                  2. Categorise signatures
+                                  3. Investigate potential attacks
+                                  4. Deep-dive on confirmed attacks
+                                  5. Take action (rules or suppress proposals)
+                                  6. Write report
+
+  src/server.py      (72 lines)   FastAPI web server. SSE streaming to browser.
+                                  Serves the web UI and handles triage requests.
+
+  src/cli.py         (92 lines)   CLI runner. Alternative to web UI.
+                                  Outputs triage to terminal with timestamps.
+
+  src/static/index.html           Web UI. Model dropdown (Claude Opus 5,
+                                  DeepSeek V3), run selector, real-time triage
+                                  streaming, export to text file.
+
+KEY DESIGN DECISIONS IN THE ENGINE:
+  - Provider adapter pattern: same loop for all models = fair comparison
+  - count_by tool: solves NDJSON aggregation problem that caused DeepSeek to
+    fail (group_by/min_by/max_by don't work on streaming JSON). Uses Python
+    collections.Counter, no shell injection risk.
+  - Safety asymmetry: detection rules auto-deploy to rules/generated/,
+    suppress proposals are shown to engineer and blocked until approved.
+  - Tool results capped: 15K chars for Claude, 8K for DeepSeek (smaller
+    context window). Truncation hints point to count_by.
+
+
+1.2 BASELINE PROFILING (COMPLETE — unchanged from PROJECT_STATE.txt)
+--------------------------------------------------------------------
+
+  - ET Open ruleset: 52,647 community rules
+  - Monday (benign) baseline: 80 suppressions in config/threshold.config
+  - Baseline definition: normal = everything Monday triggered
+  - Tripwire SIDs documented (JA3, Spamhaus, polyfill, PE download)
+
+
+1.3 CONFIG CHANGES (unchanged from PROJECT_STATE.txt)
+------------------------------------------------------
+
+  - HOME_NET: 192.168.10.0/24 (CIC-IDS2017 victims)
+  - Checksum validation: disabled (pcap capture artifact)
+  - Local paths for rules, config, threshold
+  - rule-files now includes generated/*.rules files
+
+
+================================================================================
+2. TRIAGE RESULTS
+================================================================================
+
+2.1 TUESDAY — FTP-Patator + SSH-Patator
+-----------------------------------------
+
+Ground truth: 432,074 BENIGN + 7,938 FTP-Patator + 5,897 SSH-Patator
+After suppression: 2,404 alerts, 2 signatures
+
+FINDINGS (both models found the same things):
+  - FTP brute force: 172.16.0.1 --> 192.168.10.50:21
+    - Username: iscxtap (single username, password dictionary)
+    - 11,891 failed logins (530), 1 success (230) with password "1234"
+    - Post-login: SYST only, then timeout. No exfiltration.
+    - Weak default credential confirmed (internal hosts use same account)
+  - SSH brute force: 172.16.0.1 --> 192.168.10.50:22
+    - Client: paramiko_2.0.0 (attack tool fingerprint)
+    - ~2,980 flows over 02:39-03:40
+    - 31 alerts (SID 2001219 undercounts due to SYN-only + threshold)
+    - Login outcome: unconfirmed (encrypted, no auth_success logged)
+
+AI-AUTHORED RULES (Tuesday):
+
+  rules/generated/bruteforce_campaigns.rules (Claude):
+    SID 9500001 — FTP campaign confirmed (20+ failures in 120s to same dest)
+    SID 9500002 — SSH campaign confirmed (10+ SYN in 3600s from same src)
+
+  rules/generated/tuesday_bruteforce.rules (DeepSeek):
+    SID 9000001 — FTP repeated 530 failures (10 in 120s)
+    SID 9000002 — FTP hostbit tracking (flags attacker IP after 5 failures)
+    SID 9000003 — FTP success after failures (230 from flagged host, stateful)
+    SID 9000004 — Paramiko SSH client fingerprint
+    SID 9000005 — External FTP login success (catches first-try default creds)
+
+TRIAGE RUNS:
+  Run 1 — DeepSeek V3, old code (no count_by):
+    30 turns (hit limit), FAILED. 910K input tokens. ~$0.30.
+    Root cause: model wasted turns on group_by/min_by on NDJSON.
+
+  Run 2 — DeepSeek V3, old code still loaded (server not restarted):
+    30 turns (hit limit), FAILED. 712K input tokens.
+    Root cause: server cached old modules, count_by not available.
+
+  Run 3 — DeepSeek V3, with count_by:
+    44 turns (completed), SUCCESS. 1,684K input tokens. ~$0.50.
+    count_by called 29 times. 1 jq error. Full report + rules.
+
+  Claude run — Opus 5:
+    ~15-20 turns (completed), SUCCESS.
+    Faster, fewer errors, but 10x more expensive.
+
+
+2.2 WEDNESDAY — DoS Attacks (Slowloris, Slowhttptest, Hulk, GoldenEye)
+------------------------------------------------------------------------
+
+PASS 1 — Tuned (wednesday-threshold-v2, 381 alerts):
+  DeepSeek found:
+  - Slowloris/Slowhttptest DoS: 172.16.0.1 --> 192.168.10.50:80 (DVWA)
+    - 167,552 HTTP requests, 1,054 with slowhttptest toolkit referer
+    - 867 FAKEVERB method requests to /dv/login.php
+    - Server stayed up (164,787 HTTP 200 responses)
+    - Stock ET rule 2014103 fired only 2 times for 167K+ attack requests
+  - HeartBleed (CVE-2014-0160): 172.16.0.1 --> 192.168.10.51:444
+    - 5 TLS handshakes, successful memory disclosure on 5th attempt
+    - Detected by stock ET 2018377 + Suricata engine 2230014
+  - Wrote 3 rules: SID 3000001 (toolkit referer), 3000002 (burst), 3000003 (FAKEVERB)
+  - Proposed suppressing 7 INFO/noise SIDs
+
+PASS 2 — With AI rules loaded (wednesday-with-generated-rules, 576 alerts):
+  DeepSeek validated its own rules:
+  - SID 3000001 fired 187 times (vs stock ET's 2) — massive improvement
+  - SID 3000002 fired 6 times
+  - SID 3000003 fired 0 times — BUG FOUND: Suricata's HTTP parser doesn't
+    fully evaluate slow/partial requests, so http.method match never engages
+  - Refined suppress proposals: 7 --> 4 (realised stream anomalies are
+    attack symptoms that should stay visible, not noise)
+
+PASS 3 — Raw/noisy (wednesday-raw, 2,310,105 alerts):
+  DeepSeek handled 2.3M alerts (99.97% noise):
+  - Found same two attacks (Slowloris + HeartBleed)
+  - Found NEW gap: Hulk-style GET cache-busting flood (164K+ requests)
+    had no dedicated signature, only surfaced via parser anomaly
+  - Wrote SID 3000004 for Hulk detection, validated it (95 hits)
+  - Did NOT propose redundant suppressions (correctly noted Monday
+    baseline already covers them)
+
+AI-AUTHORED RULES (Wednesday):
+
+  rules/generated/wednesday_slowloris.rules (DeepSeek):
+    SID 3000001 — Slowhttptest toolkit referer on login pages
+    SID 3000002 — Sustained slowhttptest burst (15+ in 60s from same src)
+    SID 3000003 — FAKEVERB method on login endpoints (KNOWN BUG: 0 hits)
+    SID 3000004 — Hulk-style GET cache-busting flood (1500+ in 60s)
+
+RULE VALIDATION RESULTS:
+  - SID 3000001: 187 hits on replay (vs stock ET 2014103's 2-4 hits)
+  - SID 3000002: 6 hits on replay
+  - SID 3000003: 0 hits (parser limitation, documented)
+  - SID 3000004: 95 hits on replay (new detection, no stock equivalent)
+
+
+================================================================================
+3. MODEL COMPARISON SUMMARY
+================================================================================
+
+  Metric              | Claude (Opus 5)     | DeepSeek V3
+  --------------------|---------------------|---------------------
+  Cost per run        | ~$3-5               | ~$0.30-0.50
+  Turns (Tuesday)     | ~15-20              | 44
+  Key findings        | Same                | Same
+  Rules written (Tue) | 2 (campaign-level)  | 5 (granular, stateful)
+  jq competency       | Strong              | Weaker (needs count_by)
+  Tool efficiency     | High                | Lower (more wasted turns)
+  Overall quality     | Premium, fast        | Budget, more detailed rules
+
+  KEY FINDING: "Cheaper model needs better-shaped tools" — DeepSeek went from
+  complete failure to successful triage when we added the count_by tool. The
+  tool design matters as much as the model choice. Both models reached the
+  same substantive conclusions on every attack day.
+
+
+================================================================================
+4. FILES IN THE PROJECT (updated)
+================================================================================
+
+  config/
+    suricata.yaml           — project config (HOME_NET, checksums, rule paths)
+    classification.config   — copied from ET Open
+    threshold.config        — 80 suppress lines from Monday baseline (292 lines)
+
+  rules/
+    suricata.rules          — stock ET Open ruleset (52,647 rules), UNTOUCHED
+    normal.rules            — old approach, superseded (kept for history)
+    generated/
+      bruteforce_campaigns.rules    — Claude's Tuesday rules (SID 9500001-9500002)
+      tuesday_bruteforce.rules      — DeepSeek's Tuesday rules (SID 9000001-9000005)
+      wednesday_slowloris.rules     — DeepSeek's Wednesday rules (SID 3000001-3000004)
+
+  src/
+    __init__.py             — package marker
+    engine.py               — agentic triage loop (provider-agnostic)
+    tools.py                — 8 tools for the AI (jq, file I/O, count_by, suricata)
+    providers.py            — Claude + DeepSeek provider adapters
+    prompts.py              — system prompt with triage procedure
+    server.py               — FastAPI web server (SSE streaming)
+    cli.py                  — CLI triage runner
+    static/index.html       — web UI
+
+  data/
+    pcaps/                  — CIC-IDS2017 full pcaps (gitignored, ~50GB)
+    slices/                 — small cuts for fast iteration
+    labels/TrafficLabelling/ — ground truth CSVs
+
+  logs/                     — Suricata run outputs (gitignored)
+    run01/                  — first attempt (killed)
+    run02/                  — Monday, checksum-validation:yes (BAD)
+    run03/                  — Monday, checksum-validation:no (GOOD)
+    threshold-v1-suppress-all/   — Monday with 68 suppressions (0 alerts)
+    tuesday-threshold-v1/        — Tuesday, 68 suppressions (2,613 alerts)
+    tuesday-threshold-v2/        — Tuesday, 80 suppressions (2,404 alerts)
+    wednesday-threshold-v2/      — Wednesday, tuned (381 alerts)
+    wednesday-with-generated-rules/ — Wednesday + AI rules (576 alerts)
+    wednesday-raw/               — Wednesday, no suppressions (2,310,105 alerts)
+    wednesday-validate-fakeverb/ — DeepSeek's FAKEVERB validation run
+    wednesday-diag-fakeverb/     — DeepSeek's FAKEVERB diagnostic run
+    wednesday-validate-getflood/ — DeepSeek's Hulk rule validation (95 hits)
+
+  docs/
+    meeting-script-monday.md — presenter script for Monday supervisor meeting
+
+  Triage logs (project root):
+    triage-2026-09-02-05-45-18.txt — DeepSeek Tuesday run 1 (FAILED, no count_by)
+    triage-2026-09-02-06-09-17.txt — DeepSeek Tuesday run 2 (FAILED, old code)
+    triage-2026-09-04-03-07-23.txt — DeepSeek Tuesday run 3 (SUCCESS)
+    triage-2026-09-04-04-10-26.txt — DeepSeek Wednesday (tuned, SUCCESS)
+
+
+================================================================================
+5. WHAT TO DO NEXT
+================================================================================
+
+5.1 REMAINING ATTACK DAYS
+---------------------------
+  - Thursday: Web attacks (Brute Force, XSS, SQL Injection) + Infiltration
+  - Friday: DDoS, PortScan, Botnet
+  Run Suricata, then AI triage (tuned and/or raw), same process as Tue/Wed.
+
+5.2 EXPERIMENTS (from CLAUDE.md section 4)
+-------------------------------------------
+
+  Experiment 1 — Does context matter? (THE SPINE)
+    Run same alerts with bare packet info vs full context bundle.
+    Context bundle (section 3.3) not yet built: source history, destination
+    context, concurrent activity, rule history.
+    Score triage decisions against CIC-IDS2017 ground truth.
+    STATUS: Not started. Context bundle needs building first.
+
+  Experiment 2 — Are the authored rules any good?
+    Partially done. Results so far:
+      - SID 3000001: 187 hits vs stock ET's 2-4 (massive improvement)
+      - SID 3000004: 95 hits (new detection, no stock equivalent)
+      - SID 3000003: 0 hits (bug — parser limitation)
+      - Tuesday rules: not yet validated on replay
+    Remaining: validate Tuesday rules, measure precision/recall/FPR
+    against ground truth, compare AI rules vs stock ET rules.
+
+  Experiment 3 — Does the profile converge?
+    Partially demonstrated. Wednesday passes show:
+      - Pass 1: found attacks, wrote 3 rules, proposed 7 suppressions
+      - Pass 2: validated rules, found a bug, refined to 4 suppressions
+      - Pass 3: found new gap, wrote 1 more rule
+    Remaining: formal N-cycle convergence test on benign traffic with
+    the normality-widening loop. Measure alert volume per iteration.
+
+5.3 REPORT WRITING
+--------------------
+  - Literature review
+  - Methodology chapter (describe the pipeline, tools, experiments)
+  - Results chapter (all triage outputs, model comparison, rule validation)
+  - Discussion (answer the research question with data)
+  - Deadline: exams 23-31 October, teaching ends 17 October
+
+
+================================================================================
+6. KEY FINDINGS SO FAR (for the report)
+================================================================================
+
+  1. BOTH MODELS FOUND THE SAME ATTACKS. Claude and DeepSeek V3 reached
+     identical substantive conclusions on every attack day tested. The
+     findings are model-independent.
+
+  2. TOOL DESIGN MATTERS AS MUCH AS MODEL CHOICE. DeepSeek failed completely
+     until we added count_by (NDJSON aggregation tool). "Cheaper model needs
+     better-shaped tools" is a real finding.
+
+  3. AI-AUTHORED RULES OUTPERFORMED STOCK RULES FOR SPECIFIC ATTACKS. The
+     Slowloris toolkit fingerprint rule caught 187 attack requests vs stock
+     ET's 2-4. The Hulk flood rule caught 95 attacks the stock ruleset
+     missed entirely.
+
+  4. THE AI ITERATIVELY IMPROVES THE SENSOR. Across multiple passes:
+     - It writes detection rules (more signal)
+     - It proposes suppressions (less noise)
+     - It validates its own rules and finds bugs
+     - It refines suppress proposals based on what it learns
+     This is convergence without ML.
+
+  5. RAW VS TUNED: the raw (no-suppression) run found a detection gap the
+     tuned run couldn't see, because the tuned version suppressed the only
+     signal that hinted at the Hulk flood. Pre-tuning helps efficiency
+     (381 vs 2.3M alerts) but can hide gaps.
+
+  6. COVERAGE GAPS IN STOCK ET RULESET:
+     - SSH brute force: 31 alerts for ~2,980 attack flows (SYN-only rule)
+     - Slowloris: 2-4 alerts for 167K+ attack requests (rate-based rule)
+     - Hulk GET flood: no dedicated signature at all
+     - FTP default credential login: no stock rule for bare 230 from external
+
+  7. AI RULES ARE INSPECTABLE. Every rule is a standard Suricata rule that
+     a human can read, validate, and modify. Detection stays rule-based.
+     The AI does the analyst's work, not the engine's work.
+
+  8. SAFETY ASYMMETRY WORKS. Detection rules deploy freely (worst case:
+     extra alerts). Suppress rules need human approval (worst case: blind
+     IDS). This prevents the AI from silently degrading the sensor.
+
+
+================================================================================
+7. OPEN QUESTIONS (still undecided)
+================================================================================
+
+  1. Context bundle design — what goes in it, how to build it from eve.json
+  2. Label join method — how to map eve.json alerts to ground truth CSVs
+  3. Human-in-the-loop — formally adopted now? (working in practice)
+  4. Project charter — still required?
+  5. SID 3000003 FAKEVERB bug — fix the rule or document as a limitation?
+
+================================================================================
+END OF POST AI INTEGRATION PROJECT STATE
+================================================================================

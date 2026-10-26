@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="600" viewBox="0 0 1100 600" font-family="DejaVu Sans, Arial, sans-serif">
+<title>Agent limits</title>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="#5b6774"/></marker></defs>
+<rect width="1100" height="600" fill="white"/>
+<text x="40" y="44" font-size="22" font-weight="700" fill="#1d2733">Why the agent did not write a rule</text>
+<text x="40" y="70" font-size="13" fill="#5b6774">Activity the hunt reports flagged as attack-like but left without a rule, grouped by cause</text>
+<rect x="40" y="100" width="500" height="230" rx="12" fill="#f4f6f8" stroke="#d9822b" stroke-width="2.5"/>
+<rect x="40" y="100" width="500" height="46" rx="12" fill="#d9822b"/>
+<rect x="40" y="130" width="500" height="16" fill="#d9822b"/>
+<text x="60" y="130" font-size="16" font-weight="700" fill="white">Tooling gap — fixed in hunt2</text>
+<text x="64" y="186" font-size="14" fill="#1d2733">• Guessed keywords: smb.filename (absent), tls.subject</text>
+<text x="64" y="228" font-size="14" fill="#1d2733">• Fell back to raw-byte regexes</text>
+<text x="64" y="270" font-size="14" fill="#1d2733">• Fix: suricata_keywords tool → 0 failed loads</text>
+<rect x="560" y="100" width="500" height="230" rx="12" fill="#f4f6f8" stroke="#b03a2e" stroke-width="2.5"/>
+<rect x="560" y="100" width="500" height="46" rx="12" fill="#b03a2e"/>
+<rect x="560" y="130" width="500" height="16" fill="#b03a2e"/>
+<text x="580" y="130" font-size="16" font-weight="700" fill="white">Rule-language limit</text>
+<text x="584" y="186" font-size="14" fill="#1d2733">• DNS high-entropy names (DGA, tunnelling)</text>
+<text x="584" y="228" font-size="14" fill="#1d2733">• Needs a statistic over the name</text>
+<text x="584" y="270" font-size="14" fill="#1d2733">• Possible with Suricata's lua keyword</text>
+<rect x="40" y="350" width="500" height="230" rx="12" fill="#f4f6f8" stroke="#4f6d8a" stroke-width="2.5"/>
+<rect x="40" y="350" width="500" height="46" rx="12" fill="#4f6d8a"/>
+<rect x="40" y="380" width="500" height="16" fill="#4f6d8a"/>
+<text x="60" y="380" font-size="16" font-weight="700" fill="white">Our design choices</text>
+<text x="64" y="436" font-size="14" fill="#1d2733">• POP3/IMAP/SMTP spam and fuzz sessions</text>
+<text x="64" y="478" font-size="14" fill="#1d2733">• Only separable by rate or source: no IP pivot,</text>
+<text x="64" y="520" font-size="14" fill="#1d2733">• and the gate cannot test POP3/SIP/SMB</text>
+<rect x="560" y="350" width="500" height="230" rx="12" fill="#f4f6f8" stroke="#2e7d4f" stroke-width="2.5"/>
+<rect x="560" y="350" width="500" height="46" rx="12" fill="#2e7d4f"/>
+<rect x="560" y="380" width="500" height="16" fill="#2e7d4f"/>
+<text x="580" y="380" font-size="16" font-weight="700" fill="white">Correct judgement</text>
+<text x="584" y="436" font-size="14" fill="#1d2733">• SNMP probing already covered by deployed rules</text>
+<text x="584" y="478" font-size="14" fill="#1d2733">• Lab-specific LDAP string dropped (hunt)</text>
+<text x="584" y="520" font-size="14" fill="#1d2733">• Over-narrow single-character SMB rule dropped</text>
+</svg>

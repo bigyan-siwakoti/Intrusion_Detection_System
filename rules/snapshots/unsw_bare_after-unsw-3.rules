@@ -1,0 +1,38 @@
+# rules/generated/unsw_bare.rules
+# Detection rules authored by the AI triage engine for UNSW-NB15 under the bare-alert condition (Experiment 1).
+#
+# Triage of logs/unsw-3-bare/eve.json (893 alerts, 2015-02-18 11:01:36-11:29:10 +0930).
+# HOME_NET = 149.171.126.0/24 (servers) + 59.166.0.0/24 (clients).
+# EXTERNAL_NET includes known attacker range 175.45.176.0/24.
+#
+# Coverage gaps addressed:
+#   1. GPL 2102466 fires once per SMB IPC$ share access, producing a wall of
+#      identical per-connection alerts (124 from 175.45.176.1 -> 149.171.126.15
+#      in ~50s). No stock rule articulates the brute-force campaign itself.
+#   2. The RPC portmap sweep (176 GPL "RPC portmap ... request" alerts across
+#      12 HOME_NET servers, TCP+UDP/111, from all four attacker IPs) is reported
+#      only as individual RPC program queries. No stock rule flags the
+#      source-level sweep.
+
+# --- 1. SMB IPC$ share-access brute force (external -> HOME_NET SMB) ---------
+# One external host repeatedly attempting the IPC$ share on 445 is credential
+# brute-forcing / share enumeration. Thresholds aggregate the per-connection
+# stock GPL alerts into one campaign-level alert.
+alert smb $EXTERNAL_NET any -> $HOME_NET 445 ( \
+    msg:"CUSTOM SMB IPC$ share-access brute force from external host"; \
+    flow:to_server,established; \
+    smb.share; content:"IPC$"; nocase; \
+    threshold:type threshold, track by_src, count 20, seconds 60; \
+    classtype:attempted-user; \
+    sid:7700001; rev:1;)
+
+# --- 2. RPC portmap sweep (external -> HOME_NET portmapper) -----------------
+# A single external host generating many TCP/UDP packets to port 111 across
+# HOME_NET is running a portmapper/RPC program enumeration sweep. The stock
+# GPL portmap rules fire per RPC program; this rule collapses the source-level
+# sweep into one alert.
+alert ip $EXTERNAL_NET any -> $HOME_NET 111 ( \
+    msg:"CUSTOM RPC portmap sweep - external host hammering portmapper 111"; \
+    threshold:type threshold, track by_src, count 30, seconds 120; \
+    classtype:attempted-recon; \
+    sid:7700002; rev:1;)

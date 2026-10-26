@@ -5,6 +5,7 @@ import sys
 import json
 import argparse
 from .engine import run_triage
+from .profiles import PROFILES
 
 
 BLUE = "\033[34m"
@@ -20,6 +21,8 @@ def main():
     parser = argparse.ArgumentParser(description="Run AI triage on Suricata alerts")
     parser.add_argument("eve_path", help="Path to eve.json relative to project root")
     parser.add_argument("--model", default="claude-opus-5", help="Claude model to use")
+    parser.add_argument("--profile", "--dataset", dest="profile", choices=sorted(PROFILES), default="cic",
+                        help="Experiment profile (src/profiles.py): prompt, tools, Suricata config, rule file")
     parser.add_argument("--auto-approve", action="store_true",
                         help="Auto-approve suppress proposals (for testing only)")
     parser.add_argument("--json", action="store_true",
@@ -31,11 +34,12 @@ def main():
     print(f"{BOLD}IDS Triage Engine{RESET}")
     print(f"Analysing: {args.eve_path}")
     print(f"Model: {args.model}")
+    print(f"Profile: {args.profile} — {PROFILES[args.profile]['description']}")
     print(f"{'─' * 60}\n")
 
     try:
         for event in run_triage(args.eve_path, model=args.model,
-                                approve_suppress=approve_fn):
+                                approve_suppress=approve_fn, profile=args.profile):
             if args.json:
                 print(json.dumps(event), flush=True)
                 continue

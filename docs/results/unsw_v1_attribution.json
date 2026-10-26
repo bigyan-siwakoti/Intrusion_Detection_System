@@ -1,0 +1,12 @@
+{
+  "tcpudp": 14935,
+  "non_ai_det": 1395,
+  "full_det": 2322,
+  "ai_new": 927,
+  "ai_new_genuine": 881,
+  "ai_sids": 48,
+  "ai_fired": 21,
+  "unclassified_fired": [
+    9500002
+  ]
+}

@@ -1,0 +1,494 @@
+{
+  "unsw": {
+    "tcpudp_events": {
+      "Exploits": 5057,
+      "Fuzzers": 3942,
+      "Reconnaissance": 2142,
+      "DoS": 670,
+      "Generic": 2677,
+      "Shellcode": 279,
+      "Backdoor": 74,
+      "Worms": 32,
+      "Analysis": 62
+    },
+    "layers": {
+      "ET Open": {
+        "detected": {
+          "Exploits": 506,
+          "Reconnaissance": 401,
+          "DoS": 73,
+          "Generic": 79,
+          "Fuzzers": 300,
+          "Shellcode": 4,
+          "Worms": 5,
+          "Backdoor": 13
+        },
+        "alerts": 4475,
+        "no_attacker": 746
+      },
+      "ET Open + Snort Community": {
+        "detected": {
+          "Exploits": 523,
+          "Reconnaissance": 401,
+          "DoS": 73,
+          "Generic": 79,
+          "Fuzzers": 300,
+          "Shellcode": 4,
+          "Worms": 5,
+          "Backdoor": 13
+        },
+        "alerts": 4521,
+        "no_attacker": 746
+      },
+      "ET Open + Stamus lateral": {
+        "detected": {
+          "Exploits": 506,
+          "Reconnaissance": 401,
+          "DoS": 73,
+          "Generic": 79,
+          "Fuzzers": 300,
+          "Shellcode": 4,
+          "Worms": 5,
+          "Backdoor": 13
+        },
+        "alerts": 4486,
+        "no_attacker": 746
+      },
+      "ET Open + Nmap scans": {
+        "detected": {
+          "Exploits": 506,
+          "Reconnaissance": 401,
+          "DoS": 73,
+          "Generic": 79,
+          "Fuzzers": 300,
+          "Shellcode": 4,
+          "Worms": 5,
+          "Backdoor": 15
+        },
+        "alerts": 4507,
+        "no_attacker": 748
+      },
+      "ET Open + PT Open": {
+        "detected": {
+          "Exploits": 513,
+          "Reconnaissance": 401,
+          "DoS": 73,
+          "Generic": 79,
+          "Fuzzers": 300,
+          "Shellcode": 4,
+          "Worms": 5,
+          "Backdoor": 13
+        },
+        "alerts": 4482,
+        "no_attacker": 746
+      },
+      "ET Open + all extra": {
+        "detected": {
+          "Exploits": 530,
+          "Reconnaissance": 401,
+          "DoS": 73,
+          "Generic": 79,
+          "Fuzzers": 300,
+          "Shellcode": 4,
+          "Worms": 5,
+          "Backdoor": 15
+        },
+        "alerts": 4571,
+        "no_attacker": 748
+      },
+      "ET Open + all extra + AI": {
+        "detected": {
+          "Exploits": 976,
+          "Reconnaissance": 776,
+          "Generic": 118,
+          "Fuzzers": 359,
+          "DoS": 76,
+          "Backdoor": 17,
+          "Shellcode": 4,
+          "Worms": 5
+        },
+        "alerts": 7048,
+        "no_attacker": 748
+      },
+      "all extra + ET disabled (selected)": {
+        "detected": {
+          "Exploits": 1131,
+          "Reconnaissance": 435,
+          "DoS": 120,
+          "Generic": 107,
+          "Fuzzers": 579,
+          "Shellcode": 71,
+          "Worms": 4,
+          "Backdoor": 14
+        },
+        "alerts": 11108,
+        "no_attacker": 797
+      },
+      "all extra + Snort disabled (selected)": {
+        "detected": {
+          "Exploits": 1039,
+          "Reconnaissance": 556,
+          "DoS": 117,
+          "Generic": 191,
+          "Fuzzers": 1097,
+          "Shellcode": 11,
+          "Backdoor": 32,
+          "Worms": 5
+        },
+        "alerts": 24193,
+        "no_attacker": 795
+      },
+      "all extra + re-enabled": {
+        "detected": {
+          "Exploits": 1523,
+          "Reconnaissance": 558,
+          "DoS": 143,
+          "Generic": 197,
+          "Fuzzers": 1311,
+          "Shellcode": 71,
+          "Worms": 5,
+          "Backdoor": 32
+        },
+        "alerts": 30730,
+        "no_attacker": 797
+      },
+      "all extra + re-enabled + AI": {
+        "detected": {
+          "Exploits": 1554,
+          "Reconnaissance": 928,
+          "DoS": 146,
+          "Generic": 225,
+          "Fuzzers": 1306,
+          "Shellcode": 71,
+          "Backdoor": 35,
+          "Worms": 6
+        },
+        "alerts": 32536,
+        "no_attacker": 761
+      }
+    },
+    "per_extra_ruleset": {
+      "Snort disabled (selected)": {
+        "alerts": 19622,
+        "gt_matched": 10396,
+        "no_attacker": 0
+      },
+      "ET disabled (selected)": {
+        "alerts": 6537,
+        "gt_matched": 4152,
+        "no_attacker": 2
+      },
+      "PT Open": {
+        "alerts": 7,
+        "gt_matched": 7,
+        "no_attacker": 0
+      },
+      "Nmap scans": {
+        "alerts": 32,
+        "gt_matched": 2,
+        "no_attacker": 2
+      },
+      "Snort Community": {
+        "alerts": 54,
+        "gt_matched": 44,
+        "no_attacker": 0
+      },
+      "Stamus lateral": {
+        "alerts": 11,
+        "gt_matched": 11,
+        "no_attacker": 0
+      }
+    }
+  },
+  "cic": {
+    "Tuesday": {
+      "flows": {
+        "BENIGN": 431758,
+        "FTP-Patator": 7938,
+        "SSH-Patator": 5897
+      },
+      "layers": {
+        "ET Open": {
+          "detected": {
+            "SSH-Patator": 60,
+            "FTP-Patator": 3833,
+            "BENIGN": 1815
+          },
+          "alerts": {
+            "benign": 1523,
+            "attack": 2403
+          }
+        },
+        "ET Open + Snort Community": {
+          "detected": {
+            "SSH-Patator": 60,
+            "FTP-Patator": 3833,
+            "BENIGN": 1815
+          },
+          "alerts": {
+            "benign": 1523,
+            "attack": 2403
+          }
+        },
+        "ET Open + Stamus lateral": {
+          "detected": {
+            "SSH-Patator": 60,
+            "FTP-Patator": 3833,
+            "BENIGN": 2379
+          },
+          "alerts": {
+            "benign": 1721,
+            "attack": 2403
+          }
+        },
+        "ET Open + Nmap scans": {
+          "detected": {
+            "SSH-Patator": 60,
+            "FTP-Patator": 3833,
+            "BENIGN": 1815
+          },
+          "alerts": {
+            "unmatched": 115,
+            "benign": 1523,
+            "attack": 2403
+          }
+        },
+        "ET Open + PT Open": {
+          "detected": {
+            "SSH-Patator": 60,
+            "FTP-Patator": 3833,
+            "BENIGN": 1815
+          },
+          "alerts": {
+            "benign": 1523,
+            "attack": 2403
+          }
+        },
+        "ET Open + all extra": {
+          "detected": {
+            "SSH-Patator": 60,
+            "FTP-Patator": 3833,
+            "BENIGN": 2379
+          },
+          "alerts": {
+            "unmatched": 115,
+            "benign": 1721,
+            "attack": 2403
+          }
+        },
+        "ET Open + all extra + AI": {
+          "detected": {
+            "BENIGN": 3214,
+            "SSH-Patator": 1667,
+            "FTP-Patator": 4023
+          },
+          "alerts": {
+            "unmatched": 267,
+            "benign": 1957,
+            "attack": 3456
+          }
+        },
+        "all extra + ET disabled (selected)": {
+          "detected": {
+            "BENIGN": 10329,
+            "FTP-Patator": 7897,
+            "SSH-Patator": 61
+          },
+          "alerts": {
+            "unmatched": 900,
+            "benign": 13744,
+            "attack": 14299
+          }
+        },
+        "all extra + Snort disabled (selected)": {
+          "detected": {
+            "BENIGN": 3260,
+            "SSH-Patator": 5855,
+            "FTP-Patator": 7889
+          },
+          "alerts": {
+            "unmatched": 125,
+            "benign": 1741,
+            "attack": 9326
+          }
+        },
+        "all extra + re-enabled": {
+          "detected": {
+            "BENIGN": 10413,
+            "SSH-Patator": 5855,
+            "FTP-Patator": 7897
+          },
+          "alerts": {
+            "unmatched": 910,
+            "benign": 13767,
+            "attack": 21222
+          }
+        },
+        "all extra + re-enabled + AI": {
+          "detected": {
+            "BENIGN": 11200,
+            "SSH-Patator": 5865,
+            "FTP-Patator": 7897
+          },
+          "alerts": {
+            "unmatched": 1059,
+            "benign": 14008,
+            "attack": 22275
+          }
+        }
+      }
+    },
+    "Thursday": {
+      "flows": {
+        "BENIGN": 456326,
+        "Web Attack - Brute Force": 1507,
+        "Web Attack - XSS": 652,
+        "Web Attack - Sql Injection": 21,
+        "Infiltration": 36
+      },
+      "layers": {
+        "ET Open": {
+          "detected": {
+            "BENIGN": 1465,
+            "Infiltration": 17,
+            "Web Attack - Sql Injection": 14,
+            "Web Attack - XSS": 34
+          },
+          "alerts": {
+            "benign": 1785,
+            "attack": 24670
+          }
+        },
+        "ET Open + Snort Community": {
+          "detected": {
+            "BENIGN": 1465,
+            "Infiltration": 17,
+            "Web Attack - Sql Injection": 14,
+            "Web Attack - XSS": 34
+          },
+          "alerts": {
+            "benign": 1785,
+            "attack": 24670
+          }
+        },
+        "ET Open + Stamus lateral": {
+          "detected": {
+            "BENIGN": 1902,
+            "Infiltration": 17,
+            "Web Attack - Sql Injection": 14,
+            "Web Attack - XSS": 34
+          },
+          "alerts": {
+            "benign": 2015,
+            "attack": 24670
+          }
+        },
+        "ET Open + Nmap scans": {
+          "detected": {
+            "BENIGN": 19168,
+            "Web Attack - XSS": 34,
+            "Infiltration": 17,
+            "Web Attack - Sql Injection": 14
+          },
+          "alerts": {
+            "unmatched": 71,
+            "benign": 19994,
+            "attack": 24670
+          }
+        },
+        "ET Open + PT Open": {
+          "detected": {
+            "BENIGN": 1465,
+            "Infiltration": 17,
+            "Web Attack - Sql Injection": 14,
+            "Web Attack - XSS": 34
+          },
+          "alerts": {
+            "benign": 1785,
+            "attack": 24670
+          }
+        },
+        "ET Open + all extra": {
+          "detected": {
+            "BENIGN": 19605,
+            "Infiltration": 17,
+            "Web Attack - XSS": 34,
+            "Web Attack - Sql Injection": 14
+          },
+          "alerts": {
+            "unmatched": 71,
+            "benign": 20224,
+            "attack": 24670
+          }
+        },
+        "ET Open + all extra + AI": {
+          "detected": {
+            "BENIGN": 20329,
+            "Infiltration": 20,
+            "Web Attack - Brute Force": 14,
+            "Web Attack - XSS": 34,
+            "Web Attack - Sql Injection": 14
+          },
+          "alerts": {
+            "unmatched": 249,
+            "benign": 20652,
+            "attack": 24678
+          }
+        },
+        "all extra + ET disabled (selected)": {
+          "detected": {
+            "BENIGN": 21892,
+            "Infiltration": 17,
+            "Web Attack - XSS": 34,
+            "Web Attack - Sql Injection": 14
+          },
+          "alerts": {
+            "benign": 24592,
+            "unmatched": 720,
+            "attack": 24641
+          }
+        },
+        "all extra + Snort disabled (selected)": {
+          "detected": {
+            "BENIGN": 19559,
+            "Web Attack - XSS": 34,
+            "Infiltration": 17,
+            "Web Attack - Sql Injection": 14
+          },
+          "alerts": {
+            "unmatched": 71,
+            "benign": 20243,
+            "attack": 24636
+          }
+        },
+        "all extra + re-enabled": {
+          "detected": {
+            "BENIGN": 21903,
+            "Infiltration": 17,
+            "Web Attack - XSS": 34,
+            "Web Attack - Sql Injection": 14
+          },
+          "alerts": {
+            "benign": 24608,
+            "unmatched": 720,
+            "attack": 24641
+          }
+        },
+        "all extra + re-enabled + AI": {
+          "detected": {
+            "BENIGN": 22766,
+            "Infiltration": 20,
+            "Web Attack - Brute Force": 10,
+            "Web Attack - XSS": 34,
+            "Web Attack - Sql Injection": 14
+          },
+          "alerts": {
+            "benign": 25043,
+            "unmatched": 897,
+            "attack": 24660
+          }
+        }
+      }
+    }
+  }
+}

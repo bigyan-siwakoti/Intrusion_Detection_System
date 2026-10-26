@@ -1,0 +1,10 @@
+# (removed - diagnostic canary, not part of the ruleset)
+# Placed here 2026-09-21 to answer one question: does the run config auto-load
+# files that appear in rules/generated/? It does NOT. With this file present and
+# containing sid:9900001, logs/canary-load-check/suricata.log still reported
+# "4 rule files processed. 52656 rules successfully loaded" (= stock 52,647 +
+# 9 custom from the three files explicitly listed in config/suricata.yaml:
+# bruteforce_campaigns.rules, tuesday_bruteforce.rules,
+# wednesday_slowloris.rules), and sid:9900001 never appeared in eve.json.
+# Consequence: a new rule file must be added to the suricata.yaml rule-files
+# list by hand before it is evaluated.

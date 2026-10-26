@@ -1,0 +1,45 @@
+# rules/generated/unsw_triage.rules
+# Detection rules authored during triage of logs/unsw-3-raw/eve.json (UNSW-NB15 pcap 3).
+#
+# Confirmed campaigns in this capture (attacker range 175.45.176.0/24):
+#   A. FTP weak-password login success against 149.171.126.19:21
+#      (59 successful PASS "password" logins; stock rules only saw the USER
+#       overflow/fuzz strings, not the successful authentication).
+#   B. SMB IPC$ share connect burst from 175.45.176.1 -> 149.171.126.15:445
+#      (58 negotiate+tree-connect sessions in ~40s; stock GPL SID 2102466
+#       fires per-session but does not consolidate the burst).
+#   C. Outbound Windows cmd.exe shell banner from 149.171.126.13 to
+#      175.45.176.3:63031 (backdoor listener on :37726; stock ET/GPL rules
+#      fired on the banner, this rule re-anchors the HOME_NET -> EXTERNAL_NET
+#      direction for the UNSW network model).
+
+# --- A. FTP weak-password login success ------------------------------------
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 ( \
+    msg:"CUSTOM FTP weak-password login success - repeated PASS password from external host"; \
+    flow:to_server,established; \
+    content:"PASS password"; nocase; \
+    threshold:type threshold, track by_src, count 5, seconds 120; \
+    classtype:attempted-admin; \
+    sid:7600201; rev:1;)
+
+# --- B. SMB IPC$ share connect burst ---------------------------------------
+# Matches the UTF-16LE or ASCII IPC$ share name inside SMB TREE_CONNECT_ANDX.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 ( \
+    msg:"CUSTOM SMB IPC$ share access burst - SMB enumeration/bruteforce"; \
+    flow:to_server,established; \
+    pcre:"/I(\x00)?P(\x00)?C(\x00)?\x24/i"; \
+    threshold:type threshold, track by_src, count 20, seconds 60; \
+    classtype:attempted-recon; \
+    sid:7600202; rev:1;)
+
+# --- C. Outbound Windows cmd.exe shell banner ------------------------------
+# A HOME_NET host sending the Windows cmd.exe banner to an external host is a
+# strong backdoor/reverse-shell indicator (observed 149.171.126.13 -> 175.45.176.3).
+alert tcp $HOME_NET any -> $EXTERNAL_NET any ( \
+    msg:"CUSTOM Outbound Windows cmd.exe shell banner from internal host (backdoor/reverse shell)"; \
+    flow:established; \
+    content:"Microsoft Windows"; nocase; \
+    content:"Copyright"; nocase; \
+    threshold:type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; \
+    sid:7600203; rev:1;)

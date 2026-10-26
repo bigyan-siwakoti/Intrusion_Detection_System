@@ -1,0 +1,61 @@
+# CD for triage.bigyan.work: every push to main that touches the app redeploys it on the Azure VM.
+#
+# How it works: GitHub starts a runner, the runner SSHes into the VM with a deploy key, pulls this commit into
+# ~/triage and rebuilds the container. Nothing secret lives in the repo:
+#   repo secrets  VM_HOST (fairfix.bigyan.work or the IP), VM_USER (azureuser), VM_SSH_KEY (private deploy key)
+#   server only   ~/triage/.env with DEEPSEEK_API_KEY
+name: deploy
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "src/**"
+      - "config/**"
+      - "rules/generated/**"
+      - "demo/**"
+      - "scripts/demo_entrypoint.sh"
+      - "requirements.txt"
+      - "Dockerfile"
+      - "docker-compose.yml"
+      - ".github/workflows/deploy.yml"
+  workflow_dispatch:        # "Run workflow" button in the Actions tab
+
+concurrency:                # never run two deploys at once
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+      - name: App imports and the public demo profiles exist
+        run: |
+          python -c "import src.server, src.demo; from src.profiles import PROFILES; assert {'demo-cic','demo-unsw'} <= set(PROFILES)"
+
+  deploy:
+    needs: check
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Pull and rebuild on the VM
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script_stop: true
+          script: |
+            cd ~/triage
+            git fetch --quiet origin main
+            git reset --hard origin/main
+            docker compose up -d --build
+            docker image prune -f
+            sleep 20
+            docker inspect --format '{{.State.Health.Status}}' triage
+            docker logs --tail 15 triage

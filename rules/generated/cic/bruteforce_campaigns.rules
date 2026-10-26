@@ -1,0 +1,105 @@
+# =============================================================================
+# Custom aggregate/confirmation rules for brute-force campaigns
+# Written after triage of logs/tuesday-threshold-v2/eve.json
+#
+# Context: ET SCAN sigs 2002383 (FTP Brute-Force attempt response) and
+# 2001219 (Potential SSH Scan) fired thousands of times against victim
+# 192.168.10.50 from known attacker 172.16.0.1 (confirmed true positives —
+# FTP-Patator / SSH-Patator style brute force). The ET rules already alert
+# per-attempt, which is correct but noisy (2,373 FTP alerts). These rules
+# add a higher-fidelity "campaign confirmed" alert that fires once a volume
+# threshold is crossed, to help prioritize triage without replacing the
+# underlying per-attempt detections.
+# =============================================================================
+
+# FTP brute-force campaign confirmed: many "Login incorrect" responses sent
+# from a HOME_NET FTP server to the same remote host in a short window.
+# Tuned from observed traffic: attacker received failure responses at
+# ~30/minute for over an hour (2,373 total responses across 1,928 flows).
+alert tcp $HOME_NET 21 -> $EXTERNAL_NET any (msg:"CUSTOM FTP Brute-Force Campaign Confirmed - sustained login failures to single remote host"; flow:established,to_client; content:"Login incorrect"; nocase; threshold: type threshold, track by_dst, count 20, seconds 120; classtype:attempted-recon; sid:9500001; rev:1;)
+
+# SSH brute-force campaign confirmed: sustained low-and-slow SSH connection
+# attempts from a single external host against a HOME_NET SSH server.
+# Tuned from observed traffic: attacker made 31 distinct connection
+# attempts to port 22 spaced ~2 minutes apart over ~62 minutes (evasive,
+# below typical fast-scan thresholds but clearly a sustained campaign).
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"CUSTOM SSH Brute-Force Campaign Confirmed - sustained connection attempts over time"; flow:to_server; flags:S; threshold: type threshold, track by_src, count 10, seconds 3600; classtype:attempted-recon; sid:9500002; rev:1;)
+
+# =============================================================================
+# Friday Working-Hours campaign rules — deployed via THIS file on purpose.
+# Triage of logs/friday-raw/eve.json (2017-07-07/08), attacker 172.16.0.1
+# -> victim 192.168.10.50.
+#
+# suricata.yaml is read-only and its rule-files list does NOT include
+# friday_ddos_portscan.rules, so the equivalent rules there (sid 9600001/
+# 9600002) did NOT fire in the Friday raw run. These rules use unique SIDs
+# and live in this ALREADY-LOADED file so they take effect on the next run.
+# If friday_ddos_portscan.rules is later added to rule-files, remove these
+# two rules to avoid duplicate alerts for the same campaign.
+#
+# Confirmed in this capture:
+#   - 158,928 SYN-only flows (tcp_flags_ts=02) to ~1,000+ distinct destination
+#     ports, full 1-65535 sweep, concentrated in hour 03. Stock ET SCAN only
+#     fires for its known-port list (176 alerts total).
+#   - 94,520 terse "GET /" HTTP/1.0 requests answered 200 OK (04:26-04:47,
+#     ~4.8-5.0k requests/min). Stock 2019348 fired only 20x (~1/min).
+# =============================================================================
+
+# Sustained HTTP GET volume from one external source to a HOME_NET web server.
+alert http $EXTERNAL_NET any -> $HOME_NET 80 ( \
+    msg:"CUSTOM HTTP GET Flood - sustained GET request volume to HOME_NET web server"; \
+    flow:to_server,established; \
+    http.method; content:"GET"; nocase; \
+    threshold:type threshold, track by_src, count 5000, seconds 120; \
+    classtype:attempted-dos; \
+    sid:9600003; rev:1;)
+
+# Sustained inbound SYN volume from one external source (full TCP port sweep).
+alert tcp $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM Inbound TCP Port Scan - sustained SYN sweep to HOME_NET"; \
+    flow:to_server; \
+    flags:S; \
+    threshold:type threshold, track by_src, count 15000, seconds 300; \
+    classtype:attempted-recon; \
+    sid:9600004; rev:1;)
+
+
+# =============================================================================
+# Friday Working-Hours — ARES botnet C2 rules.
+# Appended to THIS file on purpose: it is one of the three generated files that
+# config/suricata.yaml actually loads, so rules placed here take effect without a
+# read-only config change. The identical rules also exist in
+# rules/generated/friday_botnet_c2.rules for the record — keep them in ONE place
+# only. Full evidence writeup is in that file / the Friday triage report.
+#
+# 5 HOME_NET bots (192.168.10.5/.8/.9/.14/.15) polled external C2
+# 205.174.165.73:8080 with GET /api/pop?botid=... plus POST /api/upload
+# (JPEG exfiltration) and /api/report, 2017-07-07 22:34-23:32. The stock
+# ruleset produced no alert for any of it.
+# =============================================================================
+
+alert http $HOME_NET any -> $EXTERNAL_NET any ( \
+    msg:"CUSTOM Botnet C2 check-in - /api/pop botid beacon from HOME_NET host"; \
+    flow:established,to_server; \
+    http.method; content:"GET"; \
+    http.uri; content:"/api/pop?"; content:"botid="; \
+    threshold: type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; priority:1; \
+    sid:9700001; rev:2;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any ( \
+    msg:"CUSTOM Botnet C2 exfiltration - POST /api/upload or /api/report to external host"; \
+    flow:established,to_server; \
+    http.method; content:"POST"; \
+    http.uri; pcre:"/^\/api\/(upload|report)/i"; \
+    threshold: type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; priority:1; \
+    sid:9700002; rev:1;)
+
+alert http $HOME_NET any -> $EXTERNAL_NET any ( \
+    msg:"CUSTOM Internal host using python-requests against external HTTP server (possible botnet client)"; \
+    flow:established,to_server; \
+    http.user_agent; content:"python-requests"; nocase; \
+    threshold: type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; priority:2; \
+    sid:9700003; rev:1;)

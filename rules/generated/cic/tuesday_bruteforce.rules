@@ -38,10 +38,21 @@
 alert ftp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"CUSTOM FTP Brute-Force - Repeated Authentication Failures (530) From Single Source"; flow:established,to_client; ftp.completion_code; content:"530"; threshold: type threshold, track by_src, count 10, seconds 120; classtype:attempted-recon; sid:9000001; rev:1;)
 
 # --- FTP brute force: track failure state per attacker host ---
-alert ftp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"CUSTOM FTP Brute-Force - Failure Tracking Hostbit Set"; flow:established,to_client; ftp.completion_code; content:"530"; threshold: type threshold, track by_src, count 5, seconds 120; hostbits:set,ftp_bruteforce_src,src,expire 600; classtype:attempted-recon; sid:9000002; rev:1;)
+alert ftp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"CUSTOM FTP Brute-Force - Failure Tracking Hostbit Set"; flow:established,to_client; ftp.completion_code; content:"530"; threshold: type threshold, track by_src, count 5, seconds 120; hostbits:set,ftp_bruteforce_src,src; classtype:attempted-recon; sid:9000002; rev:2;)
 
 # --- FTP brute force success: successful login (230) from a host already flagged for failures ---
 alert ftp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"CUSTOM FTP Brute-Force SUCCESS - Login Granted After Repeated Failures From Same Source"; flow:established,to_client; ftp.completion_code; content:"230"; hostbits:isset,ftp_bruteforce_src,src; classtype:successful-user; sid:9000003; rev:1; priority:1;)
 
 # --- SSH brute force tool fingerprint: paramiko client library connecting repeatedly ---
 alert ssh $EXTERNAL_NET any -> $HOME_NET 22 (msg:"CUSTOM SSH Brute-Force Tool - Paramiko Library Client (Patator/Hydra-style)"; flow:to_server,established; ssh.software; content:"paramiko"; nocase; threshold: type threshold, track by_src, count 5, seconds 60; classtype:attempted-recon; sid:9000004; rev:1;)
+
+# --- FTP brute force success (default-credential): external host granted FTP login ---
+# Gap identified during this triage pass: the only external FTP login success in this
+# capture (172.16.0.1 -> 192.168.10.50:21, USER=iscxtap PASS=1234, reply 230 at
+# 2017-07-04T21:47:57) was a FIRST-TRY login using a weak/default credential. It
+# occurred BEFORE the large 530-dictionary surge, so the "success-after-repeated-
+# failures" rule (sid 9000003) would not fire on it. Rule below flags any successful
+# FTP login (230) granted to an EXTERNAL host — a high-fidelity signal in this
+# network where legit users reside in HOME_NET and use the same account. Verified
+# only 1 such event exists in the capture, so this has a negligible FP rate.
+alert ftp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"CUSTOM FTP Login Success - External Host Authenticated to Internal FTP Server (default-credential exposure)"; flow:established,to_client; ftp.completion_code; content:"230"; classtype:successful-user; priority:1; sid:9000005; rev:1;)

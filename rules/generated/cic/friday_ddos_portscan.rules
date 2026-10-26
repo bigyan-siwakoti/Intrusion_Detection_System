@@ -1,0 +1,69 @@
+# =============================================================================
+# Custom detection rules — Friday Working-Hours (CIC-IDS2017) campaign
+# Triage of logs/friday-raw/eve.json (data/pcaps/Friday-WorkingHours.pcap)
+#
+# Single external attacker 172.16.0.1 ran a coordinated campaign against the
+# internal web/SSH/FTP/SMB server 192.168.10.50:
+#
+#   (A) Port scan + service enumeration (hour 03):
+#       - ~160,000+ inbound SYN probes to ~1,000 distinct destination ports
+#         (full 1-65535 sweep, repeated passes over ~1 hour; closed ports
+#         answer RST+ACK). Stock ET SCAN rules only fire for the handful of
+#         ports they know about (3306/5432/1433/1521/5900/22/143/993/110/995/
+#         3389), so the bulk of the sweep is invisible to the stock ruleset.
+#       - Service banner grabs: 31x FTP (vsFTPd 3.0.3), 37x SMB1
+#         NEGOTIATE_PROTOCOL on 139/445, 31x SSH banner (OpenSSH_7.2p2).
+#
+#   (B) SSH brute-force campaign (02:25-03:55):
+#       - 31 connection attempts to port 22 spaced over ~90 min. Already
+#         covered by CUSTOM sid 9500002 (fired 24x). No evidence of success:
+#         every SSH flow is a banner-only exchange (~5 pkts / 338 B to server,
+#         3-4 pkts / ~250-313 B to client), no post-auth session.
+#
+#   (C) HTTP GET flood / DoS tool (04:26-04:47):
+#       - 94,486 terse "GET /" requests (no Host, no User-Agent) to
+#         192.168.10.50:80, ~4.8k requests/min (~80 req/s) peak. Victim
+#         answered HTTP 200 to every request (94,551 fileinfo "/" responses).
+#         Stock ET 2019348 "Terse HTTP GET Likely AnonMafiaIC DDoS tool"
+#         fired only 20x (~1/min, rate-limited), understating the campaign
+#         by three orders of magnitude.
+#
+# Coverage gaps addressed below:
+#   1. Broad inbound SYN port sweep (stock ET SCAN covers only known ports).
+#   2. High-volume HTTP GET flood (stock 2019348 is rate-limited).
+#
+# Design note: these are single volumetric threshold rules. A two-stage
+# hostbits tracker was attempted and rejected during validation: Suricata
+# executes hostbits:set on every rule match regardless of threshold or
+# detection_filter (rate filters gate only the alert output, not side
+# effects), so the tracker planted its bit on the first packet and the
+# "confirmed" rule fired early. type threshold resets after each fire and
+# is the correct tool for a clean volumetric signal.
+# =============================================================================
+
+# --- 1. HTTP GET flood -------------------------------------------------------
+# Sustained GET volume from one external source to a HOME_NET web server.
+# Observed campaign: 94,486 GETs in ~21 min (~80 req/s). Fires roughly once
+# per 5,000 requests (~15-20 alerts over the observed flood), versus the
+# stock ET 2019348 which is rate-limited to ~1/min and fired only 20x.
+alert http $EXTERNAL_NET any -> $HOME_NET 80 ( \
+    msg:"CUSTOM HTTP GET Flood - sustained GET request volume to HOME_NET web server"; \
+    flow:to_server,established; \
+    http.method; content:"GET"; nocase; \
+    threshold:type threshold, track by_src, count 5000, seconds 120; \
+    classtype:attempted-dos; \
+    sid:9600001; rev:3;)
+
+# --- 2. Inbound TCP SYN sweep ------------------------------------------------
+# Sustained inbound SYN volume from one external source. flow:to_server makes
+# this match only flows the external host initiated, so SYN-ACKs from ordinary
+# outbound browsing are not counted. Observed sweep: 250,000+ SYNs in ~1 hour
+# (~69 SYN/s peak). Fires roughly once per 15,000 SYNs (~15-20 alerts over the
+# observed sweep), complementing the per-port stock ET SCAN rules.
+alert tcp $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM Inbound TCP Port Scan - sustained SYN sweep to HOME_NET"; \
+    flow:to_server; \
+    flags:S; \
+    threshold:type threshold, track by_src, count 15000, seconds 300; \
+    classtype:attempted-recon; \
+    sid:9600002; rev:3;)

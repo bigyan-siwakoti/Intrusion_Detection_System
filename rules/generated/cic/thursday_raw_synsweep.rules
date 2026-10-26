@@ -1,0 +1,23 @@
+# =============================================================================
+# Supplementary detection rule — logs/thursday-raw/eve.json
+#
+# Compromised host 192.168.10.8 performed broad internal TCP SYN sweeps after
+# its reverse shell to 205.174.165.73:444 came up:
+#   - 12,024 TCP new flows to 192.168.10.5
+#   -  8,028 TCP new flows to 192.168.10.14
+#   -  8,028 TCP new flows to 192.168.10.15
+#   (timestamps 03:02 - 04:14, peaking at ~1,900-2,000 SYNs/min per host)
+#
+# The stock ruleset only fired on the nmap NSE User-Agent (sid 2024364) and
+# port 135 anomalies (sid 2001581). The wide multi-port/multi-host SYN sweep
+# otherwise surfaced only as stream/decode noise (2200025, 2210008).
+#
+# Rule: one internal host emitting >=500 SYNs in 60s to other internal hosts
+# is a reliable scanner/pivot indicator in this 2017 lab environment.
+# =============================================================================
+alert tcp $HOME_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM Internal TCP SYN sweep - rapid SYN from one internal host to many internal ports"; \
+    flags:S; \
+    threshold:type threshold, track by_src, count 500, seconds 60; \
+    classtype:attempted-recon; \
+    sid:7600007; rev:1;)

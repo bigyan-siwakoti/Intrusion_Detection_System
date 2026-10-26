@@ -1,0 +1,8 @@
+# rules/generated/unsw/rounds_research.rules
+# AI-authored rules written against the UNSW-NB15 baseline v2, condition: research.
+
+# UNSW-NB15 confirmed: attacker (175.45.176.0/24) enumerates and exfiltrates files
+# from FTP servers via directory-traversal RETR/SIZE commands (e.g. "RETR /../../../../../file").
+# FTP app-layer events show SIZE -> 213 (file exists) and RETR -> 150/226 (transfer completed).
+alert tcp $EXTERNAL_NET any -> $HOME_NET $FTP_PORTS (msg:"UNSW FTP directory traversal file retrieval (RETR ../)"; flow:to_server,established; content:"RETR"; nocase; content:"../"; distance:0; within:64; classtype:attempted-recon; sid:1100001; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET $FTP_PORTS (msg:"UNSW FTP directory traversal file size check (SIZE ../)"; flow:to_server,established; content:"SIZE"; nocase; content:"../"; distance:0; within:64; classtype:attempted-recon; sid:1100002; rev:1;)

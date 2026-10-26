@@ -19,3 +19,12 @@ __pycache__/
 # Secrets
 *.env
 capstone-ids_apis.txt
+
+# Local NVD knowledge base (rebuild: python -m src.kb.build_nvd)
+data/kb/
+
+# Public demo: live-run recordings live on the server (~/triage-data/runs)
+demo-runs/
+
+# ET rule with a public malware IOC that GitHub push protection flags as a token
+rules/extra/et_disabled_all.rules

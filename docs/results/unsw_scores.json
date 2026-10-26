@@ -1,0 +1,458 @@
+{
+  "tolerance_s": 2.0,
+  "pcaps": [
+    1,
+    3,
+    4,
+    5,
+    10,
+    14
+  ],
+  "gt_events": {
+    "Exploits": 11444,
+    "Fuzzers": 7958,
+    "Reconnaissance": 3414,
+    "Backdoor": 1318,
+    "DoS": 3725,
+    "Generic": 3000,
+    "Analysis": 262,
+    "Shellcode": 279,
+    "Worms": 32
+  },
+  "gt_events_tcpudp": {
+    "Exploits": 5057,
+    "Fuzzers": 3942,
+    "Reconnaissance": 2142,
+    "DoS": 670,
+    "Generic": 2677,
+    "Shellcode": 279,
+    "Backdoor": 74,
+    "Worms": 32,
+    "Analysis": 62
+  },
+  "detected": {
+    "stock": {
+      "Exploits": 691,
+      "Reconnaissance": 440,
+      "DoS": 169,
+      "Generic": 83,
+      "Fuzzers": 451,
+      "Analysis": 8,
+      "Backdoor": 60,
+      "Shellcode": 4,
+      "Worms": 5
+    },
+    "stock+cic": {
+      "Exploits": 698,
+      "Reconnaissance": 440,
+      "DoS": 172,
+      "Generic": 110,
+      "Fuzzers": 451,
+      "Analysis": 8,
+      "Backdoor": 60,
+      "Shellcode": 4,
+      "Worms": 5
+    },
+    "stock+cic+unsw": {
+      "Exploits": 1159,
+      "Reconnaissance": 816,
+      "Generic": 126,
+      "Fuzzers": 512,
+      "DoS": 173,
+      "Backdoor": 63,
+      "Analysis": 8,
+      "Shellcode": 4,
+      "Worms": 5
+    }
+  },
+  "detected_tcpudp": {
+    "stock": {
+      "Exploits": 499,
+      "Reconnaissance": 400,
+      "DoS": 73,
+      "Generic": 75,
+      "Fuzzers": 299,
+      "Shellcode": 4,
+      "Worms": 5,
+      "Backdoor": 12
+    },
+    "stock+cic": {
+      "Exploits": 506,
+      "Reconnaissance": 400,
+      "DoS": 76,
+      "Generic": 102,
+      "Fuzzers": 299,
+      "Shellcode": 4,
+      "Worms": 5,
+      "Backdoor": 12
+    },
+    "stock+cic+unsw": {
+      "Exploits": 967,
+      "Reconnaissance": 776,
+      "Generic": 118,
+      "Fuzzers": 360,
+      "DoS": 77,
+      "Backdoor": 15,
+      "Shellcode": 4,
+      "Worms": 5
+    }
+  },
+  "alerts": {
+    "stock": 4444,
+    "stock+cic": 5073,
+    "stock+cic+unsw": 6973
+  },
+  "unmatched": {
+    "stock": {
+      "attacker_involved": 962,
+      "no_attacker": 749
+    },
+    "stock+cic": {
+      "attacker_involved": 1097,
+      "no_attacker": 749
+    },
+    "stock+cic+unsw": {
+      "attacker_involved": 1512,
+      "no_attacker": 746
+    }
+  },
+  "ai_rules": {
+    "7600401": {
+      "alerts": 115,
+      "matched": 101,
+      "attacker_involved": 115,
+      "cats": {
+        "Exploits": 101
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        4,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7600504": {
+      "alerts": 511,
+      "matched": 442,
+      "attacker_involved": 511,
+      "cats": {
+        "Reconnaissance": 438,
+        "Exploits": 2,
+        "Generic": 2
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        4,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7600503": {
+      "alerts": 195,
+      "matched": 170,
+      "attacker_involved": 195,
+      "cats": {
+        "Exploits": 170
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        4,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7600203": {
+      "alerts": 3,
+      "matched": 3,
+      "attacker_involved": 3,
+      "cats": {
+        "Backdoor": 3
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        5
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7600402": {
+      "alerts": 98,
+      "matched": 80,
+      "attacker_involved": 98,
+      "cats": {
+        "Generic": 20,
+        "Fuzzers": 60
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        4,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7600102": {
+      "alerts": 339,
+      "matched": 268,
+      "attacker_involved": 339,
+      "cats": {
+        "Exploits": 10,
+        "DoS": 7,
+        "Generic": 251
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        4,
+        5,
+        10,
+        14
+      ],
+      "file": "wednesday_heartbleed.rules"
+    },
+    "7600501": {
+      "alerts": 339,
+      "matched": 268,
+      "attacker_involved": 339,
+      "cats": {
+        "Exploits": 10,
+        "DoS": 7,
+        "Generic": 251
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        4,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7600505": {
+      "alerts": 27,
+      "matched": 26,
+      "attacker_involved": 27,
+      "cats": {
+        "Reconnaissance": 26
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        4,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7601402": {
+      "alerts": 27,
+      "matched": 26,
+      "attacker_involved": 27,
+      "cats": {
+        "Reconnaissance": 26
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        4,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7601403": {
+      "alerts": 45,
+      "matched": 5,
+      "attacker_involved": 45,
+      "cats": {
+        "Fuzzers": 5
+      },
+      "pcaps_fired": [
+        1,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7600201": {
+      "alerts": 53,
+      "matched": 17,
+      "attacker_involved": 53,
+      "cats": {
+        "Fuzzers": 16,
+        "Exploits": 1
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        5,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7600204": {
+      "alerts": 97,
+      "matched": 33,
+      "attacker_involved": 97,
+      "cats": {
+        "Fuzzers": 32,
+        "Exploits": 1
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7600103": {
+      "alerts": 287,
+      "matched": 227,
+      "attacker_involved": 287,
+      "cats": {
+        "Generic": 227
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        4,
+        5,
+        10,
+        14
+      ],
+      "file": "wednesday_heartbleed.rules"
+    },
+    "7600502": {
+      "alerts": 287,
+      "matched": 227,
+      "attacker_involved": 287,
+      "cats": {
+        "Generic": 227
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        4,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7600205": {
+      "alerts": 10,
+      "matched": 8,
+      "attacker_involved": 10,
+      "cats": {
+        "Fuzzers": 5,
+        "Generic": 1,
+        "DoS": 2
+      },
+      "pcaps_fired": [
+        1,
+        3,
+        5,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7601003": {
+      "alerts": 4,
+      "matched": 1,
+      "attacker_involved": 4,
+      "cats": {
+        "Fuzzers": 1
+      },
+      "pcaps_fired": [
+        1,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7601002": {
+      "alerts": 14,
+      "matched": 10,
+      "attacker_involved": 14,
+      "cats": {
+        "Generic": 6,
+        "Exploits": 4
+      },
+      "pcaps_fired": [
+        1,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7601401": {
+      "alerts": 14,
+      "matched": 10,
+      "attacker_involved": 14,
+      "cats": {
+        "Generic": 6,
+        "Exploits": 4
+      },
+      "pcaps_fired": [
+        1,
+        5,
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7600202": {
+      "alerts": 2,
+      "matched": 2,
+      "attacker_involved": 2,
+      "cats": {
+        "Fuzzers": 2
+      },
+      "pcaps_fired": [
+        3
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "7601001": {
+      "alerts": 4,
+      "matched": 0,
+      "attacker_involved": 4,
+      "cats": {},
+      "pcaps_fired": [
+        10,
+        14
+      ],
+      "file": "unsw_triage.rules"
+    },
+    "9500002": {
+      "alerts": 4,
+      "matched": 0,
+      "attacker_involved": 4,
+      "cats": {},
+      "pcaps_fired": [
+        10,
+        14
+      ],
+      "file": "bruteforce_campaigns.rules"
+    }
+  }
+}

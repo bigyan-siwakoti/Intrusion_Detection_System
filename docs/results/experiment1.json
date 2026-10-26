@@ -1,0 +1,267 @@
+{
+  "full": {
+    "findings": {
+      "per_run": {
+        "3": {
+          "main": [
+            "Exploits",
+            "Fuzzers",
+            "Reconnaissance"
+          ],
+          "touched": [
+            "Backdoor",
+            "DoS",
+            "Exploits",
+            "Fuzzers",
+            "Generic",
+            "Reconnaissance",
+            "Worms"
+          ],
+          "outcome_statements": 24,
+          "outcome_unconfirmed": 0,
+          "covered_tcpudp": 345,
+          "tcpudp": 3645,
+          "file": "triage-2026-09-26-05-35-27.txt",
+          "run": "unsw-3-raw",
+          "turns": 44,
+          "duration": "9m 54s",
+          "status": "completed"
+        },
+        "1": {
+          "main": [
+            "Backdoor",
+            "DoS",
+            "Exploits",
+            "Fuzzers",
+            "Generic",
+            "Reconnaissance"
+          ],
+          "touched": [
+            "Backdoor",
+            "DoS",
+            "Exploits",
+            "Fuzzers",
+            "Generic",
+            "Reconnaissance",
+            "Worms"
+          ],
+          "outcome_statements": 16,
+          "outcome_unconfirmed": 0,
+          "covered_tcpudp": 151,
+          "tcpudp": 963,
+          "file": "triage-2026-09-26-05-47-36.txt",
+          "run": "unsw-1-raw",
+          "turns": 75,
+          "duration": "11m 56s",
+          "status": "completed"
+        },
+        "10": {
+          "main": [
+            "DoS",
+            "Exploits",
+            "Fuzzers",
+            "Generic",
+            "Reconnaissance"
+          ],
+          "touched": [
+            "DoS",
+            "Exploits",
+            "Fuzzers",
+            "Generic",
+            "Reconnaissance"
+          ],
+          "outcome_statements": 13,
+          "outcome_unconfirmed": 1,
+          "covered_tcpudp": 621,
+          "tcpudp": 2145,
+          "file": "triage-2026-09-26-08-27-04.txt",
+          "run": "unsw-10-raw",
+          "turns": 62,
+          "duration": "9m 10s",
+          "status": "completed"
+        }
+      },
+      "union_main": [
+        "Backdoor",
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Reconnaissance"
+      ],
+      "covered_tcpudp": 1117,
+      "tcpudp": 6753
+    },
+    "rules_written": 8,
+    "sids": [
+      7600201,
+      7600202,
+      7600203,
+      7600204,
+      7600205,
+      7601001,
+      7601002,
+      7601003
+    ],
+    "rules_failed_to_load_per_replay": {
+      "3": "3",
+      "1": "3",
+      "10": "3"
+    },
+    "replay": {
+      "base_detected": 591,
+      "cond_detected": 603,
+      "tcpudp_events": 6753,
+      "rules_fired": [
+        7600201,
+        7600202,
+        7600203,
+        7600204,
+        7600205,
+        7601001,
+        7601002,
+        7601003
+      ],
+      "alerts": 123,
+      "alerts_gt_matched": 37,
+      "alerts_no_attacker": 0
+    }
+  },
+  "bare": {
+    "findings": {
+      "per_run": {
+        "3": {
+          "main": [
+            "DoS",
+            "Exploits",
+            "Fuzzers",
+            "Generic",
+            "Reconnaissance",
+            "Shellcode",
+            "Worms"
+          ],
+          "touched": [
+            "Backdoor",
+            "DoS",
+            "Exploits",
+            "Fuzzers",
+            "Generic",
+            "Reconnaissance",
+            "Shellcode",
+            "Worms"
+          ],
+          "outcome_statements": 3,
+          "outcome_unconfirmed": 2,
+          "covered_tcpudp": 875,
+          "tcpudp": 3645,
+          "file": "triage-2026-09-26-14-47-01.txt",
+          "run": "unsw-3-bare",
+          "turns": 57,
+          "duration": "9m 38s",
+          "status": "completed"
+        },
+        "1": {
+          "main": [
+            "DoS",
+            "Exploits",
+            "Fuzzers",
+            "Generic",
+            "Reconnaissance"
+          ],
+          "touched": [
+            "DoS",
+            "Exploits",
+            "Fuzzers",
+            "Generic",
+            "Reconnaissance",
+            "Worms"
+          ],
+          "outcome_statements": 7,
+          "outcome_unconfirmed": 1,
+          "covered_tcpudp": 388,
+          "tcpudp": 963,
+          "file": "triage-2026-09-26-14-56-40.txt",
+          "run": "unsw-1-bare",
+          "turns": 48,
+          "duration": "7m 17s",
+          "status": "completed"
+        },
+        "10": {
+          "main": [
+            "DoS",
+            "Exploits",
+            "Fuzzers",
+            "Generic",
+            "Reconnaissance"
+          ],
+          "touched": [
+            "Backdoor",
+            "DoS",
+            "Exploits",
+            "Fuzzers",
+            "Generic",
+            "Reconnaissance",
+            "Worms"
+          ],
+          "outcome_statements": 5,
+          "outcome_unconfirmed": 3,
+          "covered_tcpudp": 629,
+          "tcpudp": 2145,
+          "file": "triage-2026-09-26-15-03-58.txt",
+          "run": "unsw-10-bare",
+          "turns": 60,
+          "duration": "8m 13s",
+          "status": "completed"
+        }
+      },
+      "union_main": [
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Reconnaissance",
+        "Shellcode",
+        "Worms"
+      ],
+      "covered_tcpudp": 1892,
+      "tcpudp": 6753
+    },
+    "rules_written": 10,
+    "sids": [
+      7700001,
+      7700002,
+      7700003,
+      7700004,
+      7700005,
+      7700006,
+      7700007,
+      7700008,
+      7700009,
+      7700010
+    ],
+    "rules_failed_to_load_per_replay": {
+      "3": "3",
+      "1": "3",
+      "10": "3"
+    },
+    "replay": {
+      "base_detected": 591,
+      "cond_detected": 821,
+      "tcpudp_events": 6753,
+      "rules_fired": [
+        7700001,
+        7700002,
+        7700004,
+        7700005,
+        7700006,
+        7700007,
+        7700008,
+        7700009,
+        7700010
+      ],
+      "alerts": 652,
+      "alerts_gt_matched": 462,
+      "alerts_no_attacker": 0
+    }
+  }
+}

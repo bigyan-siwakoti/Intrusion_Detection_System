@@ -1,349 +1,249 @@
-================================================================================
-PROJECT_STATE.txt — Capstone IDS (Group 13)
-Last updated: 2026-09-01
-================================================================================
-
-NOTE: This document supersedes CLAUDE.md §3.1–3.2 (the custom normal.rules
-approach). The project now uses the ET Open ruleset + threshold-based suppression
-instead of hand-written normality rules. CLAUDE.md §3.3–3.5, §3.6, and all other
-sections still stand. CLAUDE.md should be updated to reflect this change.
-
-================================================================================
-1. WHERE WE ARE — COMPLETED WORK
-================================================================================
-
-1.1 BASELINE PROFILING (COMPLETE)
----------------------------------
-
-We followed a real SOC engineer workflow:
-  - Start with stock community ruleset (ET Open, 52,647 rules)
-  - Run benign traffic (Monday)
-  - Identify and suppress all false positives
-  - Verify baseline is clean
-  - Run attack traffic (Tuesday) and confirm real detections surface
-
-BASELINE DEFINITION (explicit decision):
-  Normal ≡ everything CIC-IDS2017 Monday triggered. 80 unconditional
-  suppressions in config/threshold.config. Consequence: any genuinely malicious
-  traffic present in the benign-labelled capture is defined as normal. Accepted
-  because Monday is the labelled benign corpus (529,918 flows, all BENIGN per
-  ground truth CSV). The alternative (per-IP suppression) needs asset context
-  we don't have yet.
-
-  TRIPWIRE: if a Tue–Fri detection is traced back to a Monday-suppressed SID,
-  revisit that suppression. Some suppressions are hypotheses, not certainties:
-    - SID 2400065 ET DROP Spamhaus DROP Inbound (7) — called "stale intel"
-    - SID 2018959 PE EXE/DLL download (1) — called "normal Windows updates"
-    - SID 2028795/2028780/2028782 JA3 adware (~6,100) — called "stale JA3"
-    - SID 2053892/2053893 polyfill.io (17) — called "benign"
-  These are defensible but unverified. Document this in the report.
-
-
-1.2 CONFIG CHANGES MADE
-------------------------
-
-File: config/suricata.yaml (copied from /etc/suricata/suricata.yaml, modified)
-
-  Change 1 — HOME_NET:
-    Before: "[192.168.0.0/16,10.0.0.0/8,172.16.0.0/12]"
-    After:  "[192.168.10.0/24]"
-    Why:    CIC-IDS2017 victims are 192.168.10.x. Old config included
-            172.16.0.0/12, which contains the attacker 172.16.0.1. This meant
-            ET rules checking $EXTERNAL_NET -> $HOME_NET would never match
-            attack traffic. Fix makes attacker correctly external.
-    STATUS: Verified for Monday and Tuesday only. Must verify per-day before
-            running Wednesday–Friday (see §3.1 PRE-FLIGHT).
-
-  Change 2 — Checksum validation:
-    Before: checksum-validation: yes
-    After:  checksum-validation: no
-    Why:    CIC-IDS2017 pcaps captured with NIC checksum offloading. Packets
-            have placeholder checksums (capture artifact). With validation on:
-            (a) 1.86M false checksum alerts
-            (b) ~16% of TCP traffic silently rejected from reassembly — the
-                app-layer rules (HTTP, TLS, DNS) never saw that data.
-            Disabling is standard practice for offline pcap replay.
-    Evidence: Run02→Run03 count deltas confirmed reassembly was broken:
-            - HTTP excessive headers: 5,593 → 7,172 (+28%)
-            - Kerberos weak encryption: 454 → 634 (+40%)
-            - HTTP response mismatch: 1,834 → 219 (-88%)
-            These shifts prove Suricata was seeing incomplete traffic in run02.
-
-  Change 3 — Local paths:
-    default-rule-path:    /home/bigyan/capstone-ids/rules
-    classification-file:  /home/bigyan/capstone-ids/config/classification.config
-    threshold-file:       /home/bigyan/capstone-ids/config/threshold.config
-
-
-1.3 FILES IN THE PROJECT
---------------------------
-
-  config/
-    suricata.yaml           — project-local config with all changes above
-    classification.config   — copied from /var/lib/suricata/rules/
-    threshold.config        — 80 suppress lines, each with a reason comment
-
-  rules/
-    suricata.rules          — stock ET Open ruleset (52,647 rules), UNTOUCHED
-    normal.rules            — old approach, superseded (kept for history)
-    generated/              — empty, will hold LLM-authored rules
-
-  data/
-    pcaps/                  — CIC-IDS2017 full pcaps (gitignored, ~50GB total)
-      Monday-WorkingHours.pcap    (11 GB, benign only)
-      Tuesday-WorkingHours.pcap   (11 GB, FTP-Patator + SSH-Patator)
-      Wednesday-workingHours.pcap (13 GB, DoS attacks)
-      Thursday-WorkingHours.pcap  (7.8 GB, Web attacks + Infiltration)
-      Friday-WorkingHours.pcap    (8.3 GB, DDoS + PortScan + Botnet)
-    slices/                 — small cuts for fast iteration
-      monday-10k.pcap, monday-mid.pcap, test.pcap
-    labels/
-      TrafficLabelling/     — ground truth CSVs, last column is "Label"
-
-  logs/                     — run outputs, organised by what changed
-    run01/                  — first attempt, process killed before completion
-    run02/                  — full Monday, old checksum-validation:yes (BAD)
-    run03/                  — full Monday, checksum-validation:no (GOOD)
-    threshold-v1-suppress-all/  — Monday with all 68 suppressions → 0 alerts
-    tuesday-threshold-v1/       — Tuesday with Monday suppressions → 2,613 alerts
-    tuesday-threshold-v2/       — Tuesday with all 80 suppressions → 2,404 alerts
-
-  src/                      — EMPTY, pipeline code to be built
-    bundle/                 — context bundler (will build from jq queries)
-    llm/                    — LLM API calls and prompts
-    eval/                   — scoring against ground truth
-
-
-1.4 TUESDAY TRIAGE (MANUAL, COMPLETE)
---------------------------------------
-
-Ground truth: 432,074 BENIGN + 7,938 FTP-Patator + 5,897 SSH-Patator
-
-After suppression: 2,404 alerts, 2 signatures:
-  - ET SCAN Potential FTP Brute-Force attempt response (SID 2002383): 2,373
-  - ET SCAN Potential SSH Scan (SID 2001219): 31
-
-FTP investigation (complete):
-  - Attacker: 172.16.0.1 → Victim: 192.168.10.50
-  - 11,891 failed logins (code 530), 1 successful login (code 230)
-  - Successful login at 2017-07-04T21:47:57
-  - Post-login: attacker checked system type (215), then continued brute-forcing
-  - Attacker did NOT exploit the access
-
-SSH investigation (INCOMPLETE):
-  - Attacker: 172.16.0.1 → Victim: 192.168.10.50
-  - 31 alerts, but 5,897 attack flows in ground truth
-  - Rule analysis: SID 2001219 has threshold (type both, track by_src, count 5,
-    seconds 120) AND only matches SYN packets to port 22 (flags:S,12).
-    It detects CONNECTION ATTEMPTS, not auth failures. There is no ET rule in
-    our set that detects "SSH auth failed repeatedly" the way SID 2002383 does
-    for FTP. This is a genuine coverage gap, not just rate limiting.
-  - UNFINISHED: Did the SSH brute-force succeed? Not checked yet.
-    Need to look at SSH events for 172.16.0.1 → 192.168.10.50 similar to
-    how we checked FTP completion codes.
-
-
-================================================================================
-2. DECISIONS MADE
-================================================================================
-
-2.1 APPROACH CHANGE
-  From: custom normal.rules (normality encoding, fire on negation)
-  To:   ET Open ruleset + threshold.config suppression
-  Why:  more practical, mirrors real SOC workflow, more defensible in report
-
-2.2 TOOL CHOICES
-  - Suricata 8.0.6 (OISF PPA)
-  - jq 1.7 for eve.json analysis
-  - Python 3 (in venv) for the pipeline
-  - Claude API (Opus 4.6 or Opus 5) for the LLM triage
-  - MCP (Model Context Protocol) for giving the model project access
-
-2.3 PROJECT DELIVERY MODEL
-  The project ships as an engine. Users bring their own:
-  - Pcap files
-  - Claude API key
-  Config is driven by suricata.yaml — swap rules/config, not code.
-
-2.4 PIPELINE DESIGN (AGREED, NOT YET BUILT)
-  Architecture:
-    Suricata → eve.json → MCP Server (Python) → Claude API → Web UI
-
-  The MCP server exposes tools:
-    - Query eve.json (jq-style queries)
-    - Read files (rules, config, assets.txt)
-    - Write files (threshold.config, new rules)
-    - Run suricata
-    - Read assets (destination context)
-    - Send report
-
-  The model uses these tools to do triage step-by-step, exactly as a human
-  analyst would. The web UI streams the model's actions in real-time so the
-  viewer can watch the triage happen live.
-
-  Two exits from triage (per CLAUDE.md §3.4):
-    - Threat → model writes a detection rule → validate → auto-deploy
-    - Legitimate unmodelled → model suggests suppress → human approval required
-
-
-================================================================================
-3. WHAT TO DO NEXT
-================================================================================
-
-3.1 PRE-FLIGHT: VERIFY HOME_NET FOR REMAINING DAYS
----------------------------------------------------
-Before running Wednesday–Friday, check each day's IP addresses to confirm
-192.168.10.0/24 covers all internal hosts. CIC-IDS2017 topology may include
-addresses outside that /24, especially Thursday's infiltration scenario.
-
-Run per day (after initial suricata run produces eve.json):
-  jq -r 'select(.event_type=="flow") | .src_ip, .dest_ip' <eve.json> \
-    | sort -u | grep -v '^192\.168\.10\.'
-
-Anything that looks like lab infrastructure (not public internet) is a
-HOME_NET question. Add to HOME_NET if needed before the real analysis run.
-
-
-3.2 FINISH SSH INVESTIGATION
------------------------------
-Check if the SSH brute-force succeeded:
-  jq 'select(.event_type=="ssh" and .src_ip=="172.16.0.1")' \
-    logs/tuesday-threshold-v2/eve.json
-
-Look for successful authentication events. This was done for FTP (found 1
-successful login) but not completed for SSH.
-
-
-3.3 BUILD THE PIPELINE (src/)
-------------------------------
-Order of implementation:
-
-  Step 1: MCP Server skeleton
-    - Python project setup (venv, dependencies)
-    - MCP server with basic tool definitions
-    - Tool: query_eve_json — runs jq queries on eve.json
-    - Tool: read_file — reads any project file
-    - Tool: write_file — writes to threshold.config or rules/generated/
-    - Tool: run_suricata — runs suricata on a pcap with project config
-
-  Step 2: Claude API integration
-    - Connect MCP server to Claude API
-    - System prompt: "you are an IDS analyst, here are your tools, here is
-      the triage procedure"
-    - Agentic loop: model calls tools, gets results, continues until done
-
-  Step 3: Triage prompt engineering
-    - Encode the manual triage workflow as instructions
-    - Test on Tuesday (known answers) — does the model find the FTP brute-force?
-    - Iterate on prompt until model performs triage correctly
-
-  Step 4: Web UI
-    - Real-time streaming of model actions
-    - Show: alerts received, investigations, decisions, rules written
-    - Final report view for the engineer
-
-  Step 5: Test on Wednesday–Friday
-    - Run the pipeline on remaining attack days
-    - Compare AI triage decisions against ground truth
-    - Measure: what did it catch, what did it miss, how accurate were decisions
-
-
-3.4 EXPERIMENTS (from CLAUDE.md §4)
--------------------------------------
-  Experiment 1: Does context matter?
-    Run same alerts with bare packet info vs full context bundle.
-    Score against ground truth. Either result is a finding.
-
-  Experiment 2: Are the authored rules any good?
-    For threats: does the LLM-written rule validate (suricata -T)?
-    Does it catch the attack on replay? Compare against ET rule.
-
-  Experiment 3: Does the profile converge?
-    Replay benign traffic over N cycles with normality-widening loop.
-    Does alert volume fall across iterations?
-
-
-================================================================================
-4. OPEN QUESTIONS (STILL UNDECIDED)
-================================================================================
-
-From CLAUDE.md §9, still relevant:
-
-  1. Human-in-the-loop asymmetry (§3.4): approve-normality / auto-deploy-
-     detection. Team has not formally adopted. Pipeline design will force
-     this decision.
-
-  2. Label join: CIC-IDS2017 ground truth is per-flow (keyed by IP tuple +
-     timestamp). Our alerts come from eve.json (keyed by IP + timestamp).
-     How cleanly these join is unknown until inspected. Experiment 1's
-     strength depends on this join quality. Must test before running
-     Experiment 1.
-
-  3. Network-based vs host-based IDS — not settled by supervisor.
-
-  4. Project charter — overdue, confirm if still required.
-
-
-================================================================================
-5. REPRODUCE COMMANDS
-================================================================================
-
-# Pull ET Open rules (one-time setup)
-sudo suricata-update
-
-# Copy rules into project (one-time)
-sudo cp /var/lib/suricata/rules/suricata.rules ~/capstone-ids/rules/
-sudo cp /var/lib/suricata/rules/classification.config ~/capstone-ids/config/
-sudo chown bigyan:bigyan ~/capstone-ids/rules/suricata.rules \
-                          ~/capstone-ids/config/classification.config
-
-# Run suricata on any pcap
-mkdir -p ~/capstone-ids/logs/<run-name>
-suricata -r ~/capstone-ids/data/pcaps/<file>.pcap \
-         -l ~/capstone-ids/logs/<run-name>/ \
-         -c ~/capstone-ids/config/suricata.yaml
-
-# Analyze alerts
-jq -c 'select(.event_type=="alert") | {sig: .alert.signature, sid: .alert.signature_id}' \
-  ~/capstone-ids/logs/<run-name>/eve.json | sort | uniq -c | sort -rn
-
-# Check ground truth labels
-awk -F',' '{print $NF}' ~/capstone-ids/data/labels/TrafficLabelling/<day>.pcap_ISCX.csv \
-  | sort | uniq -c
-
-# Verify HOME_NET coverage for a new day (pre-flight)
-jq -r 'select(.event_type=="flow") | .src_ip, .dest_ip' \
-  ~/capstone-ids/logs/<run-name>/eve.json | sort -u | grep -v '^192\.168\.10\.'
-
-
-================================================================================
-6. KEY LEARNINGS (for the report)
-================================================================================
-
-- Checksum offloading in pcaps is a known capture artifact. Disabling
-  checksum-validation is standard for offline replay. Without this fix,
-  ~16% of traffic was silently dropped from TCP reassembly.
-
-- HOME_NET misconfiguration can structurally blind the IDS. If the attacker
-  IP falls inside HOME_NET, rules checking $EXTERNAL_NET → $HOME_NET
-  never match. This is not a rule quality issue — it's a deployment issue.
-
-- The SSH detection gap (31 alerts for 5,897 attack flows) is NOT just rate
-  limiting. The ET SSH scan rule only matches SYN packets — it detects
-  connection attempts, not authentication failures. There is no ET rule
-  equivalent to the FTP brute-force response rule for SSH. This is a
-  genuine coverage gap in the ruleset.
-
-- Baseline definition matters: suppressing everything Monday triggers is a
-  defensible choice, but it must be documented as a decision, not assumed
-  as ground truth. Some suppressions (JA3, Spamhaus, polyfill) silence
-  potentially real observations.
-
-- The 11→76 signature jump between the 10k slice and full Monday is
-  explained by sample size (10k vs 11.7M packets), NOT by the HOME_NET
-  change. The HOME_NET fix's value is demonstrated by Tuesday's attack
-  attribution (172.16.0.1 correctly classified as external).
-
-================================================================================
-END OF PROJECT_STATE.txt
-================================================================================
+PROJECT STATE — Capstone Group 13
+Last updated: 1 October 2026
+(Design decisions and rules live in CLAUDE.md. This file is the current-status snapshot.)
+
+============================================================
+1. SNAPSHOT
+============================================================
+- Final report draft: docs/Final_Report_Group13_DRAFT.docx (red = changes; built by
+  docs/build_final_report.py from "docs/report draft.docx"). Covers CIC + UNSW v1 + Exp 1/2.
+- Presentation: docs/Group13_Capstone_Presentation.pptx (15 slides, ~13.5 min; docs/build_deck.js).
+- NOT YET IN REPORT/DECK: the "strengthening the baseline" work and the AI rounds (sections 5–6
+  below). Add them only with the topology caveat (section 6).
+- Gating item: UNSW hold-out pcaps from the 22-1-2015 day → data/pcaps/unsw/day1/ (not yet
+  downloaded). Do not look at them until the rules being tested are frozen.
+
+============================================================
+2. SYSTEM
+============================================================
+- Suricata 8.0.6, offline pcap replay. Replays: scripts/run_suricata.sh <cic|unsw> <profile> <pcap> <run>.
+- Triage engine (src/): agentic tool loop, 8 base tools + per-profile extras:
+    search_rules (does a loaded rule already cover this?), lookup_vulnerability (local NVD
+    2002–2016 in data/kb/nvd.sqlite, refuses dataset/generator terms).
+- Experiment profiles in src/profiles.py (4 Oct; was src/prompts.py DATASETS): cic, unsw (v1),
+  unsw-bare (Exp 1), unsw-v2-plain, unsw-v2-research, unsw-v2-hunt. Each fixes Suricata config,
+  writable rule file, tools, prompt, blocked files. Old five verified byte-identical after the move.
+  UI has a Profile dropdown (/api/profiles); server no longer guesses the profile from the log name
+  (it used to send every UNSW run to the v1 profile). CLI/batch: --profile (--dataset still works).
+- Tool allowlist: model can only open logs/, config/, rules/, data/pcaps/.
+- Unattended runs: python -m src.batch_transcript <eve> --model deepseek-v4-pro --profile <profile>
+  → triage-<time>-<profile>.txt.
+- Fix (1 Oct): a reply cut off by the output limit used to end the run silently as "completed";
+  the engine now discards it and asks the model to continue. One affected run is kept in
+  transcripts_failed/.
+- DeepSeek is blocked on the CDU network (Cisco Umbrella) — run API work from home/hotspot.
+
+============================================================
+3. DATA AND SET-UPS
+============================================================
+CIC-IDS2017 (frozen): config/suricata.yaml + config/threshold.config; AI rules rules/generated/cic/.
+  Wednesday and Friday pcaps were deleted for space; Tuesday and Thursday re-downloaded.
+UNSW-NB15: dev set = 17 Feb captures 1, 3, 4, 5, 10, 14 (31,432 GT events, 14,935 TCP/UDP).
+  v1 profile config/unsw/v1.yaml (ET Open + CIC AI rules + unsw_triage.rules).
+  Baseline v2 config/unsw/baseline.yaml (FROZEN): ET Open + Snort Community + Stamus lateral +
+  PT Open + re-enabled ET/Snort families (rules/extra/), no Nmap. Human rules only.
+
+============================================================
+4. RESULTS ALREADY IN THE REPORT (docs/results/*.json)
+============================================================
+CIC: model identified 13/14 categories (only GoldenEye missed; slowloris reported jointly with
+  Slowhttptest). Categories caught by >=1 TP alert: stock 8/14 → stock+AI 12/14.
+  Precision Wed+Fri raw: stock 6.1% vs AI 99.4%; all days 81.2% vs 78.0% (one bad rule, 7600004).
+UNSW v1: TCP/UDP detection 9.3% → 15.5% with AI rules; 15.2% with topology rules removed
+  (the v1 gain is genuine). Model identified 8/9 categories (Analysis missed).
+Exp 1 (alerts only vs full context, UNSW 3/1/10): alerts-only as broad (7 vs 6 categories,
+  findings cover 28.0% vs 16.5%) but only full context establishes outcomes
+  (52 vs 9 evidence-backed outcome statements).
+Rule audit: CIC 32 definitions (16 fired on replay; 3 fail to load; 1 cannot fire; 2 deleted);
+  UNSW v1 18 (all load and fire). docs/results/rule_audit.csv.
+
+============================================================
+5. NEW: STRENGTHENING THE BASELINE (UNSW, 6 captures, TCP/UDP detection)
+============================================================
+  ET Open as shipped ............................  9.2%   (62.0% of alerts match an attack)
+  + Snort Community/Stamus/PT Open/Nmap .........  9.4%   (extra rulesets add almost nothing)
+  + re-enabled families (selected), no Nmap .....  25.7%  (56.5% matching; alerts 4.5k → 30.7k)
+  control: ALL disabled rules enabled ...........  31.2%  (28.4% matching; 37,405 alerts on
+                                                            non-attacker hosts vs 795)
+  CIC side-effects: Nmap rules cut Thu precision 93% → 55%; re-enabled families (no Nmap)
+  93% → 79%; Tuesday brute force 48% → 99.5% (FTP), 1% → 99% (SSH) from re-enabled Snort rules.
+  Top-10 rules give 40% of matches (broad gain, not a few rules).
+  Script: src/eval/extra_rulesets.py → docs/results/extra_rulesets.json.
+
+============================================================
+6. NEW: AI ROUNDS ON BASELINE V2 (Exp 3) — READ THE CAVEAT
+============================================================
+Conditions: plain (search_rules) vs research (search_rules + lookup_vulnerability), 2 rounds,
+rules written on captures 3, 1, 10, scored on all 6 (src/eval/rounds.py → docs/results/rounds.json).
+Baseline in these replays: 24.9% (replay variance vs 25.7% above; Suricata thresholds are not
+deterministic across runs).
+
+  raw:                        R1             R2
+    plain    ............  27.9% (+3.0)   36.3% (+11.4)   AI alerts 82% match, 0 on normal hosts
+    research ............  25.2% (+0.3)   27.3% (+2.4)    AI alerts 88% match, 0 on normal hosts
+  research tool used: 1 lookup in R1, 7 in R2 ("written after a lookup" is positional only).
+
+CAVEAT — TOPOLOGY RULES. Classified every rule by its text (docs/results/round_rule_classes.json):
+  topology = ordinary protocol activity from outside HOME_NET with no attack constraint
+  (SMTP MAIL FROM, POP3/FTP login success, SIP INVITE/REGISTER, POP3 RETR, PROPFIND, ...).
+  In UNSW every external host is an attacker, so these score perfectly and would fail on a real
+  network. Plain R2: 10 topology, 3 behavioural, 1 signature, 2 dataset-specific strings
+  (www.exa.dpn, dc=foobar,dc=com). Research R2: 5 topology, 5 behavioural, 2 signature.
+  Re-scored R2:            all rules   no topology   behavioural+signature only
+    plain ...............   36.3%        28.3%            25.0%  (+0.1)
+    research ............   27.3%        24.9%            24.9%  (+0.0)
+  → On the strong baseline, the AI's genuine rules add ~nothing; the "gain" is topology rules
+    and generator-specific strings. Its genuine rules mostly rediscover what the re-enabled
+    human families already cover (they did add ~+6 pts over ET Open alone in v1).
+  Also topology: CIC 7600102/7600103 ("Heartbleed recon" = any outside host making 5 TLS
+    connections in 5 min) — the report's "CIC rules transfer to UNSW" claim rests on these.
+  Cross-check on CIC Thursday: all 28 round rules silent, but INCONCLUSIVE — CIC has almost no
+    benign inbound service traffic (Thu: 1 SMTP, 1 POP3, 1 LDAP inbound flows vs ~130k outbound).
+    Neither dataset can test topology rules; state as a limitation.
+
+============================================================
+7. NEXT STEPS (in order)
+============================================================
+[ ] Download hold-out: 3 pcaps from UNSW 22-1-2015 → data/pcaps/unsw/day1/.
+[ ] HUNT CONDITION (built 4 Oct, not yet run) — docs/hunting_research_and_scope.md. Profile
+    unsw-v2-hunt: detection-engineer procedure, no attacker range in prompt, stack_values (rare
+    first), test_rule (replay as written + widened to any; FAIL if it fires internal->internal),
+    engine blocks saving any rule that has not passed test_rule unchanged. Run like the rounds:
+      R1: python -m src.batch_transcript logs/unsw-{3,1,10}-baseline/eve.json --model <m> --profile unsw-v2-hunt
+      score: python -m src.eval.rounds --round 1 --replay --conds hunt
+    Expected outcome recorded in the scope doc (<= +3 genuine points). Timebox ~10 Oct.
+    R1 PARTIAL (4 Oct, capture 3 only, deepseek-v4-pro via UI, 29 min, 5.87M in tokens;
+    transcript triage-2026-10-04-05-48-19-unsw-v2-hunt.txt): hunted on content fields as designed,
+    7 rules written, all content signatures (0 topology), all passed test_rule (one FAIL->fix->PASS).
+    rounds.py: 24.9% -> 25.5% (+82 events) BUT per-rule attribution vs the baseline log = only
+    6 new TCP/UDP events (5 Exploits/DoS/Generic... each rule matched exactly 1 GT event, all on
+    capture 3, none fired on the other 5 captures). The rest of the +82 is replay variance.
+    → rounds.py's full-minus-base metric mixes replay variance into every condition; attribute by
+    AI-rule alerts instead before reporting any round numbers.
+    → Lesson: rules keyed on exact exploit instances (padding 'Logout+aaaa', 'displayWidth+1AAAA')
+    do not transfer; the generator fires each exploit once. Profile unsw-v2-hunt is now frozen.
+[x] RE-SCORED all rounds with attributable scoring (4 Oct, CLAUDE.md §3.10; src/eval/rounds.py,
+    rule classes docs/results/round_rule_classes.json, hunt 7 added as signature). 6 dev captures,
+    14,935 TCP/UDP events; "attributable" = events matched by AI-rule alerts and not by the baseline log:
+                     attributable        genuine (signature/behavioural only)
+      plain R1       +376 (+2.52 pts)    +0   (+0.00)
+      plain R2       +1688 (+11.30)      +13  (+0.09)
+      research R1    +78  (+0.52)        +19  (+0.13)
+      research R2    +401 (+2.68)        +51  (+0.34)
+      hunt R1 (cap 3 only) +6 (+0.04)    +6   (+0.04)
+    Old replay-vs-stored figures (27.9 / 36.3 / 25.2 / 27.3 / 25.5%) are superseded.
+[x] Hold-out pcaps (4 Oct) in data/pcaps/unsw/day1/: 22-1-2015 captures 1, 25, 50 (picked for spread
+    before any label was looked at), then 3 and 6. The 22 Jan GT only covers 11:00-14:00 UTC, so 25/50
+    (17:38, 23:47 UTC) hold no labelled attacks → kept as an unseen-normal-traffic FP check; 3 and 6
+    were added because they fall inside the attack window (chosen by time only, not label content).
+[x] Baseline v2 on hold-out (rounds.py --holdout --replay --baseline-only; rounds.json
+    "baseline-holdout"): 29.6% TCP/UDP detection (1,373/4,634 over captures 1, 3, 6), 65.4% of alerts
+    match an attack (dev: 24.9%, 57.8%). 25/50: 322 and 153 alerts, no labelled attacks.
+    Fixed in rounds.py first: hold-out used the DEV baseline log + Feb GT window (bug).
+[x] Figures (src/eval/make_figures_v2.py → docs/figures/*.svg + 300-dpi .png): fig3-5..3-7,
+    fig4-4..4-6, fig5-7..5-11. New results files: baseline_control.json, test_rule_gate.json.
+[x] Deck rebuilt (docs/build_deck.js, 23 slides, Part 2 from slide 14) + PDF; demo script
+    docs/demo_script_supervisor.md. Backups of the pre-October deck/report: docs/_backup_2026-10-04/.
+[ ] Hold-out test of frozen baseline v2 (+ genuine AI rules) — python -m src.eval.rounds --holdout.
+[x] REPORT rebuilt 4 Oct (docs/build_final_report.py → Final_Report_Group13_DRAFT.docx + .pdf, 74 pp,
+    25 figures, 11 tables). Superseded text is now DELETED (not struck); all additions red. New: Lit review
+    'Detection Engineering Practice and LLM-Generated Rules'; Approach 'Experiment Profiles', 'The Hunt
+    Condition'; Sec IV 'Strengthening the UNSW-NB15 Baseline', 'AI Rounds ... (Experiment 3)'; Sec V
+    'Attribution and the Topology Trap', 'The Detection-Engineering Workflow', 'Hold-out Evaluation' (one
+    [Pending: AI rules hold-out] marker), 3 new threats; split-claim answer; CIC→UNSW transfer claim
+    withdrawn; 7 new verified refs. INsIDES (Snort 2.43%) deliberately NOT cited: ML paper (constraint 2).
+[x] UNSW v1 re-scored by within-replay attribution (docs/results/unsw_v1_attribution.json): non-AI
+    9.3% -> all 15.5%; AI rules +6.21 pts attributable, +5.90 genuine — the v1 gain over stock ET Open
+    is real; contrast with <=0.33 genuine over baseline v2. Added to report §V and deck slide 11.
+[x] HUNT R1 COMPLETE (4 Oct). Captures 3 (pre-fix, 71 turns, 7 rules), 1 (fixed, 90 turns, 9 rules),
+    10 (fixed, 93 turns, 9 rules) → 25 rules, all classified BEFORE scoring (23 signature, 2 behavioural,
+    0 topology). Scored on 6 dev captures (rounds.py --round 1 --replay --conds hunt):
+      attributable +180 TCP/UDP events = genuine +180 (+1.21 pts); 25/25 rules fire; 531 AI alerts,
+      74.0% match an attack, 0 on normal hosts; 16/25 rules fire on a capture other than their own.
+      By source capture: 3 → +6 (instance rules), 1 → +37, 10 → +138 (technique/behavioural rules).
+      Top: SMB fuzz-filename (behavioural) +59, generic HTTP /../ +37, HP HPEinc RFI +31, encoded XSS +24.
+    Unseen dev captures 4/5/14 only (docs/results/rounds_unseen_dev.json), genuine:
+      plain R2 +0.09 pts, research R2 +0.22, HUNT R1 +1.38 — hunt is the only condition with a gain
+      clearly above noise, and it is larger off the capture the rules were written on.
+    Caveat: the reasoning-carry fix landed between capture 3 and captures 1/10; both post-fix runs
+    produced the rules that transfer. Logs: triage-2026-10-04-{05-48-19,10-03-09,10-14-15}-unsw-v2-hunt.txt
+    (+ failed 09-20-29 attempt). Snapshot rules/snapshots/rounds_hunt_r1_final.rules.
+    Capture 1 attempt 1 (transcript triage-2026-10-04-09-20-29-unsw-v2-hunt.txt): hit the 100-turn
+    limit right after 6 rules passed test_rule (FTP/HTTP traversal, SMTP format string, HP NNM), so
+    nothing was saved. Team decision: hunt profile max_turns raised to 150 (engine default stays 100;
+    capture 3 used 71 turns, so it was unaffected) and capture 1 re-run.
+    ROOT CAUSE FOUND (4 Oct): DeepSeek V4 Pro answers the hunt prompt in thinking mode — its reasoning
+    streams in `reasoning_content` with empty `content`. src/providers.py read only `content`, so the
+    reasoning was never shown/logged AND never passed back with the assistant turn: every turn the
+    model restarted without its own plan → re-tested passed rules, never saved. Evidence: UI event log
+    for capture 1 had 0 text events; raw API probe: content 0 chars, reasoning_content 274-820 chars.
+    FIX: provider now streams reasoning as `thinking` events (UI/export show [THINKING]) and sends
+    `reasoning_content` back in the assistant message. Verified 4 hunt turns, no API errors.
+    Caveat for the report: earlier DeepSeek runs (CIC, UNSW v1, Exp 1, plain/research rounds, hunt
+    capture 3) did not carry reasoning across turns whenever the model used thinking mode; they mostly
+    wrote visible text as well, so were affected less. State as a threat to validity.
+[x] AI-RULE HOLD-OUT DONE (4 Oct). Rule files frozen first (rules/snapshots/rounds_*_holdout_frozen.rules);
+    replayed once on 22 Jan captures 1, 3, 6 (4,634 TCP/UDP events) + 25, 50 (no labelled attacks).
+    Within-replay attribution, genuine = signature/behavioural only (rounds.json *-holdout, holdout_extra):
+      baseline v2 alone 29.4-29.6% (two replays)
+      plain R2    attributable +11.48 pts (topology) → genuine +5 events (+0.11 pts); 98.3% of AI alerts match
+      research R2 attributable +3.34 → genuine +13 (+0.28); 84.0% match
+      HUNT R1     genuine +71 (+1.53 pts); 17/25 rules fire; 91.6% of AI alerts match an attack
+      combined (union of genuine events) +86 (+1.86 pts)
+      AI-rule alerts on normal hosts: 0 in every condition; on benign-only captures 25/50: 0 in every condition.
+    → The hunt gain holds on unseen traffic (dev +1.21, unseen dev 4/5/14 +1.38, hold-out +1.53).
+[x] Report (78 pp, 26 figures, 13 tables) + deck (24 slides, new bug-fix slide) + demo script rebuilt
+    with final hunt and hold-out numbers; confound with the provider fix stated (abstract, §V threats,
+    RQ answer, deck). New figs fig5-10 (grouped by capture, pre/post fix), fig5-12 (generalisation).
+    Failed capture-1 attempt moved to transcripts_failed/ (usage counts now exclude it).
+[ ] OPTIONAL (de-confound): re-run plain and research on capture 3 (or 3/1/10) with the provider fix.
+[x] DETECTABLE-DENOMINATOR ANALYSIS (4 Oct; src/eval/detectable.py → docs/results/detectable.json).
+    content-detectable = attacker sent data in a matching flow (bytes > 74 B/pkt; the generator often
+    omits PSH, so flags are unusable): dev 78.9% of TCP/UDP events, hold-out 75.4%.
+    ever-detected = caught by any config we ran (baseline, all-on control, genuine AI rules): dev 33.1%,
+    hold-out 31.5% (circular ceiling — defined by our own rules).
+    baseline v2: 24.9% all / 23.7% content-detectable / 75.2% ever-detected (hold-out 29.6 / 28.6 / 94.1).
+    hunt genuine: dev +1.21 all / +1.49 content / +3.64 ever; hold-out +1.53 / +1.92 / +4.87 pts.
+    → most missed events DO carry data: the gap is missing signatures, not undetectable traffic.
+[x] HUNT2 (built and run 4 Oct evening): profile unsw-v2-hunt2 = unsw-v2-hunt + suricata_keywords tool (lists keywords
+    this Suricata build supports; exact-name lookup shows docs), sid base 7900001, rule file rounds_hunt2.rules,
+    config baseline-hunt2.yaml; cannot read hunt logs/rules or hold-out logs. Existing 6 profiles verified
+    unchanged except the hunt profile's auto-globbed blocked list now also lists baseline-hunt2.yaml.
+    EXPECTED OUTCOME (recorded before running): +1.2 to +2.0 pts genuine on dev, close to or modestly above
+    hunt; fewer turns lost to keyword guessing; DNS-entropy and POP3/SMTP rate rules still out of reach.
+    Plan: captures 3, 1, 10 via UI (all with the reasoning fix) → classify → score dev/unseen/hold-out.
+    RESULT (4 Oct night): runs 3 (68 turns, 9 rules), 1 (143 turns, 16), 10 (54 turns, 7) → 32 rules, classified
+    before scoring: 29 signature, 1 behavioural, 1 topology (7900106 LDAP mod-DN from outside), 1 dataset-indicator
+    (7900107 LDAP bind 'dc\\administrator'). All 32 fire on dev; 85.4% of alerts match; 0 on normal hosts.
+      genuine: dev +136 (+0.91) | unseen dev 4/5/14 +75 (+0.92) | hold-out +49 (+1.06), 100% alerts match,
+      0 alerts on benign captures 25/50.  hunt for comparison: +1.21 | +1.38 | +1.53.
+    → BELOW the recorded expectation (+1.2–2.0). Keyword tool did its job (0 failed rule loads vs 2 in hunt
+      cap 10; proper buffers ftp.command_data, ldap.request.dn, dns.query.name, app-layer-event), but detection is
+      set by WHICH attack families the run hunts: dev genuine events hunt 180 / hunt2 136, overlap 82, hunt-only 98
+      (SMB fuzz rule +59), hunt2-only 54 (WebDAV PROPFIND .dll +36). Run-to-run variation > tool effect.
+      Union hunt+hunt2 on hold-out +87 (+1.88); all four conditions +101 (+2.18).
+    New scripts: src/eval/unseen_dev.py, src/eval/holdout_checks.py; detectable.py now includes hunt2.
+[~] Agent limitations seen in hunt capture-10 report (keyword gap FIXED via hunt2's tool; Lua and rate-rule gate NOT): no Suricata keyword reference
+    (guessed smb.filename / tls.subject; `file.name` and `tls.cert_subject` exist — list via
+    `suricata --list-keywords=csv`); statistical properties (DNS label entropy) need the `lua` keyword;
+    DCE/RPC version-only fuzz needs raw byte_test; rate rules on POP3/SIP/SMTP avoided (no IP pivot +
+    gate blind on those protocols).
+[ ] Optional: unsw-v2-hunt2 (technique-level rules) if time before ~8 Oct.
+[ ] Report: deck reliability note (truncation bug, transcripts_failed/) still to add; team proofread of
+    red text; submission date placeholder "[submission date] October 2026".
+[ ] Git commit (user runs it): src/, scripts/, config/cic/, config/unsw/, rules/extra/*.rules
+    (not rules/extra/src/ archives if large), rules/generated/{cic,unsw}/, rules/snapshots/,
+    docs/, triage-*.txt, transcripts_failed/, CLAUDE.md, PROJECT_STATE.txt, .gitignore.
+    Never commit capstone-ids_apis.txt (gitignored) or data/kb/ (gitignored).
+[ ] Rotate the Anthropic API key exposed in an earlier session.
+[ ] Admin: Shahswat/Shashwat spelling, submission date, Turnitin, AI declaration.
+
+============================================================
+8. TIMELINE
+============================================================
+Teaching ends 17 October 2026; exams 23–31 October.
+
+[x] FINAL REBUILD (4 Oct night): report 81 pp / 29 figures / 14 tables, deck 27 slides. New report sections:
+    'Adding a Keyword Reference (Hunt2)', 'What a Signature IDS Could Have Detected' (Table 5-6, fig5-13),
+    'Why the Agent Did Not Write a Rule' (fig5-15); hunt2 in Tables 4-5, 4-6, 5-5; fig5-14 hunt vs hunt2 overlap;
+    threats: one run per capture, detectability proxy. Deck: slides for hunt2, detectability, agent limits.

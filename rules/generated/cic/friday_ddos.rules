@@ -1,0 +1,44 @@
+# =============================================================================
+# Custom detection rule - Friday Working-Hours (CIC-IDS2017) HTTP request flood
+# Triage of logs/friday-validate-new-rules/eve.json (data/pcaps/Friday-WorkingHours.pcap)
+#
+# RE-MEASURED for this validation pass. Whole-capture counts, filter
+# src_ip=172.16.0.1 AND event_type=http:
+#   94,613 HTTP transactions 172.16.0.1 -> 192.168.10.50 (94,570 of them to
+#   :80, 94,548 answered HTTP 200 OK), 2017-07-08 04:26:37 - 04:47:xx.
+#   Peak minute 04:36 = 5,047 transactions (~84 req/s), typical minute ~4,850
+#   (~81 req/s), 21-minute mean ~75 req/s. The rev:1 header claimed
+#   189,188 GETs / "~9,500-10,000 requests/min" - that figure is not supported
+#   by this capture; the measured rate is ~4.8k/min.
+#
+# WHY rev:2 - the rev:1 threshold (5000 requests / 60 s = 83.3 req/s) sat ABOVE
+# the sustained rate of the very campaign it was written for. Validated by
+# temporarily loading two replicas into a rule file that IS in the run config
+# (wednesday_slowloris.rules) and re-running the full Friday pcap
+# (logs/validate-9500003-threshold/):
+#   sid:9500097 (replica of rev:1: http GET "/", 5000/60s)  -> fired 4x
+#        (04:32:31, 04:34:21, 04:36:26, 04:43:24) i.e. only when the busiest
+#        minutes clear 83 req/s; silent for the other ~17 minutes of the flood.
+#   sid:9500098 (rev:2 candidate: method-agnostic, 6000/120s) -> fired 10x,
+#        evenly spread 04:27:59 - 04:45:47 across the whole flood.
+# Both replicas were removed after validation; wednesday_slowloris.rules was
+# restored byte-for-byte.
+#
+# rev:2 is deliberately NOT method-restricted ("content:HTTP", no http.method),
+# so POST/HEAD/random-verb floods are also caught; the GET-specific companion
+# rule sid:9600001 in friday_ddos_portscan.rules (GET, 5000/120s, fired 11x on
+# this capture) remains the higher-fidelity signal for plain GET floods.
+# Overlap on a GET flood is expected - deploy either rule for that case, or both
+# for method-agnostic coverage, but do not treat the two alerts as independent.
+#
+# NOTE: this file is NOT in config/suricata.yaml's rule-files list, so it is
+# dead code until the engineer adds it there (see report, section 5).
+# =============================================================================
+
+alert http $EXTERNAL_NET any -> $HOME_NET 80 ( \
+    msg:"CUSTOM HTTP Request Flood - sustained high-volume request flood to HOME_NET web server"; \
+    flow:to_server,established; \
+    content:"HTTP"; nocase; \
+    threshold:type threshold, track by_src, count 6000, seconds 120; \
+    classtype:attempted-dos; \
+    sid:9500003; rev:2;)

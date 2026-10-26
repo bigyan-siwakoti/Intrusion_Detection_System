@@ -1,0 +1,112 @@
+# =============================================================================
+# Custom detection rules — Thursday Working-Hours (CIC-IDS2017) campaign
+# Triage of logs/thursday-tuned/eve.json (data/pcaps/Thursday-WorkingHours.pcap)
+#
+# Two coordinated campaigns found in this capture:
+#
+# (A) MORNING/ONGOING WEB-ATTACK  (172.16.0.1 -> 192.168.10.50, DVWA):
+#      - HTTP login brute force: 1,826 POSTs to /dv/login.php between
+#        21:51 and 22:30 (sustained ~47-48 POST/min from a single source).
+#        The stock ET ruleset DID NOT alert on this (no brute-force sig fired).
+#        After the login succeeded the attacker ran reflected XSS (1,801+
+#        /dv/vulnerabilities/xss_r/ script probes) and union-based SQLi
+#        (/dv/vulnerabilities/sqli/). The XSS/SQLi/scan phases ARE caught by
+#        ET WEB_SERVER sids 2009714 / 2010963 / 2017808 / 2016672.
+#
+# (B) AFTERNOON INFILTRATION  (192.168.10.8 compromised internal host):
+#      - Outbound interactive Windows cmd.exe reverse-shell to external C2
+#        205.174.165.73:444 (GPL EXPLOIT 2102123 cmd banner + ET MALWARE
+#        2034945 reverse-shell fire on each of 5 sessions; 23,757x ET 2023207
+#        "'...' is not recognized as an internal or external command" flood
+#        is the redundant per-message noise of the interactive session).
+#      - Post-compromise LAN reconnaissance/lateral movement from .8: nmap
+#        NSE (ET 2024364), port 135 scan (ET 2001581), plus a systematic
+#        sequential SMB NEGOTIATE_PROTOCOL sweep across .9/.12/.16/.17/.19/.50
+#        that only surfaced as low-fidelity parser event SURICATA 2225005.
+#
+# Coverage gaps addressed below:
+#   1. The DVWA HTTP login brute force (gap - no ET rule fired).
+#   2. The intra-LAN multi-host SMB probe sweep by the compromised internal
+#      host (gap - stock parser alert 2225005 does not articulate a scan).
+# =============================================================================
+
+# --- 1. Web login brute force -----------------------------------------------
+# DVWA entry point /dv/login.php hammered with POSTs ~47/min from 172.16.0.1.
+# Any single external source posting to a HOME_NET login handler this fast is
+# a brute force. Fires ~1x within the first ~2 min of the observed campaign.
+alert http $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM HTTP Web-Login Brute-Force - Sustained POST flood to login handler"; \
+    flow:to_server,established; \
+    http.method; content:"POST"; nocase; \
+    http.uri; content:"login.php"; nocase; \
+    threshold:type threshold, track by_src, count 50, seconds 60; \
+    classtype:attempted-admin; \
+    sid:7600001; rev:1;)
+
+# --- 2. Intra-LAN multi-host SMB probe sweep (lateral movement) -------------
+# A compromised internal host repeatedly sending SMB1 NEGOTIATE_PROTOCOL to
+# MANY distinct HOME_NET hosts in a short programmed window. On this network
+# legitimate Windows clients only SMB-connect to the DC (192.168.10.3) and
+# their own file servers, not to 5+ arbitrary hosts in rapid succession.
+# Fires once the same source has parked 20 SMB sessions in 120s across LAN.
+alert smb $HOME_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM SMB Lateral-Movement Scan - internal host probing many LAN hosts (SMB negotiate sweep)"; \
+    flow:to_server,established; \
+    smb.command; content:"SMB1_COMMAND_NEGOTIATE_PROTOCOL"; \
+    threshold:type threshold, track by_src, count 20, seconds 120; \
+    classtype:attempted-recon; \
+    sid:7600002; rev:1;)
+
+# --- 3. Outbound interactive reverse shell to external C2 -------------------
+# 192.168.10.8 opened 5 outbound TCP sessions to 205.174.165.73:444.
+# Each session triggered ET 2034945 (reverse shell) and GPL 2102123
+# (cmd.exe banner); the two long-lived sessions (flows 289750983192184 and
+# 496298020586637) carried 9.5 MB and 5.5 MB of client->server data and
+# produced the 23,757x ET 2023207 flood. This rule is an IP/port correlation
+# for the observed C2 endpoint and is rate-limited to avoid per-packet noise.
+alert tcp $HOME_NET any -> $EXTERNAL_NET 444 ( \
+    msg:"CUSTOM Outbound Windows reverse-shell to known C2 205.174.165.73:444"; \
+    flow:to_server,established; \
+    threshold:type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; \
+    sid:7600003; rev:1;)
+
+# --- 4. FTP data staging / exfiltration uploads -----------------------------
+# Compromised host 192.168.10.8 authenticated to 192.168.10.50:21 with
+# weak credentials (iscxtap / 1234) and repeatedly issued STOR for
+# 32-hex-char .txt files (10257 bytes each). Stock ET did not fire on this.
+# Matches the FTP control command line for that distinctive staging pattern.
+alert tcp $HOME_NET any -> $HOME_NET 21 ( \
+    msg:"CUSTOM FTP Data Staging - STOR upload of hex-named txt file"; \
+    flow:to_server,established; \
+    content:"STOR "; nocase; \
+    pcre:"/STOR [0-9a-f]{32}\.txt/i"; \
+    threshold:type limit, track by_src, count 1, seconds 300; \
+    classtype:trojan-activity; \
+    sid:7600004; rev:1;)
+
+# --- 5. SMB SYSVOL GPO file read (domain recon / lateral movement) ----------
+# 192.168.10.8 authenticated to the DC (192.168.10.3) and read
+# \\DC.Testbed1.ca\SYSVOL\Testbed1.ca\Policies\{31B2F340-016D-11D2-945F-
+# 00C04FB984F9}\...\GptTmpl.inf. Reading GPO security templates is a known
+# AD recon technique; stock ET only surfaced malformed-dialect parser noise.
+alert smb $HOME_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM SMB Lateral Movement - SYSVOL GPO security template read (GptTmpl.inf)"; \
+    flow:to_server,established; \
+    smb.command; content:"SMB2_COMMAND_CREATE"; \
+    smb.share; content:"SYSVOL"; nocase; \
+    smb.filename; content:"GptTmpl.inf"; nocase; \
+    classtype:attempted-admin; \
+    sid:7600005; rev:1;)
+
+# --- 6. DCE/RPC SAMR / LSARPC / DRS domain account enumeration --------------
+# 192.168.10.8 bound to SAMR (12345678-1234-abcd-ef00-01234567cffb),
+# LSARPC (12345778-1234-abcd-ef00-0123456789ab), and DRS interfaces on the
+# DC (192.168.10.3) and issued enumeration opnums. This is the RPC-side of
+# the same domain recon campaign and was not covered by stock ET.
+alert dcerpc $HOME_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM DCE/RPC domain account enumeration - SAMR/LSARPC/DRS interface bind"; \
+    flow:to_server,established; \
+    dcerpc.iface; pcre:"/(e1af8308-5d1f-11c9-91a4-08002b14a0fa|12345678-1234-abcd-ef00-01234567cffb|12345778-1234-abcd-ef00-0123456789ab|e3514235-4b06-11d1-ab04-00c04fc2dcd2)/i"; \
+    classtype:attempted-admin; \
+    sid:7600006; rev:1;)

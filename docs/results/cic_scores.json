@@ -1,0 +1,287 @@
+{
+  "tolerance_s": 120.0,
+  "days": {
+    "Tuesday": {
+      "flows": {
+        "BENIGN": 431758,
+        "FTP-Patator": 7938,
+        "SSH-Patator": 5897
+      },
+      "detected_stock": {
+        "BENIGN": 1828,
+        "FTP-Patator": 3838,
+        "SSH-Patator": 60
+      },
+      "detected_stock_ai": {
+        "BENIGN": 2687,
+        "SSH-Patator": 1674,
+        "FTP-Patator": 4015
+      },
+      "stock_alerts": {
+        "benign": 1523,
+        "attack": 2404
+      },
+      "ai_rules_scored": true
+    },
+    "Wednesday": {
+      "flows": {
+        "BENIGN": 439701,
+        "DoS slowloris": 5796,
+        "DoS Slowhttptest": 5499,
+        "DoS Hulk": 231073,
+        "DoS GoldenEye": 10293,
+        "Heartbleed": 11
+      },
+      "detected_stock": {
+        "BENIGN": 1335,
+        "Heartbleed": 2
+      },
+      "detected_stock_ai": {
+        "BENIGN": 1457,
+        "DoS Hulk": 818,
+        "DoS Slowhttptest": 499,
+        "Heartbleed": 2
+      },
+      "stock_alerts": {
+        "benign": 1451,
+        "unmatched": 3,
+        "attack": 1
+      },
+      "ai_rules_scored": true
+    },
+    "Thursday": {
+      "flows": {
+        "BENIGN": 456326,
+        "Web Attack - Brute Force": 1507,
+        "Web Attack - XSS": 652,
+        "Web Attack - Sql Injection": 21,
+        "Infiltration": 36
+      },
+      "detected_stock": {
+        "BENIGN": 1466,
+        "Infiltration": 17,
+        "Web Attack - Sql Injection": 14,
+        "Web Attack - XSS": 34
+      },
+      "detected_stock_ai": {
+        "BENIGN": 2341,
+        "Web Attack - XSS": 34,
+        "Web Attack - Brute Force": 15,
+        "Infiltration": 20,
+        "Web Attack - Sql Injection": 14
+      },
+      "stock_alerts": {
+        "benign": 1788,
+        "attack": 24670
+      },
+      "ai_rules_scored": true
+    },
+    "Friday": {
+      "flows": {
+        "BENIGN": 414021,
+        "Bot": 1966,
+        "PortScan": 158924,
+        "DDoS": 128027
+      },
+      "detected_stock": {
+        "BENIGN": 1146,
+        "PortScan": 174,
+        "DDoS": 40
+      },
+      "detected_stock_ai": {
+        "BENIGN": 1286,
+        "PortScan": 588,
+        "DDoS": 571,
+        "Bot": 20
+      },
+      "stock_alerts": {
+        "benign": 1544,
+        "attack": 194
+      },
+      "ai_rules_scored": true
+    }
+  },
+  "ai_rules": {
+    "3000001": {
+      "alerts": 336,
+      "attack": 55,
+      "benign": 1,
+      "unmatched": 280,
+      "labels": {
+        "DoS Slowhttptest": 41,
+        "DoS Hulk": 14
+      },
+      "file": "wednesday_slowloris.rules (deleted)"
+    },
+    "3000002": {
+      "alerts": 14,
+      "attack": 1,
+      "benign": 0,
+      "unmatched": 13,
+      "labels": {
+        "DoS Slowhttptest": 1
+      },
+      "file": "wednesday_slowloris.rules (deleted)"
+    },
+    "3000003": {
+      "alerts": 463,
+      "attack": 457,
+      "benign": 0,
+      "unmatched": 6,
+      "labels": {
+        "DoS Slowhttptest": 457
+      },
+      "file": "wednesday_slowloris.rules"
+    },
+    "3000004": {
+      "alerts": 188,
+      "attack": 188,
+      "benign": 0,
+      "unmatched": 0,
+      "labels": {
+        "DoS Hulk": 188
+      },
+      "file": "wednesday_slowloris.rules"
+    },
+    "7600001": {
+      "alerts": 8,
+      "attack": 8,
+      "benign": 0,
+      "unmatched": 0,
+      "labels": {
+        "Web Attack - Brute Force": 8
+      },
+      "file": "thursday_webattacks_infiltration.rules"
+    },
+    "7600003": {
+      "alerts": 4,
+      "attack": 2,
+      "benign": 2,
+      "unmatched": 0,
+      "labels": {
+        "Infiltration": 2
+      },
+      "file": "thursday_webattacks_infiltration.rules"
+    },
+    "7600004": {
+      "alerts": 768,
+      "attack": 0,
+      "benign": 434,
+      "unmatched": 334,
+      "labels": {},
+      "file": "thursday_webattacks_infiltration.rules"
+    },
+    "7600007": {
+      "alerts": 244,
+      "attack": 0,
+      "benign": 244,
+      "unmatched": 0,
+      "labels": {},
+      "file": "thursday_raw_synsweep.rules"
+    },
+    "9000004": {
+      "alerts": 575,
+      "attack": 574,
+      "benign": 0,
+      "unmatched": 1,
+      "labels": {
+        "SSH-Patator": 574
+      },
+      "file": "tuesday_bruteforce.rules"
+    },
+    "9500001": {
+      "alerts": 185,
+      "attack": 185,
+      "benign": 0,
+      "unmatched": 0,
+      "labels": {
+        "FTP-Patator": 185
+      },
+      "file": "bruteforce_campaigns.rules"
+    },
+    "9500002": {
+      "alerts": 376,
+      "attack": 376,
+      "benign": 0,
+      "unmatched": 0,
+      "labels": {
+        "SSH-Patator": 297,
+        "PortScan": 79
+      },
+      "file": "bruteforce_campaigns.rules"
+    },
+    "9600001": {
+      "alerts": 49,
+      "attack": 49,
+      "benign": 0,
+      "unmatched": 0,
+      "labels": {
+        "DDoS": 49
+      },
+      "file": "friday_ddos_portscan.rules"
+    },
+    "9600002": {
+      "alerts": 17,
+      "attack": 15,
+      "benign": 2,
+      "unmatched": 0,
+      "labels": {
+        "PortScan": 12,
+        "DDoS": 3
+      },
+      "file": "friday_ddos_portscan.rules"
+    },
+    "9600003": {
+      "alerts": 510,
+      "attack": 505,
+      "benign": 4,
+      "unmatched": 1,
+      "labels": {
+        "DDoS": 193,
+        "PortScan": 312
+      },
+      "file": "bruteforce_campaigns.rules"
+    },
+    "9600004": {
+      "alerts": 17,
+      "attack": 16,
+      "benign": 1,
+      "unmatched": 0,
+      "labels": {
+        "PortScan": 12,
+        "DDoS": 4
+      },
+      "file": "bruteforce_campaigns.rules"
+    },
+    "9700001": {
+      "alerts": 5,
+      "attack": 5,
+      "benign": 0,
+      "unmatched": 0,
+      "labels": {
+        "Bot": 5
+      },
+      "file": "friday_botnet_c2.rules"
+    },
+    "9700002": {
+      "alerts": 5,
+      "attack": 5,
+      "benign": 0,
+      "unmatched": 0,
+      "labels": {
+        "Bot": 5
+      },
+      "file": "friday_botnet_c2.rules"
+    },
+    "9700003": {
+      "alerts": 5,
+      "attack": 5,
+      "benign": 0,
+      "unmatched": 0,
+      "labels": {
+        "Bot": 5
+      },
+      "file": "friday_botnet_c2.rules"
+    }
+  }
+}

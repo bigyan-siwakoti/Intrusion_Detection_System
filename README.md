@@ -21,7 +21,7 @@ An open-source, rule-based intrusion detection system that uses a generative lan
 - [Suricata 8.0.x](https://suricata.io/) (`sudo add-apt-repository ppa:oisf/suricata-stable && sudo apt install suricata`)
 - Python 3.10+
 - `jq` (`sudo apt install jq`)
-- An [Anthropic API key](https://console.anthropic.com/)
+- An [Anthropic API key](https://console.anthropic.com/) and/or a [DeepSeek API key](https://platform.deepseek.com/)
 
 ## Setup
 
@@ -41,8 +41,9 @@ sudo cp /var/lib/suricata/rules/suricata.rules rules/
 sudo cp /var/lib/suricata/rules/classification.config config/
 sudo chown $USER:$USER rules/suricata.rules config/classification.config
 
-# Set your API key
+# Set your API key (one or both)
 export ANTHROPIC_API_KEY="your-key-here"
+export DEEPSEEK_API_KEY="your-key-here"   # optional, for DeepSeek V3
 ```
 
 ## Dataset

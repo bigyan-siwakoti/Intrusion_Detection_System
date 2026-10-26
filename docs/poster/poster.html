@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Group 13 CodeFair Poster</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500&display=block" rel="stylesheet">
+<style>
+/* A1 portrait, 594 x 841 mm. All layout in mm, all type in pt. Body text never below 24pt. */
+@page { size: 594mm 841mm; margin: 0; }
+* { box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+:root {
+  --navy: #120e30; --navy2: #1d1852; --ink: #18152f; --muted: #57546f; --paper: #f4f3f9; --card: #ffffff;
+  --line: #dcd9ea; --cyan: #22d3da; --cyan-ink: #067e85; --red: #ff4d5e; --amber: #f5a524; --green: #17a865;
+}
+html, body { margin: 0; padding: 0; background: var(--paper); }
+body { font-family: "Inter", "Segoe UI", sans-serif; color: var(--ink); }
+.poster { width: 594mm; height: 841mm; overflow: hidden; position: relative; background: var(--paper);
+  display: flex; flex-direction: column; }
+
+/* ---------- top bar ---------- */
+.topbar { flex-shrink: 0; height: 34mm; background: #fff; display: flex; align-items: center; justify-content: space-between;
+  padding: 0 24mm; border-bottom: 1.2mm solid var(--cyan); }
+.topbar img { height: 21mm; }
+.topbar .event { text-align: right; font-size: 22pt; line-height: 1.25; color: var(--navy2); font-weight: 600; }
+.topbar .event b { font-weight: 800; }
+
+/* ---------- hero ---------- */
+.hero { background: radial-gradient(120% 140% at 85% 0%, #2a2378 0%, var(--navy2) 38%, var(--navy) 100%);
+  color: #fff; padding: 8mm 24mm 8mm; position: relative; flex-shrink: 0; }
+.kicker { font-family: "Space Grotesk", sans-serif; font-size: 24pt; letter-spacing: 0.18em; font-weight: 600;
+  color: var(--cyan); text-transform: uppercase; }
+.headline { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 86pt; line-height: 1.0;
+  letter-spacing: -0.028em; margin: 3mm 0 0; white-space: nowrap; }
+.headline .threat { color: #fff; display: block; }
+.headline .threat em { font-style: normal; color: var(--red); }
+.headline .defend { color: var(--cyan); display: block; }
+.sub { font-size: 27pt; line-height: 1.3; font-weight: 500; color: #e7e5f7; margin: 4mm 0 0; max-width: 520mm; }
+.sub b { color: #fff; font-weight: 700; }
+.official { font-size: 20pt; color: #b5b1d6; margin-top: 5mm; font-style: italic; }
+
+.stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 7mm; margin-top: 7mm; }
+.stat { background: rgba(255,255,255,0.07); border: 0.5mm solid rgba(255,255,255,0.18); border-radius: 5mm;
+  padding: 6mm 7mm 5mm; }
+.stat .n { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 60pt; line-height: 1;
+  color: var(--cyan); letter-spacing: -0.02em; }
+.stat .n small { font-size: 38pt; color: #8f8bc0; }
+.stat .t { font-size: 22pt; line-height: 1.22; margin-top: 2.5mm; color: #fff; font-weight: 600; }
+.stat .s { font-size: 20pt; line-height: 1.2; margin-top: 1.5mm; color: #b5b1d6; }
+
+/* ---------- body ---------- */
+.body { flex: 1; padding: 7mm 24mm 0; display: flex; flex-direction: column; gap: 6mm; }
+.row { display: grid; gap: 6mm; }
+.r3 { grid-template-columns: 1fr 1fr 1fr; }
+.card { background: var(--card); border-radius: 5mm; padding: 6mm 8mm; border: 0.4mm solid var(--line); }
+h2 { font-family: "Space Grotesk", sans-serif; font-size: 40pt; line-height: 1.05; margin: 0 0 4mm; color: var(--navy2);
+  display: flex; align-items: center; gap: 4mm; }
+h2 .tag { font-size: 20pt; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cyan-ink); font-weight: 700; }
+p, li { font-size: 24pt; line-height: 1.32; margin: 0; }
+p + p { margin-top: 3mm; }
+ul { margin: 0; padding-left: 9mm; }
+li + li { margin-top: 2.2mm; }
+.hl { color: var(--cyan-ink); font-weight: 700; }
+.small { font-size: 20pt; line-height: 1.3; color: var(--muted); }
+
+/* ---------- methodology flow ---------- */
+.method { padding: 8mm 9mm 8mm; }
+.flow { display: grid; grid-template-columns: 1fr 9mm 1fr 9mm 1.15fr 9mm 1.55fr; align-items: center; margin-top: 2mm; }
+.step { background: var(--paper); border-radius: 4mm; padding: 4mm 5mm; border: 0.4mm solid var(--line); height: 100%;
+  display: flex; flex-direction: column; justify-content: center; }
+.step .num { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 22pt; color: #fff; background: var(--navy2);
+  width: 10mm; height: 10mm; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; margin-right: 2.5mm; vertical-align: 1mm; }
+.step .h { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 26pt; line-height: 1.1; color: var(--navy2); }
+.step .d { font-size: 21pt; line-height: 1.3; margin-top: 2mm; color: var(--ink); }
+.step.ai { background: var(--navy2); border-color: var(--navy2); }
+.step.ai .h { color: var(--cyan); } .step.ai .d { color: #e7e5f7; } .step.ai .num { background: var(--cyan); color: var(--navy); }
+.arrow { text-align: center; font-size: 34pt; color: var(--cyan-ink); font-weight: 800; }
+.exits { display: flex; flex-direction: column; gap: 3mm; height: 100%; }
+.exit { border-radius: 4mm; padding: 2.5mm 5mm; flex: 1; display: flex; flex-direction: column; justify-content: center; }
+.exit .h { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 23pt; line-height: 1.12; }
+.exit .d { font-size: 20pt; line-height: 1.2; margin-top: 0.8mm; }
+.exit.threat { background: #fff0f1; border: 0.6mm solid var(--red); } .exit.threat .h { color: #c81e33; }
+.exit.benign { background: #fff8eb; border: 0.6mm solid var(--amber); } .exit.benign .h { color: #9a5b00; }
+
+.stackrow { display: grid; grid-template-columns: 1.75fr 1fr; gap: 6mm; margin-top: 5mm; }
+.panel { background: var(--paper); border: 0.4mm solid var(--line); border-radius: 4mm; padding: 5mm 6mm; }
+.sh { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 27pt; color: var(--navy2); margin-bottom: 3mm; }
+.loop { display: grid; grid-template-columns: 1fr 6mm 1fr 6mm 1fr 6mm 1fr; }
+.ls { background: #fff; border: 0.4mm solid var(--line); border-radius: 3mm; padding: 3mm 3.5mm; font-size: 20pt; line-height: 1.2; color: var(--muted); }
+.ls b { display: block; font-family: "Space Grotesk", sans-serif; font-size: 22pt; color: var(--navy2); }
+.ls.eng { background: var(--navy2); border-color: var(--navy2); color: #e7e5f7; } .ls.eng b { color: var(--cyan); }
+.la { display: flex; align-items: center; justify-content: center; font-size: 24pt; font-weight: 800; color: var(--cyan-ink); }
+.loopnote { font-size: 20pt; line-height: 1.3; margin-top: 3mm; }
+.loopnote b { color: var(--cyan-ink); }
+.tools { margin-top: 3mm; display: grid; gap: 1.2mm; }
+.tg { display: grid; grid-template-columns: 43mm 1fr; align-items: baseline; font-size: 20pt; line-height: 1.15; }
+.tg b { color: var(--cyan-ink); }
+.tg code { font-family: "JetBrains Mono", Consolas, monospace; font-size: 18pt; color: var(--navy2); }
+.chips { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 2mm; }
+.chips li { font-size: 21pt; line-height: 1.2; background: #fff; border: 0.4mm solid var(--line); border-radius: 3mm; padding: 2mm 4mm; }
+.chips li + li { margin-top: 0; }
+.chips li b { color: var(--navy2); }
+
+/* ---------- results ---------- */
+.chart-title { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 27pt; line-height: 1.15; color: var(--navy2); }
+.chart-sub { font-size: 20pt; line-height: 1.25; color: var(--muted); margin: 1mm 0 3mm; }
+.bar-row { display: grid; grid-template-columns: 52mm 1fr; align-items: center; gap: 4mm; margin-top: 3.5mm; }
+.bar-label { font-size: 21pt; line-height: 1.15; font-weight: 600; text-align: right; }
+.bar-label span { display: block; font-size: 18pt; font-weight: 500; color: var(--muted); }
+.track { background: #ecebf4; border-radius: 2.5mm; height: 13mm; position: relative; }
+.bar { height: 100%; border-radius: 2.5mm; display: flex; align-items: center; justify-content: flex-end; padding-right: 3mm;
+  font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 24pt; color: #fff; }
+.bar.out { justify-content: flex-start; }
+.bar-val-out { position: absolute; top: 50%; transform: translateY(-50%); font-family: "Space Grotesk", sans-serif;
+  font-weight: 700; font-size: 24pt; color: var(--ink); }
+.callout { margin-top: 5mm; background: var(--paper); border-radius: 3mm; padding: 4mm 5mm; font-size: 21pt; line-height: 1.3; }
+.callout b { color: var(--cyan-ink); }
+.moment { display: grid; grid-template-columns: 15mm 1fr; gap: 4mm; align-items: start; }
+.moment + .moment { margin-top: 3.5mm; padding-top: 3.5mm; border-top: 0.4mm solid var(--line); }
+.moment .ic { width: 15mm; height: 15mm; border-radius: 3.5mm; background: var(--navy2); display: flex; align-items: center; justify-content: center; }
+.moment .ic svg { width: 9mm; height: 9mm; }
+.moment .h { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 25pt; line-height: 1.15; color: var(--navy2); }
+.moment .d { font-size: 20pt; line-height: 1.25; margin-top: 0.5mm; }
+
+/* ---------- conclusion ---------- */
+.concl { display: grid; grid-template-columns: 2.05fr 1fr 66mm; gap: 8mm; }
+.answer { display: grid; grid-template-columns: 1fr 1fr; gap: 5mm; margin-top: 2mm; }
+.verdict { border-radius: 4mm; padding: 5mm 6mm; }
+.verdict .v { font-family: "Space Grotesk", sans-serif; font-weight: 700; font-size: 30pt; line-height: 1.1; }
+.verdict .d { font-size: 21pt; line-height: 1.3; margin-top: 1.5mm; }
+.verdict.yes { background: #e9f8f0; border: 0.6mm solid var(--green); } .verdict.yes .v { color: #0e7a47; }
+.verdict.part { background: #fff8eb; border: 0.6mm solid var(--amber); } .verdict.part .v { color: #9a5b00; }
+.limits { background: var(--navy2); color: #fff; border: none; }
+.limits h2 { color: var(--cyan); }
+.limits li { font-size: 21pt; line-height: 1.3; color: #e7e5f7; }
+.qr { background: #fff; border: 0.4mm solid var(--line); border-radius: 4mm; display: flex; flex-direction: column; align-items: center;
+  justify-content: center; text-align: center; padding: 3.5mm; color: var(--muted); }
+.qr .box { width: 44mm; height: 44mm; border-radius: 0; background: #fff; display: flex; align-items: center;
+  justify-content: center; font-size: 20pt; font-weight: 700; color: #8f8bc0; }
+.qr .cap { font-size: 20pt; line-height: 1.2; margin-top: 2.5mm; font-weight: 600; color: var(--navy2); }
+.qr .url { font-family: "JetBrains Mono", Consolas, monospace; font-size: 15pt; color: var(--cyan-ink); margin-top: 1mm; }
+.qr .box svg { width: 100%; height: 100%; display: block; }
+
+/* ---------- footer ---------- */
+.footer { flex-shrink: 0; margin-top: 8mm; background: var(--navy); color: #d9d6f0; padding: 5mm 24mm; }
+.footer .team { font-size: 21pt; line-height: 1.3; }
+.footer .team b { color: #fff; }
+.footer .refs { font-size: 16pt; line-height: 1.3; color: #b5b1d6; margin-top: 1.5mm; }
+</style>
+</head>
+<body>
+<div class="poster">
+
+  <!-- ===== TOP BAR ===== -->
+  <div class="topbar">
+    <img src="assets/cdu_logo.jpeg" alt="Charles Darwin University">
+    <div class="event"><b>CDU IT Code Fair 2026</b> · Poster Competition<br>HIT401 Capstone · Group 13</div>
+  </div>
+
+  <!-- ===== HERO: heading = the team's message ===== -->
+  <div class="hero">
+    <div class="kicker">Cyber security × generative AI</div>
+    <h1 class="headline">
+      <span class="threat">AI is <em>sharpening</em> cyber attacks.</span>
+      <span class="defend">We sharpened the defence.</span>
+    </h1>
+    <p class="sub">We built an <b>AI security analyst</b> that investigates intrusion alerts and <b>writes its own detection rules</b>
+      to catch attacks in network traffic, then honestly measured how well it does the job.</p>
+    <div class="official">Automated Generation of Intrusion Detection Rules Using Generative AI in a Rule-Based IDS Deployment</div>
+
+    <div class="stats">
+      <div class="stat"><div class="n">13<small>/14</small></div>
+        <div class="t">attack types identified by the AI analyst</div><div class="s">CIC-IDS2017 dataset</div></div>
+      <div class="stat"><div class="n">99.4<small>%</small></div>
+        <div class="t">of its rules&rsquo; alerts were real attacks</div><div class="s">stock rules: 6.1%</div></div>
+      <div class="stat"><div class="n">8<small>/9</small></div>
+        <div class="t">attack types found on a dataset it had not seen before</div><div class="s">UNSW-NB15 dataset</div></div>
+      <div class="stat"><div class="n">0</div>
+        <div class="t">false alarms from its rules on unseen normal traffic</div><div class="s">held-out test day</div></div>
+    </div>
+  </div>
+
+  <div class="body">
+
+    <!-- ===== ABSTRACT / BACKGROUND / OBJECTIVES ===== -->
+    <div class="row r3">
+      <div class="card">
+        <h2>Abstract</h2>
+        <p>Intrusion detection only catches what its rules describe. In our open-source pipeline an AI model plays the
+          <span class="hl">security analyst</span>: it investigates alerts, then writes and tests rules. We scored it on answer keys it never saw.</p>
+      </div>
+      <div class="card">
+        <h2>Background</h2>
+        <p>AI is expected to make attacks more frequent and effective (NCSC, 2024), while defenders drown in alerts.</p>
+        <p><span class="hl">Our question:</span> can the same AI do the analyst&rsquo;s job, and what does it need to know?</p>
+      </div>
+      <div class="card">
+        <h2>Objectives</h2>
+        <ul>
+          <li><b>Build</b> an AI analyst</li>
+          <li><b>Measure</b> every rule it writes</li>
+          <li><b>Test</b> what context it needs</li>
+          <li><b>Compare</b> it with human experts&rsquo; rules</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ===== METHODOLOGY ===== -->
+    <div class="card method">
+      <h2>Methodology <span class="tag">how it works</span></h2>
+      <div class="flow">
+        <div class="step"><div class="h"><span class="num">1</span>Traffic</div>
+          <div class="d">Recorded attacks from two public datasets</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="step"><div class="h"><span class="num">2</span>Suricata IDS</div>
+          <div class="d">Open-source engine raises alerts</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="step ai"><div class="h"><span class="num">3</span>AI analyst</div>
+          <div class="d">Investigates each alert with 13 tools</div></div>
+        <div class="arrow">&rarr;</div>
+        <div class="exits">
+          <div class="exit threat"><div class="h">Threat &rarr; new detection rule</div>
+            <div class="d">Tested by replay, then deployed</div></div>
+          <div class="exit benign"><div class="h">Harmless &rarr; silence the alert</div>
+            <div class="d">Only if a <b>human approves</b></div></div>
+        </div>
+      </div>
+      <div class="stackrow">
+        <div class="panel">
+          <div class="sh">How it became agentic</div>
+          <div class="loop">
+            <div class="ls"><b>Think</b>plans its next step</div><div class="la">&rarr;</div>
+            <div class="ls"><b>Call a tool</b>picks 1 of 13</div><div class="la">&rarr;</div>
+            <div class="ls eng"><b>Engine checks</b>then runs it</div><div class="la">&rarr;</div>
+            <div class="ls"><b>Read result</b>and repeats</div>
+          </div>
+          <div class="loopnote">&#8635; Repeats until a verdict (max 100 turns). Hunt rules must stay <b>quiet on normal traffic</b>.</div>
+          <div class="tools">
+            <div class="tg"><b>Investigate</b><code>query_eve_json · count_alerts · count_by · read_file · list_directory</code></div>
+            <div class="tg"><b>Hunt</b><code>stack_values</code></div>
+            <div class="tg"><b>Research</b><code>search_rules · lookup_vulnerability · suricata_keywords</code></div>
+            <div class="tg"><b>Validate</b><code>run_suricata · test_rule</code></div>
+            <div class="tg"><b>Write</b><code>write_file · append_to_file</code></div>
+          </div>
+        </div>
+        <div class="panel">
+          <div class="sh">Tech stack</div>
+          <ul class="chips">
+            <li><b>Suricata 8</b> IDS engine</li>
+            <li><b>ET Open</b> + 3 more open rulesets</li>
+            <li><b>Python</b> agentic triage engine</li>
+            <li><b>DeepSeek V4 Pro</b> &amp; <b>Claude</b>, one adapter</li>
+            <li><b>FastAPI</b> web UI, streams each step live</li>
+            <li><b>Local NVD</b> vulnerability database</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ===== RESULTS ===== -->
+    <div class="row r3">
+      <div class="card">
+        <h2>Results <span class="tag">precision</span></h2>
+        <div class="chart-title">Is the alert a real attack?</div>
+        <div class="chart-sub">CIC-IDS2017, noisiest capture days</div>
+        <div class="bar-row"><div class="bar-label">Stock rules<span>human-written</span></div>
+          <div class="track"><div class="bar out" style="width:6.1%;background:#a7a3c4"></div>
+            <div class="bar-val-out" style="left:calc(6.1% + 3mm)">6.1%</div></div></div>
+        <div class="bar-row"><div class="bar-label">AI rules<span>written by our analyst</span></div>
+          <div class="track"><div class="bar" style="width:99.4%;background:var(--cyan-ink)">99.4%</div></div></div>
+        <div class="callout">With full context it could tell <b>if an attack succeeded</b>: 52 times vs 9.</div>
+      </div>
+
+      <div class="card">
+        <h2>Results <span class="tag">vs humans</span></h2>
+        <div class="chart-title">Gain over a strong human baseline</div>
+        <div class="chart-sub">Unseen test day; baseline caught 29.5%</div>
+        <div class="bar-row"><div class="bar-label">Triage only</div>
+          <div class="track"><div class="bar out" style="width:7.2%;background:#a7a3c4"></div>
+            <div class="bar-val-out" style="left:calc(7.2% + 3mm)">+0.1</div></div></div>
+        <div class="bar-row"><div class="bar-label">+ research</div>
+          <div class="track"><div class="bar out" style="width:18.3%;background:#a7a3c4"></div>
+            <div class="bar-val-out" style="left:calc(18.3% + 3mm)">+0.3</div></div></div>
+        <div class="bar-row"><div class="bar-label">Threat hunt<span>pro workflow</span></div>
+          <div class="track"><div class="bar" style="width:100%;background:var(--cyan-ink)">+1.5</div></div></div>
+        <div class="callout">Hunting like <b>real detection engineers</b> worked best, with <b>zero</b> false alarms.</div>
+      </div>
+
+      <div class="card">
+        <h2>Analyst moments</h2>
+        <div class="moment"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#22d3da" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 0 1 14-5.3M20 12a8 8 0 0 1-14 5.3"/><path d="M18 3v4h-4M6 21v-4h4"/></svg></div>
+          <div><div class="h">Fixed its own mistake</div>
+            <div class="d">First rule failed; it found why, fixed it.</div></div></div>
+        <div class="moment"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#22d3da" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-4-4"/></svg></div>
+          <div><div class="h">Found what we missed</div>
+            <div class="d">Spotted a botnet our report had missed.</div></div></div>
+        <div class="moment"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="#22d3da" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5"/></svg></div>
+          <div><div class="h">Precise, not noisy</div>
+            <div class="d">One rule: 1% &rarr; 28%, no false alarms.</div></div></div>
+      </div>
+    </div>
+
+    <!-- ===== CONCLUSIONS / LIMITS / QR ===== -->
+    <div class="concl">
+      <div class="card">
+        <h2>Conclusions</h2>
+        <p>Can AI replace the security analyst? <b>Our answer is split.</b></p>
+        <div class="answer">
+          <div class="verdict yes"><div class="v">Yes, for triage</div>
+            <div class="d">Investigates alerts end to end and explains them.</div></div>
+          <div class="verdict part"><div class="v">Partly, for detection</div>
+            <div class="d">Real gains on unseen data; risky changes need a human.</div></div>
+        </div>
+      </div>
+      <div class="card limits">
+        <h2>Honest limits</h2>
+        <ul>
+          <li>Recorded traffic, not a live network</li>
+          <li>Detects only, does not block</li>
+          <li>Made confident mistakes</li>
+        </ul>
+      </div>
+      <div class="qr"><div class="box" id="qr"></div><div class="cap">Scan to see the AI analyst at work</div><div class="url">triage.bigyan.work</div></div>
+    </div>
+
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <div class="footer">
+    <div class="team"><b>Team:</b> Bigyan Siwakoti · Binay Siwakoti · Abisekh Kandel · Shashwat Acharya &nbsp;|&nbsp; <b>Supervisor:</b> Prof. Bharanidharan Shanmugam</div>
+    <div class="refs">Sharafaldin et al. (2018) CIC-IDS2017 · Moustafa &amp; Slay (2015) UNSW-NB15 · NCSC (2024) The near-term impact of AI on the cyber threat.</div>
+  </div>
+
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script>
+// QR code for the demo site, drawn as vector SVG (crisp at A1). Error correction M, 4-module quiet zone.
+(() => { const q = qrcode(0, 'M'); q.addData('https://triage.bigyan.work'); q.make();
+  document.getElementById('qr').innerHTML = q.createSvgTag({ cellSize: 4, margin: 4, scalable: true }); })();
+</script>
+<script>
+addEventListener('load', () => setTimeout(() => {
+  const mm = px => Math.round(px * 25.4 / 96);
+  const q = sel => document.querySelector(sel);
+  const body = q('.body'), cs = getComputedStyle(q('.footer')), last = body.lastElementChild;
+  // .body stretches to fill the page, so measure its content: top padding + rows + gaps, up to the last row's bottom.
+  const content = last.offsetTop + last.offsetHeight - body.offsetTop;
+  const need = q('.topbar').offsetHeight + q('.hero').offsetHeight + content + parseFloat(cs.marginTop) + q('.footer').offsetHeight;
+  document.body.dataset.measure = JSON.stringify({ needMm: mm(need), pageMm: 841,
+    hero: mm(q('.hero').offsetHeight), rows: [...body.children].map(e => mm(e.offsetHeight)), footer: mm(q('.footer').offsetHeight) });
+}, 300));
+</script>
+</body>
+</html>

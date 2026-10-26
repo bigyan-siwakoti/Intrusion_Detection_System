@@ -1,0 +1,92 @@
+# rules/generated/unsw_bare.rules
+# Detection rules authored by the AI triage engine for UNSW-NB15 under the bare-alert condition (Experiment 1).
+#
+# Triage of logs/unsw-3-bare/eve.json (893 alerts, 2015-02-18 11:01:36-11:29:10 +0930).
+# HOME_NET = 149.171.126.0/24 (servers) + 59.166.0.0/24 (clients).
+# EXTERNAL_NET includes known attacker range 175.45.176.0/24.
+#
+# Coverage gaps addressed:
+#   1. GPL 2102466 fires once per SMB IPC$ share access, producing a wall of
+#      identical per-connection alerts (124 from 175.45.176.1 -> 149.171.126.15
+#      in ~50s). No stock rule articulates the brute-force campaign itself.
+#   2. The RPC portmap sweep (176 GPL "RPC portmap ... request" alerts across
+#      12 HOME_NET servers, TCP+UDP/111, from all four attacker IPs) is reported
+#      only as individual RPC program queries. No stock rule flags the
+#      source-level sweep.
+
+# --- 1. SMB IPC$ share-access brute force (external -> HOME_NET SMB) ---------
+# One external host repeatedly attempting the IPC$ share on 445 is credential
+# brute-forcing / share enumeration. Thresholds aggregate the per-connection
+# stock GPL alerts into one campaign-level alert.
+alert smb $EXTERNAL_NET any -> $HOME_NET 445 ( \
+    msg:"CUSTOM SMB IPC$ share-access brute force from external host"; \
+    flow:to_server,established; \
+    smb.share; content:"IPC$"; nocase; \
+    threshold:type threshold, track by_src, count 20, seconds 60; \
+    classtype:attempted-user; \
+    sid:7700001; rev:1;)
+
+# --- 2. RPC portmap sweep (external -> HOME_NET portmapper) -----------------
+# A single external host generating many TCP/UDP packets to port 111 across
+# HOME_NET is running a portmapper/RPC program enumeration sweep. The stock
+# GPL portmap rules fire per RPC program; this rule collapses the source-level
+# sweep into one alert.
+alert ip $EXTERNAL_NET any -> $HOME_NET 111 ( \
+    msg:"CUSTOM RPC portmap sweep - external host hammering portmapper 111"; \
+    threshold:type threshold, track by_src, count 30, seconds 120; \
+    classtype:attempted-recon; \
+    sid:7700002; rev:1;)
+
+# --- Additional rules from triage of logs/unsw-1-bare/eve.json (997 alerts) ---
+# Confirmed attack patterns not already covered by rules 7700001/7700002:
+#   1. Heartbleed (CVE-2014-0160): attacker 175.45.176.2 -> 149.171.126.11:443
+#      triggered a large heartbeat response from the server (ET 2018382 +
+#      SURICATA 2230012). Recon bursts preceded/followed it (7600102/7600103
+#      fired 133 times in this capture).
+#   2. FTP PASS overflow/brute-force: 175.45.176.3 -> 149.171.126.18:21 made
+#      17 overflowing PASS attempts in ~2 minutes (34 stock GPL 2101972 alerts).
+#   3. TFTP abuse: attacker hosts issued TFTP GET passwd (2101443) and repeated
+#      TFTP Put uploads (2100518) to internal servers on UDP/69.
+
+# --- 3. Heartbleed overflow heartbeat exploit attempt ----------------------
+alert tls $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM Heartbleed overflow heartbeat exploit attempt (CVE-2014-0160)"; \
+    flow:to_server,established; \
+    app-layer-event:tls.overflow_heartbeat; \
+    classtype:attempted-user; \
+    reference:cve,2014-0160; reference:url,heartbleed.com; \
+    sid:7700003; rev:1;)
+
+# --- 4. TLS heartbeat/handshake burst (Heartbleed recon precursor) ---------
+alert tls $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"; \
+    flow:to_server,established; \
+    threshold:type threshold, track by_src, count 5, seconds 300; \
+    classtype:attempted-recon; \
+    reference:cve,2014-0160; \
+    sid:7700004; rev:1;)
+
+# --- 5. FTP PASS overflow / credential brute-force campaign -----------------
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 ( \
+    msg:"CUSTOM FTP PASS overflow/brute-force campaign from external host"; \
+    flow:to_server,established; \
+    content:"PASS"; nocase; \
+    threshold:type threshold, track by_src, count 10, seconds 60; \
+    classtype:attempted-admin; \
+    sid:7700005; rev:1;)
+
+# --- 6. TFTP GET passwd attempt from external host -------------------------
+alert udp $EXTERNAL_NET any -> $HOME_NET 69 ( \
+    msg:"CUSTOM TFTP GET passwd attempt from external host"; \
+    content:"|00 01|"; depth:2; \
+    content:"passwd"; nocase; \
+    classtype:attempted-admin; \
+    sid:7700006; rev:1;)
+
+# --- 7. TFTP write (Put) burst from external host ---------------------------
+alert udp $EXTERNAL_NET any -> $HOME_NET 69 ( \
+    msg:"CUSTOM TFTP write (Put) burst from external host"; \
+    content:"|00 02|"; depth:2; \
+    threshold:type threshold, track by_src, count 5, seconds 60; \
+    classtype:attempted-admin; \
+    sid:7700007; rev:1;)

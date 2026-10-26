@@ -1,0 +1,83 @@
+# =============================================================================
+# Custom detection rules — Friday Working-Hours (CIC-IDS2017) botnet (ARES/thief)
+# Written after triage of logs/friday-raw/eve.json
+#
+# FINDING: five HOME_NET hosts were infected and beaconed to an EXTERNAL C2 at
+# 205.174.165.73:8080 over cleartext HTTP between 2017-07-07 22:34 and 23:32:
+#
+#   internal host   bot id        client fingerprint
+#   192.168.10.5    mitacs-pc3    python-requests/2.14.2
+#   192.168.10.8    mitacs-pc2    python-requests/2.14.2
+#   192.168.10.9    mitacs-pc6    python-requests/2.14.2
+#   192.168.10.14   mitacs-pc5    python-requests/2.18.1
+#   192.168.10.15   mitacs-pc4    python-requests/2.14.2
+#
+# Observed C2 protocol (filter used: dest_ip=="205.174.165.73"):
+#   GET  /api/pop?botid=<botid>&sysinfo=<os>   666 reqs   task polling / check-in
+#   POST /api/upload                           ~44 reqs   JPEG screenshot exfiltration
+#                                                          (41-102 KB each, random
+#                                                          5-char name e.g. rBpRN.jpg)
+#   POST /api/report                           ~26 reqs   600-5,500 B host reports
+# The C2 answered HTTP 200 with an empty or 3/7/10-byte body (task codes).
+# Exfiltrated volume observed: ~4.7 MB of JPEG screenshots in under an hour.
+# The C2 IP is the same host used for the Thursday reverse shell (205.174.165.73:444).
+#
+# COVERAGE GAP: the stock ET Open ruleset produced ZERO signature alerts for this
+# channel. Query used:
+#   select(.event_type=="alert" and .dest_ip=="205.174.165.73")
+#   -> 769 alerts, ALL of them SURICATA TCPv4 invalid checksum (2200074) and
+#      STREAM artifacts; no signature match on the C2 channel.
+#
+# -----------------------------------------------------------------------------
+# OVERLAP WARNING — read before deploying
+# friday_botnet_ares.rules (sids 9600005/9600006/9600007) covers the same three
+# C2 URIs, but scoped to destination port 8080 only. The rules below are the
+# PORT-AGNOSTIC equivalent (any $EXTERNAL_NET port), so they also catch the same
+# bot if it is redirected to another port. Deploy ONE of the two rule sets, not
+# both, unless you accept two alerts for the same beacon; if both are loaded,
+# treat 9600005-9600007 and 9700001-9700003 on the same host as one incident.
+#
+# DEPLOYMENT NOTE: this file is NOT in config/suricata.yaml's rule-files list and
+# the run config does NOT auto-load files that appear in rules/generated/ (proven
+# two ways: (1) this run reported "4 rule files processed ... 52656 rules" while
+# the file was present; (2) rules/generated/canary_load_check.rules). The same
+# three rules are therefore also appended to bruteforce_campaigns.rules, which IS
+# loaded, so that they take effect on the next run. Remove them from one of the
+# two places once suricata.yaml is updated.
+# -----------------------------------------------------------------------------
+
+# --- 1. Botnet task polling / check-in (highest fidelity: botid is C2-specific)
+# Rate-limited to one alert per bot per hour: the beacon repeats every ~1-3 s at
+# peak and produced 666 requests in 58 minutes - alerting per request would flood
+# the console without adding information.
+alert http $HOME_NET any -> $EXTERNAL_NET any ( \
+    msg:"CUSTOM Botnet C2 check-in - /api/pop botid beacon from HOME_NET host"; \
+    flow:established,to_server; \
+    http.method; content:"GET"; \
+    http.uri; content:"/api/pop?"; content:"botid="; \
+    threshold: type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; priority:1; \
+    sid:9700001; rev:2;)
+
+# --- 2. Botnet upload/report = data exfiltration to an external HTTP server ----
+alert http $HOME_NET any -> $EXTERNAL_NET any ( \
+    msg:"CUSTOM Botnet C2 exfiltration - POST /api/upload or /api/report to external host"; \
+    flow:established,to_server; \
+    http.method; content:"POST"; \
+    http.uri; pcre:"/^\/api\/(upload|report)/i"; \
+    threshold: type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; priority:1; \
+    sid:9700002; rev:1;)
+
+# --- 3. Scripted HTTP client fingerprint: python-requests leaving HOME_NET ----
+# No stock rule matches python-requests as a User-Agent at all (ET 2013031 only
+# covers python-urllib). In this capture the ONLY python-requests traffic from
+# HOME_NET to EXTERNAL_NET was the botnet. Broader than rules 1-2 by design: it
+# catches the same client on a different URI or port.
+alert http $HOME_NET any -> $EXTERNAL_NET any ( \
+    msg:"CUSTOM Internal host using python-requests against external HTTP server (possible botnet client)"; \
+    flow:established,to_server; \
+    http.user_agent; content:"python-requests"; nocase; \
+    threshold: type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; priority:2; \
+    sid:9700003; rev:1;)

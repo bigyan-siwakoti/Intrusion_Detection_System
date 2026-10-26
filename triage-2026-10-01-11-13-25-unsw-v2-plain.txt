@@ -1,0 +1,3475 @@
+========================================================================
+IDS TRIAGE ENGINE — SESSION TRANSCRIPT
+========================================================================
+Run:      unsw-1-baseline (67.9 MB)
+Model:    deepseek-v4-pro
+Started:  2026-10-01T11:13:25.368Z
+Ended:    2026-10-01T11:23:21.762Z
+Duration: 9m 56s
+Turns:    64
+Dataset:  unsw-v2-plain   Status: completed   Tokens: 5,187,577 in / 38,482 out
+Source:   unattended batch run (src/batch_transcript.py)
+========================================================================
+
+[AGENT TEXT]
+I'll start by getting an overview of the alerts in the capture.
+
+
+--- Turn 1 | 2,644 in / 83 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_alerts
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json"
+}
+[TOOL RESULT] count_alerts
+   1916  INDICATOR-SHELLCODE x86 inc ecx NOOP [sid:1394]
+   1698  SERVER-OTHER BGP spoofed connection reset attempt [sid:2523]
+    434  GPL FTP FTP anonymous login attempt [sid:2100553]
+    212  GPL SHELLCODE x86 NOOP [sid:2100648]
+    170  GPL FTP command overflow attempt [sid:2101748]
+    151  GPL NETBIOS SMB-DS IPC$ unicode share access [sid:2102466]
+    124  ET NETBIOS Remote SMB2.0 DoS Exploit [sid:2009886]
+    102  ET EXPLOIT Siemens Gigaset SE361 WLAN Data Flood Denial of Service Vulnerability [sid:2009976]
+     87  SURICATA STREAM ESTABLISHED packet out of window [sid:2210020]
+     62  OS-WINDOWS Microsoft Windows PPTP Start Control Request buffer overflow attempt [sid:2126]
+     50  SERVER-OTHER BGP invalid length [sid:2158]
+     50  GPL MISC BGP invalid length [sid:2102158]
+     43  SURICATA HTTP URI terminated by non-compliant character [sid:2221029]
+     37  SERVER-WEBAPP server-status access [sid:1521]
+     36  ET WEB_SERVER PHP Possible http Remote File Inclusion Attempt [sid:2012997]
+     35  INDICATOR-SHELLCODE x86 NOOP [sid:648]
+     35  SURICATA HTTP request buffer too long [sid:2221018]
+     34  GPL FTP PASS overflow attempt [sid:2101972]
+     26  PROTOCOL-TFTP Get [sid:1444]
+     26  GPL TFTP Get [sid:2101444]
+     22  SERVER-WEBAPP remote include path attempt [sid:2002]
+     20  OS-OTHER Cisco IOS HTTP configuration attempt [sid:1250]
+     20  SURICATA SMB file overlap [sid:2225006]
+     20  PROTOCOL-TFTP Put [sid:518]
+     20  GPL TFTP Put [sid:2100518]
+     18  GPL NETBIOS SMB IPC$ unicode share access [sid:2100538]
+     17  SURICATA Applayer Detect protocol only one direction [sid:2260002]
+     17  PROTOCOL-FTP PASS overflow attempt [sid:1972]
+     16  ET TFTP TFTPGUI Long Transport Mode Buffer Overflow [sid:2012051]
+     14  PROTOCOL-SNMP request udp [sid:1417]
+     14  GPL SNMP request udp [sid:2101417]
+     13  SURICATA STREAM ESTABLISHED invalid ack [sid:2210029]
+     13  SURICATA STREAM Packet with invalid ack [sid:2210045]
+     13  PROTOCOL-FTP format string attempt [sid:2417]
+     11  SERVER-WEBAPP HTTP request with negative Content-Length attempt [sid:2278]
+     10  SERVER-WEBAPP ICQ Webfront HTTP DOS [sid:1091]
+     10  ET WEB_SERVER Poison Null Byte [sid:2003099]
+      9  PROTOCOL-RPC portmap rexd request TCP [sid:1269]
+      9  GPL RPC portmap rexd request TCP [sid:2101269]
+      9  PROTOCOL-FTP PASS format string attempt [sid:2179]
+      9  GPL FTP PASS format string attempt [sid:2102179]
+      8  PROTOCOL-RPC portmap admind request UDP [sid:575]
+      8  GPL RPC portmap admind request UDP [sid:2100575]
+      8  GPL TELNET TELNET access [sid:2100716]
+      8  PROTOCOL-TFTP PUT filename overflow attempt [sid:2337]
+      8  SURICATA STREAM Packet with invalid timestamp [sid:2210044]
+      8  ET FTP FTP RETR command attempt without login [sid:2010736]
+      8  GPL MISC IP Proto 103 PIM [sid:2102189]
+      7  ET SHELLCODE METASPLOIT BSD SPARC Bind shell (Not Encoded 4) [sid:2010432]
+      7  GPL FTP format string a
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+The alert list is capped. Let me get a cleaner overall picture using aggregation, and check the event types present.
+
+
+--- Turn 2 | 8,044 in / 925 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": ".event_type"
+}
+[TOOL RESULT] count_by
+  43413  flow
+  28862  dns
+  20331  anomaly
+   9110  fileinfo
+   9062  ftp
+   7216  http
+   6605  alert
+   3032  smtp
+   1449  ssh
+   1224  ftp_data
+    843  smb
+    468  pop3
+     39  sip
+     15  dcerpc
+     14  tftp
+     12  snmp
+     10  ike
+      9  tls
+      9  ldap
+      4  rfb
+      2  stats
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | .alert.signature"
+}
+[TOOL RESULT] count_by
+   1916  INDICATOR-SHELLCODE x86 inc ecx NOOP
+   1698  SERVER-OTHER BGP spoofed connection reset attempt
+    434  GPL FTP FTP anonymous login attempt
+    212  GPL SHELLCODE x86 NOOP
+    170  GPL FTP command overflow attempt
+    151  GPL NETBIOS SMB-DS IPC$ unicode share access
+    124  ET NETBIOS Remote SMB2.0 DoS Exploit
+    102  ET EXPLOIT Siemens Gigaset SE361 WLAN Data Flood Denial of Service Vulnerability
+     87  SURICATA STREAM ESTABLISHED packet out of window
+     62  OS-WINDOWS Microsoft Windows PPTP Start Control Request buffer overflow attempt
+     50  SERVER-OTHER BGP invalid length
+     50  GPL MISC BGP invalid length
+     43  SURICATA HTTP URI terminated by non-compliant character
+     37  SERVER-WEBAPP server-status access
+     36  ET WEB_SERVER PHP Possible http Remote File Inclusion Attempt
+     35  INDICATOR-SHELLCODE x86 NOOP
+     35  SURICATA HTTP request buffer too long
+     34  GPL FTP PASS overflow attempt
+     26  PROTOCOL-TFTP Get
+     26  GPL TFTP Get
+     22  SERVER-WEBAPP remote include path attempt
+     20  OS-OTHER Cisco IOS HTTP configuration attempt
+     20  SURICATA SMB file overlap
+     20  PROTOCOL-TFTP Put
+     20  GPL TFTP Put
+     18  GPL NETBIOS SMB IPC$ unicode share access
+     17  SURICATA Applayer Detect protocol only one direction
+     17  PROTOCOL-FTP PASS overflow attempt
+     16  ET TFTP TFTPGUI Long Transport Mode Buffer Overflow
+     14  PROTOCOL-SNMP request udp
+     14  GPL SNMP request udp
+     13  SURICATA STREAM ESTABLISHED invalid ack
+     13  SURICATA STREAM Packet with invalid ack
+     13  PROTOCOL-FTP format string attempt
+     11  SERVER-WEBAPP HTTP request with negative Content-Length attempt
+     10  SERVER-WEBAPP ICQ Webfront HTTP DOS
+     10  ET WEB_SERVER Poison Null Byte
+      9  PROTOCOL-RPC portmap rexd request TCP
+      9  GPL RPC portmap rexd request TCP
+      9  PROTOCOL-FTP PASS format string attempt
+      9  GPL FTP PASS format string attempt
+      8  PROTOCOL-RPC portmap admind request UDP
+      8  GPL RPC portmap admind request UDP
+      8  GPL TELNET TELNET access
+      8  PROTOCOL-TFTP PUT filename overflow attempt
+      8  SURICATA STREAM Packet with invalid timestamp
+      8  ET FTP FTP RETR command attempt without login
+      8  GPL MISC IP Proto 103 PIM
+      7  ET SHELLCODE METASPLOIT BSD SPARC Bind shell (Not Encoded 4)
+      7  GPL FTP format string attempt
+      7  ET SHELLCODE METASPLOIT BSD Bind shell (Not Encoded 5)
+      7  SURICATA HTTP unable to match response to request
+      6  SURICATA HTTP missing Host header
+      6  PROTOCOL-RPC portmap cmsd request TCP
+      6  GPL RPC portmap cmsd request TCP
+      6  PROTOCOL-RPC portmap nisd request TCP
+      6  GPL RPC portmap nisd request TCP
+      6  PROTOCOL-RPC portmap status request UDP
+      6  GPL RPC portmap status request UDP
+      6  PROTOCOL-RPC portmap rwalld request UDP
+      6  GPL RPC portmap rwalld request UDP
+      6  PROTOCOL-RPC portmap ttdbserv request UDP
+      6  GPL RPC portmap ttdbserv requ
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me look at the IP pairs and source/destination distribution for alerts.
+
+
+--- Turn 3 | 16,869 in / 1,207 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | \"\\(.src_ip) -> \\(.dest_ip)\""
+}
+[TOOL RESULT] count_by
+    688  175.45.176.1 -> 149.171.126.13
+    666  175.45.176.2 -> 149.171.126.15
+    453  149.171.126.13 -> 175.45.176.1
+    431  175.45.176.3 -> 149.171.126.18
+    407  175.45.176.3 -> 149.171.126.15
+    381  175.45.176.2 -> 149.171.126.19
+    314  175.45.176.3 -> 149.171.126.13
+    301  175.45.176.1 -> 149.171.126.18
+    283  175.45.176.0 -> 149.171.126.19
+    212  175.45.176.1 -> 149.171.126.11
+    163  175.45.176.1 -> 149.171.126.17
+    148  149.171.126.18 -> 175.45.176.1
+    144  175.45.176.1 -> 149.171.126.19
+    100  175.45.176.0 -> 149.171.126.16
+     97  175.45.176.2 -> 149.171.126.13
+     96  175.45.176.3 -> 149.171.126.11
+     92  175.45.176.1 -> 149.171.126.12
+     90  175.45.176.2 -> 149.171.126.14
+     85  149.171.126.19 -> 175.45.176.2
+     81  175.45.176.0 -> 149.171.126.13
+     79  175.45.176.0 -> 149.171.126.17
+     77  175.45.176.0 -> 149.171.126.10
+     67  175.45.176.2 -> 149.171.126.11
+     64  175.45.176.1 -> 149.171.126.15
+     58  175.45.176.2 -> 149.171.126.12
+     53  149.171.126.13 -> 175.45.176.0
+     52  175.45.176.1 -> 149.171.126.10
+     50  175.45.176.2 -> 149.171.126.10
+     49  175.45.176.0 -> 149.171.126.12
+     49  175.45.176.3 -> 149.171.126.10
+     47  175.45.176.0 -> 149.171.126.18
+     46  175.45.176.0 -> 149.171.126.14
+     45  175.45.176.2 -> 149.171.126.17
+     45  175.45.176.0 -> 149.171.126.15
+     42  149.171.126.18 -> 175.45.176.3
+     35  175.45.176.3 -> 149.171.126.17
+     33  175.45.176.3 -> 149.171.126.14
+     32  175.45.176.2 -> 149.171.126.16
+     30  175.45.176.3 -> 149.171.126.12
+     30  175.45.176.2 -> 149.171.126.18
+     28  175.45.176.3 -> 149.171.126.19
+     26  175.45.176.0 -> 149.171.126.11
+     24  175.45.176.3 -> 149.171.126.16
+     20  175.45.176.1 -> 149.171.126.14
+     18  149.171.126.14 -> 175.45.176.3
+     17  175.45.176.1 -> 149.171.126.16
+     16  149.171.126.19 -> 175.45.176.1
+     13  149.171.126.15 -> 175.45.176.2
+     10  149.171.126.17 -> 175.45.176.0
+      9  59.166.0.9 -> 149.171.126.5
+      8  59.166.0.3 -> 149.171.126.2
+      8  149.171.126.17 -> 175.45.176.1
+      7  59.166.0.2 -> 149.171.126.3
+      5  149.171.126.14 -> 175.45.176.0
+      5  149.171.126.2 -> 59.166.0.3
+      5  149.171.126.5 -> 59.166.0.9
+      4  149.171.126.11 -> 175.45.176.2
+      4  149.171.126.10 -> 175.45.176.3
+      4  149.171.126.3 -> 59.166.0.2
+      3  149.171.126.13 -> 175.45.176.2
+      3  149.171.126.6 -> 59.166.0.6
+      3  149.171.126.1 -> 59.166.0.9
+      3  null -> null
+      3  149.171.126.6 -> 59.166.0.2
+      3  149.171.126.6 -> 59.166.0.8
+      3  149.171.126.3 -> 59.166.0.4
+      3  59.166.0.6 -> 149.171.126.6
+      3  149.171.126.0 -> 59.166.0.1
+      3  149.171.126.12 -> 175.45.176.3
+      2  149.171.126.16 -> 175.45.176.2
+      2  149.171.126.8 -> 59.166.0.6
+      2  149.171.126.18 -> 175.45.176.2
+      2  59.166.0.5 -> 149.171.126.2
+      2  149.171.126.9 -> 59.166.0.5
+      2  59.166.0.4 -> 149.171.126.5
+      2  149.171.126.2 -> 59.166.0.0
+      2  59.166.0.3 -> 149.171.1
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | .src_ip"
+}
+[TOOL RESULT] count_by
+   1753  175.45.176.1
+   1516  175.45.176.2
+   1447  175.45.176.3
+    833  175.45.176.0
+    509  149.171.126.13
+    193  149.171.126.18
+    103  149.171.126.19
+     24  149.171.126.14
+     21  149.171.126.17
+     15  149.171.126.5
+     14  149.171.126.15
+     13  149.171.126.3
+     12  149.171.126.2
+     12  59.166.0.3
+     12  59.166.0.9
+     11  149.171.126.4
+     11  149.171.126.6
+     11  149.171.126.1
+     11  59.166.0.2
+      8  149.171.126.8
+      7  149.171.126.0
+      7  149.171.126.9
+      7  149.171.126.7
+      6  149.171.126.10
+      6  59.166.0.5
+      6  59.166.0.6
+      5  149.171.126.11
+      5  59.166.0.8
+      5  59.166.0.0
+      5  149.171.126.12
+      4  149.171.126.16
+      4  59.166.0.4
+      3  59.166.0.7
+      3  59.166.0.1
+      3  null
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+The alerts are dominated by the known attacker range 175.45.176.0/24 targeting HOME_NET servers. Let me break down the top signatures by source and destination to understand direction.
+
+
+--- Turn 4 | 29,863 in / 2,083 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .src_ip|startswith(\"175.45.176\")) | .alert.signature"
+}
+[TOOL RESULT] count_by
+jq error: jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:1): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:2): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:3): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:4): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:5): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:6): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:7): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:8): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:9): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:10): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:11): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:12): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:13): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:14): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:15): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:16): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:17): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:18): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:19): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:20): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:21): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:22): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:23): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:24): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:25): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:26): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:27): startswith() requires string inputs
+jq
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .dest_ip|startswith(\"175.45.176\")) | .alert.signature"
+}
+[TOOL RESULT] count_by
+jq error: jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:1): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:2): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:3): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:4): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:5): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:6): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:7): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:8): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:9): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:10): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:11): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:12): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:13): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:14): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:15): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:16): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:17): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:18): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:19): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:20): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:21): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:22): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:23): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:24): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:25): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:26): startswith() requires string inputs
+jq: error (at /home/bigyan/capstone-ids/logs/unsw-1-baseline/eve.json:27): startswith() requires string inputs
+jq
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Some events have null IPs. Let me guard against that.
+
+
+--- Turn 5 | 49,281 in / 2,530 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | select((.src_ip // \"null\") | startswith(\"175.45.176\")) | .alert.signature"
+}
+[TOOL RESULT] count_by
+   1916  INDICATOR-SHELLCODE x86 inc ecx NOOP
+    892  SERVER-OTHER BGP spoofed connection reset attempt
+    434  GPL FTP FTP anonymous login attempt
+    212  GPL SHELLCODE x86 NOOP
+    170  GPL FTP command overflow attempt
+    151  GPL NETBIOS SMB-DS IPC$ unicode share access
+    124  ET NETBIOS Remote SMB2.0 DoS Exploit
+    102  ET EXPLOIT Siemens Gigaset SE361 WLAN Data Flood Denial of Service Vulnerability
+     62  OS-WINDOWS Microsoft Windows PPTP Start Control Request buffer overflow attempt
+     44  SERVER-OTHER BGP invalid length
+     44  GPL MISC BGP invalid length
+     37  SERVER-WEBAPP server-status access
+     36  ET WEB_SERVER PHP Possible http Remote File Inclusion Attempt
+     35  INDICATOR-SHELLCODE x86 NOOP
+     35  SURICATA HTTP request buffer too long
+     34  GPL FTP PASS overflow attempt
+     26  PROTOCOL-TFTP Get
+     26  GPL TFTP Get
+     22  SERVER-WEBAPP remote include path attempt
+     20  OS-OTHER Cisco IOS HTTP configuration attempt
+     20  PROTOCOL-TFTP Put
+     20  GPL TFTP Put
+     18  GPL NETBIOS SMB IPC$ unicode share access
+     17  PROTOCOL-FTP PASS overflow attempt
+     16  ET TFTP TFTPGUI Long Transport Mode Buffer Overflow
+     14  PROTOCOL-SNMP request udp
+     14  GPL SNMP request udp
+     13  PROTOCOL-FTP format string attempt
+     12  SURICATA Applayer Detect protocol only one direction
+     11  SERVER-WEBAPP HTTP request with negative Content-Length attempt
+     10  SURICATA SMB file overlap
+     10  SERVER-WEBAPP ICQ Webfront HTTP DOS
+     10  ET WEB_SERVER Poison Null Byte
+      9  PROTOCOL-RPC portmap rexd request TCP
+      9  GPL RPC portmap rexd request TCP
+      9  PROTOCOL-FTP PASS format string attempt
+      9  GPL FTP PASS format string attempt
+      8  PROTOCOL-RPC portmap admind request UDP
+      8  GPL RPC portmap admind request UDP
+      8  PROTOCOL-TFTP PUT filename overflow attempt
+      8  ET FTP FTP RETR command attempt without login
+      8  GPL MISC IP Proto 103 PIM
+      7  ET SHELLCODE METASPLOIT BSD SPARC Bind shell (Not Encoded 4)
+      7  GPL FTP format string attempt
+      7  ET SHELLCODE METASPLOIT BSD Bind shell (Not Encoded 5)
+      6  SURICATA HTTP missing Host header
+      6  PROTOCOL-RPC portmap cmsd request TCP
+      6  GPL RPC portmap cmsd request TCP
+      6  PROTOCOL-RPC portmap nisd request TCP
+      6  GPL RPC portmap nisd request TCP
+      6  PROTOCOL-RPC portmap status request UDP
+      6  GPL RPC portmap status request UDP
+      6  PROTOCOL-RPC portmap rwalld request UDP
+      6  GPL RPC portmap rwalld request UDP
+      6  PROTOCOL-RPC portmap ttdbserv request UDP
+      6  GPL RPC portmap ttdbserv request UDP
+      6  ET SCAN Suspicious inbound to mySQL port 3306
+      6  PROTOCOL-RPC portmap cachefsd request TCP
+      6  GPL RPC portmap cachefsd request TCP
+      6  PROTOCOL-RPC portmap nisd request UDP
+      6  GPL RPC portmap nisd request UDP
+      6  PROTOCOL-RPC portmap bootparam request TCP
+      6  GPL RPC portmap bootparam request TCP
+      6  PROTOCOL-RPC
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | select((.dest_ip // \"null\") | startswith(\"175.45.176\")) | .alert.signature"
+}
+[TOOL RESULT] count_by
+    806  SERVER-OTHER BGP spoofed connection reset attempt
+     10  SURICATA SMB file overlap
+      8  GPL TELNET TELNET access
+      6  SERVER-OTHER BGP invalid length
+      6  GPL MISC BGP invalid length
+      5  SURICATA Applayer Detect protocol only one direction
+      3  ET SHELLCODE Rothenburg Shellcode
+      3  SURICATA HTTP Response excessive header repetition
+      3  SURICATA STREAM ESTABLISHED invalid ack
+      3  SURICATA STREAM Packet with invalid ack
+      3  MALWARE-BACKDOOR GateCrasher
+      2  SURICATA HTTP invalid response chunk len
+      2  SURICATA SMTP no server welcome message
+      2  SURICATA HTTP unable to match response to request
+      2  ET EXPLOIT VNC Server Not Requiring Authentication (case 2)
+      2  ET EXPLOIT RealVNC Server Authentication Bypass Successful
+      1  SURICATA HTTP response buffer too long
+      1  SURICATA TLS overflow heartbeat encountered, possible exploit attempt (heartbleed)
+      1  ET EXPLOIT Possible OpenSSL HeartBleed Large HeartBeat Response from Common SSL Port (Outbound from Server)
+      1  SERVER-OTHER OpenSSL TLSv1.1 large heartbeat response - possible ssl heartbleed attempt
+      1  SURICATA SMTP invalid reply
+      1  ET P2P Vuze BT UDP Connection
+      1  SURICATA RFB Malformed or unknown message
+      1  SURICATA SMB malformed response data
+      1  SURICATA Applayer Protocol detection skipped
+      1  SURICATA STREAM FIN invalid ack
+      1  SURICATA TLS invalid record version
+      1  SURICATA TLS handshake invalid length
+      1  MALWARE-BACKDOOR Doly variant outbound connection attempt
+      1  SURICATA HTTP response field missing colon
+      1  ET EXPLOIT VNC Server Not Requiring Authentication
+      1  SURICATA RFB Unexpected State in Parser
+      1  PROTOCOL-TELNET login failed
+      1  GPL TELNET TELNET login failed
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me look at the details of the highest-volume shellcode alert to determine what's generating it.
+
+
+--- Turn 6 | 72,108 in / 3,133 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature==\"INDICATOR-SHELLCODE x86 inc ecx NOOP\") | {ts, src_ip, dest_ip, src_port, dest_port, proto, app_proto, flow_id, alert} | .[0:5]"
+}
+[TOOL RESULT] query_eve_json
+(no results)
+------------------------------------------------------------------------
+
+--- Turn 7 | 95,552 in / 3,517 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature==\"INDICATOR-SHELLCODE x86 inc ecx NOOP\") | {ts, src_ip, dest_ip, src_port, dest_port, proto, app_proto}"
+}
+[TOOL RESULT] query_eve_json
+{"ts":null,"src_ip":"175.45.176.2","dest_ip":"149.171.126.16","src_port":52515,"dest_port":3057,"proto":"TCP","app_proto":"http"}
+{"ts":null,"src_ip":"175.45.176.2","dest_ip":"149.171.126.14","src_port":40079,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.2","dest_ip":"149.171.126.13","src_port":13352,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.0","dest_ip":"149.171.126.12","src_port":3844,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.0","dest_ip":"149.171.126.12","src_port":3844,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.17","src_port":20693,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.0","dest_ip":"149.171.126.12","src_port":3844,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.0","dest_ip":"149.171.126.12","src_port":3844,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.13","src_port":53096,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.13","src_port":53096,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.13","src_port":53096,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.13","src_port":53096,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.13","src_port":53096,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.13","src_port":53096,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.13","src_port":53096,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.13","src_port":13963,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.13","src_port":13963,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.12","src_port":37458,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.12","src_port":37458,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.12","src_port":37458,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.1","dest_ip":"149.171.126.12","src_port":37458,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.0","dest_ip":"149.171.126.14","src_port":8564,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.0","dest_ip":"149.171.126.14","src_port":8564,"dest_port":25,"proto":"TCP","app_proto":"smtp"}
+{"ts":null,"src_ip":"175.45.176.0","dest_ip":"149.171.126.14
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+The timestamp field I queried was wrong. Let me inspect an alert's full structure.
+
+
+--- Turn 8 | 122,507 in / 3,786 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | keys"
+}
+[TOOL RESULT] query_eve_json
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src"
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me check the log directory and fast.log for time context.
+
+
+--- Turn 9 | 152,080 in / 4,153 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] list_directory
+{
+  "dir_path": "logs/unsw-1-baseline"
+}
+[TOOL RESULT] list_directory
+  eve.json  (67.9 MB)
+  fast.log  (1.3 MB)
+  run.out  (7.3 KB)
+  stats.log  (25.5 KB)
+  suricata.log  (10.2 KB)
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | .timestamp"
+}
+[TOOL RESULT] query_eve_json
+"2015-02-18T09:53:31.409812+0930"
+"2015-02-18T09:53:31.409824+0930"
+"2015-02-18T09:53:32.008419+0930"
+"2015-02-18T09:53:31.433859+0930"
+"2015-02-18T09:53:32.008428+0930"
+"2015-02-18T09:53:31.433868+0930"
+"2015-02-18T09:53:32.026557+0930"
+"2015-02-18T09:53:32.026567+0930"
+"2015-02-18T09:53:37.650243+0930"
+"2015-02-18T09:53:33.347124+0930"
+"2015-02-18T09:53:35.779409+0930"
+"2015-02-18T09:53:33.347124+0930"
+"2015-02-18T09:53:33.347124+0930"
+"2015-02-18T09:53:35.779418+0930"
+"2015-02-18T09:53:33.347124+0930"
+"2015-02-18T09:53:35.780319+0930"
+"2015-02-18T09:53:35.780324+0930"
+"2015-02-18T09:53:37.650252+0930"
+"2015-02-18T09:53:37.670747+0930"
+"2015-02-18T09:53:32.659427+0930"
+"2015-02-18T09:53:33.347126+0930"
+"2015-02-18T09:53:33.347126+0930"
+"2015-02-18T09:53:33.347126+0930"
+"2015-02-18T09:53:31.474009+0930"
+"2015-02-18T09:53:33.347126+0930"
+"2015-02-18T09:53:31.474009+0930"
+"2015-02-18T09:53:32.659436+0930"
+"2015-02-18T09:53:37.670756+0930"
+"2015-02-18T09:53:41.153030+0930"
+"2015-02-18T09:53:32.660683+0930"
+"2015-02-18T09:53:32.660690+0930"
+"2015-02-18T09:53:34.496425+0930"
+"2015-02-18T09:53:34.496434+0930"
+"2015-02-18T09:53:34.506976+0930"
+"2015-02-18T09:53:34.506986+0930"
+"2015-02-18T09:53:59.278119+0930"
+"2015-02-18T09:53:59.278119+0930"
+"2015-02-18T09:53:36.386646+0930"
+"2015-02-18T09:53:35.344360+0930"
+"2015-02-18T09:53:36.386652+0930"
+"2015-02-18T09:53:35.344369+0930"
+"2015-02-18T09:53:35.937123+0930"
+"2015-02-18T09:53:36.386801+0930"
+"2015-02-18T09:53:35.345295+0930"
+"2015-02-18T09:53:35.937132+0930"
+"2015-02-18T09:53:36.386803+0930"
+"2015-02-18T09:53:35.345300+0930"
+"2015-02-18T09:53:38.343986+0930"
+"2015-02-18T09:53:38.343995+0930"
+"2015-02-18T09:53:38.355164+0930"
+"2015-02-18T09:53:34.846556+0930"
+"2015-02-18T09:53:38.355173+0930"
+"2015-02-18T09:54:36.065398+0930"
+"2015-02-18T09:53:36.928356+0930"
+"2015-02-18T09:53:51.562282+0930"
+"2015-02-18T09:54:22.095564+0930"
+"2015-02-18T09:54:36.065398+0930"
+"2015-02-18T09:53:36.928356+0930"
+"2015-02-18T09:54:36.065407+0930"
+"2015-02-18T09:54:36.065407+0930"
+"2015-02-18T09:54:27.804720+0930"
+"2015-02-18T09:54:25.702830+0930"
+"2015-02-18T09:54:04.737881+0930"
+"2015-02-18T09:54:22.931548+0930"
+"2015-02-18T09:54:22.931548+0930"
+"2015-02-18T09:54:38.870781+0930"
+"2015-02-18T09:54:22.931558+0930"
+"2015-02-18T09:54:38.870790+0930"
+"2015-02-18T09:54:22.931558+0930"
+"2015-02-18T09:54:25.702830+0930"
+"2015-02-18T09:54:25.186483+0930"
+"2015-02-18T09:54:25.702854+0930"
+"2015-02-18T09:54:25.186483+0930"
+"2015-02-18T09:54:08.276073+0930"
+"2015-02-18T09:54:04.995518+0930"
+"2015-02-18T09:54:41.154900+0930"
+"2015-02-18T09:54:25.702854+0930"
+"2015-02-18T09:54:08.276082+0930"
+"2015-02-18T09:54:03.130577+0930"
+"2015-02-18T09:54:03.130577+0930"
+"2015-02-18T09:54:04.995527+0930"
+"2015-02-18T09:54:03.130587+0930"
+"2015-02-18T09:54:03.130587+0930"
+"2015-02-18T09:54:57.204294+0930"
+"2015-02-18T09:54:10.884653+0930"
+"2015-02-18T09:54:10.884653+0930"
+"2015-02-18T09:54:33.482422+0930"
+"2015-02-18T09:54:57.204294+0930"
+"2015-02
+------------------------------------------------------------------------
+
+--- Turn 10 | 185,120 in / 4,503 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "logs/unsw-1-baseline/stats.log"
+}
+[TOOL RESULT] read_file
+---------------------------------------------------------------------------------------------------
+Date: 9/30/2026 -- 14:35:37 (uptime: 0d, 00h 00m 34s)
+---------------------------------------------------------------------------------------------------
+Counter                                                      | TM Name                   | Value
+---------------------------------------------------------------------------------------------------
+decoder.pkts                                                 | Total                     | 2414401
+decoder.bytes                                                | Total                     | 1319201957
+decoder.invalid                                              | Total                     | 2
+decoder.ipv4                                                 | Total                     | 2413917
+decoder.arp                                                  | Total                     | 487
+decoder.sll                                                  | Total                     | 2414401
+decoder.tcp                                                  | Total                     | 2375131
+tcp.syn                                                      | Total                     | 46720
+tcp.synack                                                   | Total                     | 46730
+tcp.rst                                                      | Total                     | 120
+decoder.udp                                                  | Total                     | 38176
+decoder.sctp                                                 | Total                     | 14
+decoder.icmpv4                                               | Total                     | 28
+decoder.gre                                                  | Total                     | 2
+decoder.avg_pkt_size                                         | Total                     | 546
+decoder.max_pkt_size                                         | Total                     | 1520
+tcp.active_sessions                                          | Total                     | 1224
+flow.total                                                   | Total                     | 30865
+flow.active                                                  | Total                     | 3186
+flow.tcp                                                     | Total                     | 23321
+flow.udp                                                     | Total                     | 7527
+flow.icmpv4                                                  | Total                     | 14
+flow.tcp_reuse                                               | Total                     | 7
+flow.wrk.spare_sync_avg                                      | Total                     | 100
+flow.wrk.spare_sync                                          | Total                     | 17010
+flow.wrk.spare_sync_empty                                    | Total                     | 16910
+defrag.ipv4.fragments                          
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "logs/unsw-1-baseline/run.out"
+}
+[TOOL RESULT] read_file
+i: suricata: This is Suricata version 8.0.6 RELEASE running in USER mode
+E: detect-within: previous keyword has a fast_pattern:only; set. Can't have relative keywords around a fast_pattern only content
+E: detect: error parsing signature "alert tcp $EXTERNAL_NET $HTTP_PORTS -> $HOME_NET any (msg:"MALWARE-OTHER Win.Trojan.Zeus Spam 2013 dated zip/exe HTTP Response - potential malware download"; flow:to_client,established; content:"-2013.zip|0D 0A|"; fast_pattern:only; content:"-2013.zip|0D 0A|"; http_header; content:"-"; within:1; distance:-14; http_header; file_data; content:"-2013.exe"; content:"-"; within:1; distance:-14; metadata:impact_flag red, policy balanced-ips drop, policy max-detect-ips drop, policy security-ips drop, ruleset community, service http; reference:url,www.virustotal.com/en/file/2eff3ee6ac7f5bf85e4ebcbe51974d0708cef666581ef1385c628233614b22c0/analysis/; classtype:trojan-activity; sid:26470; rev:2;)" from file /home/bigyan/capstone-ids/rules/extra/snort_community.rules at line 2581
+E: rule-vars: Variable "SIP_SERVERS" is not defined in configuration file
+E: detect: error parsing signature "alert udp $EXTERNAL_NET any -> $SIP_SERVERS $SIP_PORTS (msg:"PROTOCOL-VOIP inbound INVITE message"; flow:to_server; content:"INVITE"; fast_pattern:only; sip_method:invite; metadata:policy max-detect-ips drop, ruleset community, service sip; reference:url,www.ietf.org/rfc/rfc3261.txt; classtype:protocol-command-decode; sid:11968; rev:8;)" from file /home/bigyan/capstone-ids/rules/extra/snort_disabled_selected.rules at line 1922
+E: rule-vars: Variable "SIP_SERVERS" is not defined in configuration file
+E: detect: error parsing signature "alert udp $EXTERNAL_NET any -> $SIP_SERVERS $SIP_PORTS (msg:"PROTOCOL-VOIP Possible SIP OPTIONS service information gathering attempt"; flow:to_server; sip_method:options; content:"SIP/2.0"; fast_pattern:only; detection_filter:track by_src, count 100, seconds 25; metadata:policy max-detect-ips drop, ruleset community, service sip; reference:url,blog.sipvicious.org/2008/02/detecting-sip-attacks-with-snort.html; classtype:attempted-recon; sid:27899; rev:4;)" from file /home/bigyan/capstone-ids/rules/extra/snort_disabled_selected.rules at line 1963
+E: rule-vars: Variable "SIP_SERVERS" is not defined in configuration file
+E: detect: error parsing signature "alert udp $SIP_SERVERS $SIP_PORTS -> $EXTERNAL_NET any (msg:"PROTOCOL-VOIP Excessive number of SIP 4xx responses potential user or password guessing attempt"; flow:to_client; sip_stat_code:4; content:"SIP/2.0"; fast_pattern:only; detection_filter:track by_src, count 100, seconds 25; metadata:policy max-detect-ips drop, ruleset community, service sip; reference:url,blog.sipvicious.org/2008/02/detecting-sip-attacks-with-snort.html; classtype:attempted-recon; sid:27900; rev:4;)" from file /home/bigyan/capstone-ids/rules/extra/snort_disabled_selected.rules at line 1964
+E: rule-vars: Variable "SIP_SERVERS" is not defined in configuration file
+E: detect: error parsing
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me investigate the BGP alerts, which are high-volume and bidirectional.
+
+
+--- Turn 11 | 222,084 in / 5,606 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature==\"SERVER-OTHER BGP spoofed connection reset attempt\") | {timestamp, src_ip, dest_ip, src_port, dest_port, proto, direction, flow}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T09:53:31.409812+0930","src_ip":"149.171.126.14","dest_ip":"175.45.176.3","src_port":179,"dest_port":60835,"proto":"TCP","direction":"to_client","flow":{"pkts_toserver":6,"pkts_toclient":5,"bytes_toserver":458,"bytes_toclient":308,"start":"2015-02-18T09:53:30.920655+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","src_port":60835,"dest_port":179}}
+{"timestamp":"2015-02-18T09:53:31.409824+0930","src_ip":"149.171.126.14","dest_ip":"175.45.176.3","src_port":179,"dest_port":60835,"proto":"TCP","direction":"to_client","flow":{"pkts_toserver":6,"pkts_toclient":6,"bytes_toserver":458,"bytes_toclient":364,"start":"2015-02-18T09:53:30.920655+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","src_port":60835,"dest_port":179}}
+{"timestamp":"2015-02-18T09:53:32.008419+0930","src_ip":"149.171.126.14","dest_ip":"175.45.176.3","src_port":179,"dest_port":62899,"proto":"TCP","direction":"to_client","flow":{"pkts_toserver":6,"pkts_toclient":3,"bytes_toserver":458,"bytes_toclient":190,"start":"2015-02-18T09:53:31.656016+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","src_port":62899,"dest_port":179}}
+{"timestamp":"2015-02-18T09:53:31.433859+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","src_port":60835,"dest_port":179,"proto":"TCP","direction":"to_server","flow":{"pkts_toserver":7,"pkts_toclient":6,"bytes_toserver":520,"bytes_toclient":364,"start":"2015-02-18T09:53:30.920655+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","src_port":60835,"dest_port":179}}
+{"timestamp":"2015-02-18T09:53:32.008428+0930","src_ip":"149.171.126.14","dest_ip":"175.45.176.3","src_port":179,"dest_port":62899,"proto":"TCP","direction":"to_client","flow":{"pkts_toserver":6,"pkts_toclient":4,"bytes_toserver":458,"bytes_toclient":246,"start":"2015-02-18T09:53:31.656016+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","src_port":62899,"dest_port":179}}
+{"timestamp":"2015-02-18T09:53:31.433868+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","src_port":60835,"dest_port":179,"proto":"TCP","direction":"to_server","flow":{"pkts_toserver":8,"pkts_toclient":6,"bytes_toserver":576,"bytes_toclient":364,"start":"2015-02-18T09:53:30.920655+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","src_port":60835,"dest_port":179}}
+{"timestamp":"2015-02-18T09:53:32.026557+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","src_port":62899,"dest_port":179,"proto":"TCP","direction":"to_server","flow":{"pkts_toserver":7,"pkts_toclient":4,"bytes_toserver":520,"bytes_toclient":246,"start":"2015-02-18T09:53:31.656016+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","src_port":62899,"dest_port":179}}
+{"timestamp":"2015-02-18T09:53:32.026567+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","src_port":62899,"dest_port":179,"proto":"TCP","direction":"to_server","flow":{"pkts_toserver":8,"pkts_toclient":4,"bytes_toserver":576,"bytes_toclient":246,"start":"2015-02-18T09:53:31.656016+0930","src_ip":"175.45.176.3
+------------------------------------------------------------------------
+
+--- Turn 12 | 263,317 in / 5,828 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "BGP spoofed connection reset"
+}
+[TOOL RESULT] search_rules
+1 loaded rule(s) match 'BGP spoofed connection reset' (58564 searched); showing up to 25:
+  sid:2523  [extra/snort_disabled_selected.rules]  SERVER-OTHER BGP spoofed connection reset attempt
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "BGP invalid length"
+}
+[TOOL RESULT] search_rules
+2 loaded rule(s) match 'BGP invalid length' (58564 searched); showing up to 25:
+  sid:2102158  [extra/et_disabled_selected.rules]  GPL MISC BGP invalid length
+  sid:2158  [extra/snort_disabled_selected.rules]  SERVER-OTHER BGP invalid length
+------------------------------------------------------------------------
+
+--- Turn 13 | 304,927 in / 5,958 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] list_directory
+{
+  "dir_path": "rules"
+}
+[TOOL RESULT] list_directory
+  experiment1/
+  extra/
+  generated/
+  normal.rules  (2.5 KB)
+  suricata.rules  (45.4 MB)
+------------------------------------------------------------------------
+
+--- Turn 14 | 346,712 in / 6,038 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] list_directory
+{
+  "dir_path": "rules/extra"
+}
+[TOOL RESULT] list_directory
+  et_disabled_all.rules  (9.9 MB)
+  et_disabled_selected.rules  (1.4 MB)
+  nmap_scans.rules  (3.5 KB)
+  pt_open.rules  (232.4 KB)
+  snort_community.rules  (1.8 MB)
+  snort_disabled_all.rules  (1.5 MB)
+  snort_disabled_selected.rules  (879.8 KB)
+  src/
+  stamus_lateral.rules  (516.8 KB)
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] list_directory
+{
+  "dir_path": "rules/generated"
+}
+[TOOL RESULT] list_directory
+  cic/
+  unsw/
+------------------------------------------------------------------------
+
+--- Turn 15 | 388,720 in / 6,087 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] list_directory
+{
+  "dir_path": "rules/generated/unsw"
+}
+[TOOL RESULT] list_directory
+  rounds_plain.rules  (739 B)
+  rounds_research.rules  (914 B)
+  unsw_bare.rules  (9.7 KB)
+  unsw_triage.rules  (12.8 KB)
+------------------------------------------------------------------------
+
+--- Turn 16 | 430,838 in / 6,318 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "rules/generated/unsw/rounds_plain.rules"
+}
+[TOOL RESULT] read_file
+# rules/generated/unsw/rounds_plain.rules
+# AI-authored rules written against the UNSW-NB15 baseline v2, condition: plain.
+
+# FTP PORT integer-overflow fuzzing.
+# The attacker sends PORT commands where the six comma-separated octets are the
+# SAME oversized decimal value (256, 4096, 65536, ..., 2^31, 2^32) instead of
+# the normal h1,h2,h3,h4,p1,p2 (each <= 255). This probes FTP server integer
+# overflow handling and was not covered by the loaded baseline.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"UNSW FTP PORT command repeated oversized decimal octets - integer overflow fuzzing attempt"; flow:to_server,established; content:"PORT"; nocase; pcre:"/([0-9]{2,}),\1,\1,\1,\1,\1/"; classtype:attempted-user; sid:1000001; rev:1;)
+
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "rules/generated/unsw/rounds_research.rules"
+}
+[TOOL RESULT] read_file
+Error: access to this path is not permitted.
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "rules/generated/unsw/unsw_triage.rules"
+}
+[TOOL RESULT] read_file
+Error: access to this path is not permitted.
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "rules/generated/unsw/unsw_bare.rules"
+}
+[TOOL RESULT] read_file
+Error: access to this path is not permitted.
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me understand what's happening on BGP port 179 and the nature of those flows.
+
+
+--- Turn 17 | 473,478 in / 7,651 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"flow\") | select((.src_ip // \"x\" | startswith(\"175.45.176\")) and .dest_port==179) | \"\\(.src_ip):\\(.src_port) -> \\(.dest_ip):\\(.dest_port) \\(.proto)\""
+}
+[TOOL RESULT] count_by
+      3  175.45.176.2:54871 -> 149.171.126.15:179 TCP
+      3  175.45.176.1:47668 -> 149.171.126.13:179 TCP
+      2  175.45.176.0:49502 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:26581 -> 149.171.126.18:179 TCP
+      2  175.45.176.1:28781 -> 149.171.126.18:179 TCP
+      2  175.45.176.1:27849 -> 149.171.126.18:179 TCP
+      2  175.45.176.1:64155 -> 149.171.126.18:179 TCP
+      2  175.45.176.1:40071 -> 149.171.126.18:179 TCP
+      2  175.45.176.1:65456 -> 149.171.126.18:179 TCP
+      2  175.45.176.3:41081 -> 149.171.126.18:179 TCP
+      2  175.45.176.3:41101 -> 149.171.126.18:179 TCP
+      2  175.45.176.1:36014 -> 149.171.126.18:179 TCP
+      2  175.45.176.1:62903 -> 149.171.126.18:179 TCP
+      2  175.45.176.3:40986 -> 149.171.126.18:179 TCP
+      2  175.45.176.3:29989 -> 149.171.126.18:179 TCP
+      2  175.45.176.3:4384 -> 149.171.126.18:179 TCP
+      2  175.45.176.3:29919 -> 149.171.126.18:179 TCP
+      2  175.45.176.3:40991 -> 149.171.126.18:179 TCP
+      2  175.45.176.3:41137 -> 149.171.126.18:179 TCP
+      2  175.45.176.3:14336 -> 149.171.126.18:179 TCP
+      2  175.45.176.1:65510 -> 149.171.126.18:179 TCP
+      2  175.45.176.1:64140 -> 149.171.126.18:179 TCP
+      2  175.45.176.1:26761 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:26713 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:62352 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:45541 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:43078 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:26715 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:63767 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:46012 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:26716 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:26771 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:26710 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:65166 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:26744 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:11143 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:26725 -> 149.171.126.13:179 TCP
+      2  175.45.176.1:26755 -> 149.171.126.13:179 TCP
+      1  175.45.176.3:62942 -> 149.171.126.14:179 TCP
+      1  175.45.176.3:62994 -> 149.171.126.14:179 TCP
+      1  175.45.176.1:40583 -> 149.171.126.18:179 TCP
+      1  175.45.176.0:62460 -> 149.171.126.13:179 TCP
+      1  175.45.176.1:63392 -> 149.171.126.13:179 TCP
+      1  175.45.176.1:12442 -> 149.171.126.13:179 TCP
+      1  175.45.176.0:54668 -> 149.171.126.13:179 TCP
+      1  175.45.176.1:7518 -> 149.171.126.18:179 TCP
+      1  175.45.176.1:65113 -> 149.171.126.18:179 TCP
+      1  175.45.176.1:62655 -> 149.171.126.18:179 TCP
+      1  175.45.176.1:62186 -> 149.171.126.13:179 TCP
+      1  175.45.176.1:36299 -> 149.171.126.18:179 TCP
+      1  175.45.176.1:24984 -> 149.171.126.18:179 TCP
+      1  175.45.176.3:2340 -> 149.171.126.18:179 TCP
+      1  175.45.176.0:42607 -> 149.171.126.13:179 TCP
+      1  175.45.176.1:44124 -> 149.171.126.18:179 TCP
+      1  175.45.176.1:39301 -> 149.171.126.18:179 TCP
+      1  175.45.176.1:40954 -> 14
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature==\"SERVER-OTHER BGP invalid length\") | \"\\(.src_ip):\\(.src_port) -> \\(.dest_ip):\\(.dest_port) \\(.direction)\""
+}
+[TOOL RESULT] count_by
+      3  175.45.176.1:36014 -> 149.171.126.18:179 to_server
+      3  175.45.176.1:62903 -> 149.171.126.18:179 to_server
+      2  175.45.176.1:34525 -> 149.171.126.18:179 to_server
+      2  175.45.176.1:35115 -> 149.171.126.18:179 to_server
+      2  175.45.176.1:43814 -> 149.171.126.18:179 to_server
+      2  175.45.176.2:33132 -> 149.171.126.15:179 to_server
+      2  149.171.126.15:179 -> 175.45.176.2:33132 to_client
+      2  175.45.176.1:39479 -> 149.171.126.18:179 to_server
+      2  175.45.176.2:51706 -> 149.171.126.15:179 to_server
+      2  149.171.126.15:179 -> 175.45.176.2:51706 to_client
+      2  175.45.176.2:18266 -> 149.171.126.15:179 to_server
+      2  149.171.126.15:179 -> 175.45.176.2:18266 to_client
+      1  175.45.176.1:44539 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:26581 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:41024 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:40029 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:36797 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:10253 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:40122 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:51001 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:27849 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:65261 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:10485 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:65453 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:64195 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:36952 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:40939 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:48713 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:9074 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:27209 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:65503 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:43918 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:64459 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:58981 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:26106 -> 149.171.126.18:179 to_server
+      1  175.45.176.1:40396 -> 149.171.126.18:179 to_server
+------------------------------------------------------------------------
+
+--- Turn 18 | 522,322 in / 8,123 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | .alert | keys"
+}
+[TOOL RESULT] query_eve_json
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","gid","metadata","rev","severity","signature","signature_id"]
+["action","category","g
+------------------------------------------------------------------------
+
+--- Turn 19 | 573,794 in / 8,289 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | .alert.category"
+}
+[TOOL RESULT] count_by
+   2222  Executable code was detected
+   1845  Attempted Denial of Service
+    653  Generic Protocol Command Decode
+    447  Misc activity
+    388  Decode of an RPC Query
+    227  Potentially Bad Traffic
+    205  Attempted Administrator Privilege Gain
+    142  Web Application Attack
+    134  Attempted Information Leak
+    104  Detection of a Denial of Service Attack
+     85  access to a potentially vulnerable web application
+     53  Misc Attack
+     23  Attempted User Privilege Gain
+     20  A suspicious string was detected
+     12  A system call was detected
+     11  Detection of a non-standard protocol or event
+     10  Successful Administrator Privilege Gain
+      8  Not Suspicious Traffic
+      8  A Network Trojan was detected
+      4  Detection of a Network Scan
+      3  Unknown Traffic
+      1  Potential Corporate Privacy Violation
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | .alert.severity"
+}
+[TOOL RESULT] count_by
+   2859  2
+   2611  1
+   1135  3
+------------------------------------------------------------------------
+
+--- Turn 20 | 625,668 in / 8,796 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.category==\"Successful Administrator Privilege Gain\") | .alert.signature"
+}
+[TOOL RESULT] count_by
+      4  PROTOCOL-TFTP GET passwd
+      4  GPL TFTP GET passwd
+      2  ET EXPLOIT RealVNC Server Authentication Bypass Successful
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.category==\"A Network Trojan was detected\") | .alert.signature"
+}
+[TOOL RESULT] count_by
+      3  MALWARE-BACKDOOR GateCrasher
+      2  MALWARE-BACKDOOR DeepThroat 3.1 Connection
+      1  ET WEB_SERVER Possible XXE SYSTEM ENTITY in POST BODY.
+      1  ET WEB_SERVER PHP.//Input in HTTP POST
+      1  MALWARE-BACKDOOR Doly variant outbound connection attempt
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.category==\"Not Suspicious Traffic\") | .alert.signature"
+}
+[TOOL RESULT] count_by
+      8  GPL TELNET TELNET access
+------------------------------------------------------------------------
+
+--- Turn 21 | 678,210 in / 9,191 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"tftp\") | {timestamp, src_ip, dest_ip, src_port, dest_port, tftp}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T10:09:37.271292+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.14","src_port":5992,"dest_port":69,"tftp":{"packet":"read","file":"rUJn9B7d10M7bzuJCItRhhcU5mrkKIlb9GKe9dZsq2ofwNR1HRYC6yxbgJMvM8d6RTuUIIT0ullF30kgXU1BE8nkMvsltKmdpew3BfaSEfltIoggMnoVY48d3inbel0lRoOU50HUE0wV9TFJdyBRYeA7HcJHnZ9SwDlI3innNGOTvM90vTr4dVH5QX6Q2nRSgBNs7n3Dc3Nz5PlIBJqMs2KI6uVEB5QESRrg7xYDyr0Kwf2EAeOIRVI3Sx51qQ1hxi0b2TN8h08zr4NT1MZbcFOF7za1gt8AwxPCFagivhHsDnhsCsN7VRaEQYlBKSz807T1y3F1duzQqI07aOKeI4f07heDjWtkDoS1DceLAQGsnFuAHKjMcZIf3XqJ6NENZ2GRUP180PGkXgWcxBIVo3L6nQ3Mwh18dFRStLCuKbYPP8yBHgU3e5JVP8MwNbpvhLYzMpcsKWhid8c2uTbtN268oxGLSZTmix5UYV5Cd86SIbJpis2bSyH8siduZmrJ","mode":"octet"}}
+{"timestamp":"2015-02-18T10:09:37.271299+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.14","src_port":5992,"dest_port":69,"tftp":{"packet":"read","file":"rUJn9B7d10M7bzuJCItRhhcU5mrkKIlb9GKe9dZsq2ofwNR1HRYC6yxbgJMvM8d6RTuUIIT0ullF30kgXU1BE8nkMvsltKmdpew3BfaSEfltIoggMnoVY48d3inbel0lRoOU50HUE0wV9TFJdyBRYeA7HcJHnZ9SwDlI3innNGOTvM90vTr4dVH5QX6Q2nRSgBNs7n3Dc3Nz5PlIBJqMs2KI6uVEB5QESRrg7xYDyr0Kwf2EAeOIRVI3Sx51qQ1hxi0b2TN8h08zr4NT1MZbcFOF7za1gt8AwxPCFagivhHsDnhsCsN7VRaEQYlBKSz807T1y3F1duzQqI07aOKeI4f07heDjWtkDoS1DceLAQGsnFuAHKjMcZIf3XqJ6NENZ2GRUP180PGkXgWcxBIVo3L6nQ3Mwh18dFRStLCuKbYPP8yBHgU3e5JVP8MwNbpvhLYzMpcsKWhid8c2uTbtN268oxGLSZTmix5UYV5Cd86SIbJpis2bSyH8siduZmrJ","mode":"octet"}}
+{"timestamp":"2015-02-18T10:14:45.948896+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.10","src_port":32947,"dest_port":69,"tftp":{"packet":"read","file":"passwd","mode":"netascii"}}
+{"timestamp":"2015-02-18T10:14:45.948906+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.10","src_port":32947,"dest_port":69,"tftp":{"packet":"read","file":"passwd","mode":"netascii"}}
+{"timestamp":"2015-02-18T10:23:51.903438+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.13","src_port":57688,"dest_port":69,"tftp":{"packet":"read","file":"KrcJz9G9iQvAmH7MZmz3V9GgqcUlSp6e7TlqTsCg3B3cpx9wCjmfwF14R6dvKawOsUxaRRLFUaQPguHDy1iaswJCJhMNEvRfPh0oznPiNl83e87NLP1WVbbWQVmeLxRrac0dD1W5bHoLjEqdJxfzCBJwLQ4ngTY4X6Ga7SWJCZMX1C3sDTf9ShCtAWy804KbEimTxu3CVkyNSerYGs5ms8ABroPqLKG5AZysXr3dY4LB4IZyL28XjcE8pOeU50ASiX2xHdm5S00drwfhMxUOR55xFfs9Q4QQ6Ol7ss3INaWYCLVjEsxeO4q8fKPvSP72xk5rGgSglaVKrrkUk94JxyoxG8eIFSS5MiPcOZgoIqYvNsxGPMcZggr0lR25t6vu7aF9mXqwUupsiHlc46Ft6F8YnzDjejvJAeXP9OKGxFNORLhK0QuAmKrI5LaImXQamgS6GX7zczM7QO3qu7Wdfo3txhy2urCweUc08PVV8s7YmqKeyTCR1sRoQJAZ9sFO4mYTDLClPhC1bg3qTSNkESeMdXhpopcoSv0sSglbObCZ4fKK0bh0LAVXrAFFVxlxznUo2tigQJmm9B0dDUIrch2fMGl1unCky6E6iZwmMlLDH3FcwfoaHUUmjBXvQZcYZBOzTrXlKgm7H6K3zCwveUk3RHKdXea0x2U3YOVjWHppoxEtIE9v0BN8kx2Ong0EqRv25Tf89yKijdDQqAQtdPeQN1q1w65hqAHIRnHnRmLKIlvCplqiJT4ykAxO9jNzQeBowRoOYBjqpeXg2Y1onnWpzxpksu2WQjoygR6Nhskv4dfs6b3dATqqsmzzbjo6nm789v6BrOxcXLIPVjkZT3n0oLXcaIOfRdqrJkEdJk3283BNe6DPrFZdKnql5LMSJ24TFiU0TLbEfGlkqhSnON5CsYr6OOhnt0RL0KiloPV75mXN5Zs5aLjlHnt8helF7jWMcSNCDS6V8HeKCm9Yj2g4ss5XtH9B1Uu1ZlQ9aRbt6wmiGkkVob6R1NugnbPS","mode":"netascii"}}
+{"timestamp":"2015-02-18T10:
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature|test(\"TFTP\"))) | \"\\(.alert.signature) | \\(.src_ip) -> \\(.dest_ip)\""
+}
+[TOOL RESULT] count_by
+     16  PROTOCOL-TFTP Get | 175.45.176.1 -> 149.171.126.19
+     16  GPL TFTP Get | 175.45.176.1 -> 149.171.126.19
+     16  PROTOCOL-TFTP Put | 175.45.176.1 -> 149.171.126.19
+     16  ET TFTP TFTPGUI Long Transport Mode Buffer Overflow | 175.45.176.1 -> 149.171.126.19
+     16  GPL TFTP Put | 175.45.176.1 -> 149.171.126.19
+      2  PROTOCOL-TFTP GET filename overflow attempt | 175.45.176.0 -> 149.171.126.14
+      2  PROTOCOL-TFTP PUT filename overflow attempt | 175.45.176.0 -> 149.171.126.14
+      2  GPL TFTP GET filename overflow attempt | 175.45.176.0 -> 149.171.126.14
+      2  PROTOCOL-TFTP Get | 175.45.176.0 -> 149.171.126.14
+      2  GPL TFTP Get | 175.45.176.0 -> 149.171.126.14
+      2  PROTOCOL-TFTP GET passwd | 175.45.176.3 -> 149.171.126.10
+      2  GPL TFTP GET passwd | 175.45.176.3 -> 149.171.126.10
+      2  PROTOCOL-TFTP Get | 175.45.176.3 -> 149.171.126.10
+      2  GPL TFTP Get | 175.45.176.3 -> 149.171.126.10
+      2  PROTOCOL-TFTP GET filename overflow attempt | 175.45.176.3 -> 149.171.126.13
+      2  PROTOCOL-TFTP PUT filename overflow attempt | 175.45.176.3 -> 149.171.126.13
+      2  GPL TFTP GET filename overflow attempt | 175.45.176.3 -> 149.171.126.13
+      2  PROTOCOL-TFTP Get | 175.45.176.3 -> 149.171.126.13
+      2  GPL TFTP Get | 175.45.176.3 -> 149.171.126.13
+      2  PROTOCOL-TFTP PUT filename overflow attempt | 175.45.176.1 -> 149.171.126.17
+      2  GPL TFTP PUT filename overflow attempt | 175.45.176.1 -> 149.171.126.17
+      2  PROTOCOL-TFTP Put | 175.45.176.1 -> 149.171.126.17
+      2  GPL TFTP Put | 175.45.176.1 -> 149.171.126.17
+      2  PROTOCOL-TFTP GET passwd | 175.45.176.0 -> 149.171.126.15
+      2  GPL TFTP GET passwd | 175.45.176.0 -> 149.171.126.15
+      2  PROTOCOL-TFTP parent directory | 175.45.176.0 -> 149.171.126.15
+      2  PROTOCOL-TFTP Get | 175.45.176.0 -> 149.171.126.15
+      2  GPL TFTP parent directory | 175.45.176.0 -> 149.171.126.15
+      2  GPL TFTP Get | 175.45.176.0 -> 149.171.126.15
+      2  PROTOCOL-TFTP parent directory | 175.45.176.1 -> 149.171.126.11
+      2  PROTOCOL-TFTP root directory | 175.45.176.1 -> 149.171.126.11
+      2  PROTOCOL-TFTP Get | 175.45.176.1 -> 149.171.126.11
+      2  GPL TFTP parent directory | 175.45.176.1 -> 149.171.126.11
+      2  GPL TFTP root directory | 175.45.176.1 -> 149.171.126.11
+      2  GPL TFTP Get | 175.45.176.1 -> 149.171.126.11
+      2  PROTOCOL-TFTP PUT filename overflow attempt | 175.45.176.1 -> 149.171.126.15
+      2  GPL TFTP PUT filename overflow attempt | 175.45.176.1 -> 149.171.126.15
+      2  PROTOCOL-TFTP Put | 175.45.176.1 -> 149.171.126.15
+      2  GPL TFTP Put | 175.45.176.1 -> 149.171.126.15
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Now let me deep-dive on the FTP activity, which has many alerts.
+
+
+--- Turn 22 | 737,113 in / 9,608 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ftp\") | .ftp.command"
+}
+[TOOL RESULT] count_by
+   2300  EPSV
+    945  null
+    923  USER
+    919  PASS
+    799  RETR
+    769  LIST
+    768  CWD
+    765  STOR
+    765  QUIT
+     35  PASV
+     33  TYPE
+     32  SIZE
+      2  NLST
+      2  SITE
+      1  MKD
+      1  SYST
+      1  PWD
+      1  NOOP
+      1  PORT
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ftp\") | .ftp.reply"
+}
+[TOOL RESULT] count_by
+    770  ["default"]
+    770  ["Password required for anonymous"]
+    770  ["User anonymous logged in."]
+    769  ["Data connection already open; Transfer starting.","default"]
+    769  ["CWD command successful"]
+    768  ["Data connection already open; Transfer starting.","Transfer complete."]
+    766  ["Data connection already open; Transfer starting.","Transfer complete"]
+    766  ["221"]
+    118  ["Extended Passive Mode OK (|||33761|)"]
+    118  ["Extended Passive Mode OK (|||1968|)"]
+    118  ["Extended Passive Mode OK (|||40667|)"]
+    113  ["Extended Passive Mode OK (|||30857|)"]
+    113  ["Extended Passive Mode OK (|||50128|)"]
+    113  ["Extended Passive Mode OK (|||29746|)"]
+    112  ["Welcome to my FTP Server"]
+    112  ["Please specify the password."]
+    112  ["Login successful."]
+     87  ["Extended Passive Mode OK (|||38520|)"]
+     87  ["Extended Passive Mode OK (|||6274|)"]
+     87  ["Extended Passive Mode OK (|||54429|)"]
+     82  ["Extended Passive Mode OK (|||54430|)"]
+     82  ["Extended Passive Mode OK (|||47096|)"]
+     82  ["Extended Passive Mode OK (|||59576|)"]
+     74  ["Extended Passive Mode OK (|||42611|)"]
+     74  ["Extended Passive Mode OK (|||23027|)"]
+     73  ["Extended Passive Mode OK (|||41036|)"]
+     70  ["Extended Passive Mode OK (|||56538|)"]
+     70  ["Extended Passive Mode OK (|||6577|)"]
+     70  ["Extended Passive Mode OK (|||54547|)"]
+     70  ["Extended Passive Mode OK (|||4360|)"]
+     70  ["Extended Passive Mode OK (|||29419|)"]
+     70  ["Extended Passive Mode OK (|||32948|)"]
+     65  ["Extended Passive Mode OK (|||25740|)"]
+     65  ["Extended Passive Mode OK (|||11922|)"]
+     65  ["Extended Passive Mode OK (|||23183|)"]
+     46  ["Extended Passive Mode OK (|||32284|)"]
+     45  ["Extended Passive Mode OK (|||19732|)"]
+     45  ["Extended Passive Mode OK (|||60046|)"]
+     45  ["Extended Passive Mode OK (|||53706|)"]
+     44  ["Extended Passive Mode OK (|||46893|)"]
+     44  ["Extended Passive Mode OK (|||34044|)"]
+     32  ["Guest login ok, send your complete e-mail address as password."]
+     32  ["Logged in anonymously."]
+     32  ["Type okay."]
+     10  null
+     10  ["4X7bWp93OzrfwvHI19wLH9cTf7PJMqCY1JAibTdYiyxpVIAExHhYpZnXAD6p3Hobc94KjdlPQM1a06a6mXkibjoHAdGP1vqsoB2S0D4ws5LeBD98lUvJxLCZp313q7HpbaX1UMUYIjAjQ3SNjB8wOFG0FAEwffk71NlKiHFa4FAPGqZPCH2yZkughRMmq7VIcKYwepPnQqg7cNW8ifAhrkM1Nrb4pgX2p0hZUtuXcY2DbPAZC8YGb7C3JuX0GzlQ4PnRCBHXi51h7y5UFaum8AHTampJSd268J8pXTE0o3UXUJBIy8CcK05IR1qCCZaexqk7x0NYZprDGnHEocPctTIHUkHk17p4cqRCBHQU8YOc4Y2y4xviU8AbKquMwIxYItN1czzKzS5xOJnyuSGAPytaQDjNc3ElmnPSjZ2iiL3piS4b7ANsRCQkpmqebHbTHejRSWyFZcLgxFuRnQ8tZ6bCHo5BiG7u6mWbhwOi3MFH3wCCCdKYcVXADfrDXcMfUYSd1iA4xI3am1EWQ27sAvbJaVvYl3npmZfXQ5BJCzwmIGrbGyvXufZedcGUbMuIDLtlGy1xrSWr88JXsj5vL5F95SMHPTa21V4ZVcLHjNTUaULheJKyrLMeweptNGPcduo1OkSy5cB2JqejeHI9nA0BEUR73cCv7XGcWKIzPBI9LDcUR5ZugUtRMvYY0pS5TW8dntpNEZw95zMs1eBLaS61fSXQA7cEWo6nX4YnRPbUns0Z9hA5uyWajsBLELfMywmEt7TfO6Wbw5YDyNdrKF5ZSuEvY55irAKDfqU7yurlvu6QmTfTCsDDI2TDlIa3ovyib
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me examine DNS and other protocol activity from the attacker range to find what the rules may have missed.
+
+
+--- Turn 23 | 799,732 in / 10,338 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"dns\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .dns.type"
+}
+[TOOL RESULT] count_by
+     22  request
+      2  response
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"dns\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .dns.rrtype"
+}
+[TOOL RESULT] count_by
+     24  null
+------------------------------------------------------------------------
+
+--- Turn 24 | 863,114 in / 10,480 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"dns\" and ((.src_ip // \"x\")|startswith(\"175.45.176\"))) | {timestamp, src_ip, dest_ip, dns}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T09:55:18.918510+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.19","dns":{"version":3,"type":"request","tx_id":0,"id":18176,"flags":"110","rd":true,"opcode":0,"rcode":"NOERROR","queries":[{"rrname":"uNzQuWuzkadGWF","rrtype":"TLSA"}]}}
+{"timestamp":"2015-02-18T09:55:18.918521+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.19","dns":{"version":3,"type":"request","tx_id":1,"id":18176,"flags":"110","rd":true,"opcode":0,"rcode":"NOERROR","queries":[{"rrname":"uNzQuWuzkadGWF","rrtype":"TLSA"}]}}
+{"timestamp":"2015-02-18T10:17:39.258404+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.17","dns":{"version":3,"type":"request","tx_id":0,"id":28853,"flags":"100","rd":true,"opcode":0,"rcode":"NOERROR","queries":[{"rrname":"wpad.test.com","rrtype":"SOA"}]}}
+{"timestamp":"2015-02-18T10:17:39.258409+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.17","dns":{"version":3,"type":"request","tx_id":1,"id":28853,"flags":"100","rd":true,"opcode":0,"rcode":"NOERROR","queries":[{"rrname":"wpad.test.com","rrtype":"SOA"}]}}
+{"timestamp":"2015-02-18T10:17:46.443339+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.17","dns":{"version":3,"type":"request","tx_id":0,"id":19701,"flags":"2800","opcode":5,"rcode":"NOERROR","queries":[{"rrname":"test.com","rrtype":"SOA"}],"answers":[{"rrname":"wpad.test.com","rrtype":"CNAME","ttl":0,"rdata":""}],"grouped":{"CNAME":[""]},"authorities":[{"rrname":"wpad.test.com","rrtype":"A","ttl":0,"rdata":""},{"rrname":"wpad.test.com","rrtype":"A","ttl":1200,"rdata":"172.16.4.100"}]}}
+{"timestamp":"2015-02-18T10:17:46.443344+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.17","dns":{"version":3,"type":"request","tx_id":1,"id":19701,"flags":"2800","opcode":5,"rcode":"NOERROR","queries":[{"rrname":"test.com","rrtype":"SOA"}],"answers":[{"rrname":"wpad.test.com","rrtype":"CNAME","ttl":0,"rdata":""}],"grouped":{"CNAME":[""]},"authorities":[{"rrname":"wpad.test.com","rrtype":"A","ttl":0,"rdata":""},{"rrname":"wpad.test.com","rrtype":"A","ttl":1200,"rdata":"172.16.4.100"}]}}
+{"timestamp":"2015-02-18T10:17:51.917913+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.15","dns":{"version":3,"type":"request","tx_id":0,"id":49909,"flags":"0","opcode":0,"rcode":"NOERROR","queries":[{"rrname":"pcuBDeRSiQ4QBIKeySpWFNutLEIZYmBXxMw9ZR0AzKNaqb6hL9MBUJ4Omh.com","rrtype":"252"}]}}
+{"timestamp":"2015-02-18T10:17:51.917916+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.15","dns":{"version":3,"type":"request","tx_id":1,"id":49909,"flags":"0","opcode":0,"rcode":"NOERROR","queries":[{"rrname":"pcuBDeRSiQ4QBIKeySpWFNutLEIZYmBXxMw9ZR0AzKNaqb6hL9MBUJ4Omh.com","rrtype":"252"}]}}
+{"timestamp":"2015-02-18T10:17:52.473514+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.17","dns":{"version":3,"type":"request","tx_id":0,"id":31186,"flags":"2800","opcode":5,"rcode":"NOERROR","queries":[{"rrname":"test.com","rrtype":"SOA"}],"answers":[{"rrname":"wpad.test.com","rrtype":"CNAME","ttl":0,"rdata":""}],"grouped":{"CNAME
+------------------------------------------------------------------------
+
+--- Turn 25 | 930,304 in / 10,903 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ssh\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .ssh.client.software_version"
+}
+[TOOL RESULT] count_by
+(no results)
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ssh\") | .ssh.client.software_version"
+}
+[TOOL RESULT] count_by
+   1447  PuTTY_Release_0.60
+      2  null
+------------------------------------------------------------------------
+
+--- Turn 26 | 997,957 in / 11,039 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ssh\") | .[0:2]"
+}
+[TOOL RESULT] query_eve_json
+(no results)
+------------------------------------------------------------------------
+
+--- Turn 27 | 1,065,760 in / 11,123 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ssh\") | keys"
+}
+[TOOL RESULT] query_eve_json
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","ssh","timestamp"]
+["dest_ip","dest_port","event_type","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_
+------------------------------------------------------------------------
+
+--- Turn 28 | 1,136,126 in / 11,221 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ssh\") | .ssh | keys"
+}
+[TOOL RESULT] query_eve_json
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+["client","server"]
+
+------------------------------------------------------------------------
+
+--- Turn 29 | 1,207,382 in / 11,320 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ssh\") | {timestamp, src_ip, dest_ip, src_port, dest_port, ssh}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T10:08:08.924106+0930","src_ip":"59.166.0.3","dest_ip":"149.171.126.2","src_port":32215,"dest_port":22,"ssh":{"client":{"proto_version":"2.0","software_version":"PuTTY_Release_0.60"},"server":{"proto_version":"1.99","software_version":"OpenSSH_4.3"}}}
+{"timestamp":"2015-02-18T10:08:09.302567+0930","src_ip":"59.166.0.8","dest_ip":"149.171.126.2","src_port":12772,"dest_port":22,"ssh":{"client":{"proto_version":"2.0","software_version":"PuTTY_Release_0.60"},"server":{"proto_version":"1.99","software_version":"OpenSSH_4.3"}}}
+{"timestamp":"2015-02-18T10:08:09.198553+0930","src_ip":"59.166.0.7","dest_ip":"149.171.126.2","src_port":52414,"dest_port":22,"ssh":{"client":{"proto_version":"2.0","software_version":"PuTTY_Release_0.60"},"server":{"proto_version":"1.99","software_version":"OpenSSH_4.3"}}}
+{"timestamp":"2015-02-18T10:08:09.341584+0930","src_ip":"59.166.0.1","dest_ip":"149.171.126.4","src_port":32665,"dest_port":22,"ssh":{"client":{"proto_version":"2.0","software_version":"PuTTY_Release_0.60"},"server":{"proto_version":"1.99","software_version":"OpenSSH_4.3"}}}
+{"timestamp":"2015-02-18T10:08:10.245664+0930","src_ip":"59.166.0.4","dest_ip":"149.171.126.4","src_port":29157,"dest_port":22,"ssh":{"client":{"proto_version":"2.0","software_version":"PuTTY_Release_0.60"},"server":{"proto_version":"1.99","software_version":"OpenSSH_4.3"}}}
+{"timestamp":"2015-02-18T10:08:10.180551+0930","src_ip":"59.166.0.2","dest_ip":"149.171.126.5","src_port":7712,"dest_port":22,"ssh":{"client":{"proto_version":"2.0","software_version":"PuTTY_Release_0.60"},"server":{"proto_version":"1.99","software_version":"OpenSSH_4.3"}}}
+{"timestamp":"2015-02-18T10:08:10.587672+0930","src_ip":"59.166.0.6","dest_ip":"149.171.126.9","src_port":63928,"dest_port":22,"ssh":{"client":{"proto_version":"2.0","software_version":"PuTTY_Release_0.60"},"server":{"proto_version":"1.99","software_version":"OpenSSH_4.3"}}}
+{"timestamp":"2015-02-18T10:08:10.853684+0930","src_ip":"59.166.0.2","dest_ip":"149.171.126.2","src_port":61439,"dest_port":22,"ssh":{"client":{"proto_version":"2.0","software_version":"PuTTY_Release_0.60"},"server":{"proto_version":"1.99","software_version":"OpenSSH_4.3"}}}
+{"timestamp":"2015-02-18T10:08:12.670672+0930","src_ip":"59.166.0.6","dest_ip":"149.171.126.3","src_port":24065,"dest_port":22,"ssh":{"client":{"proto_version":"2.0","software_version":"PuTTY_Release_0.60"},"server":{"proto_version":"1.99","software_version":"OpenSSH_4.3"}}}
+{"timestamp":"2015-02-18T10:08:17.728711+0930","src_ip":"59.166.0.4","dest_ip":"149.171.126.8","src_port":36504,"dest_port":22,"ssh":{"client":{"proto_version":"2.0","software_version":"PuTTY_Release_0.60"},"server":{"proto_version":"1.99","software_version":"OpenSSH_4.3"}}}
+{"timestamp":"2015-02-18T10:08:16.828288+0930","src_ip":"59.166.0.1","dest_ip":"149.171.126.1","src_port":2570,"dest_port":22,"ssh":{"client":{"proto_version":"2.0","software_version":"PuTTY_Release_0.60"},"server":{"proto_version":"1.99","s
+------------------------------------------------------------------------
+
+--- Turn 30 | 1,281,726 in / 11,613 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"smtp\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .smtp.helo"
+}
+[TOOL RESULT] count_by
+      4  YKZfHTHGqoXpZFb
+      4  YYZqWgC
+      4  YqCbXLDMvnRwIrkAIZfMKCmvnZTN
+      4  nmmQopvvTyBdmttpkaUjSZVLvszLfTE
+      4  hnSbZKJntebbNMasXBUbehowRyRCPqhE
+      2  VMkjWvlPXbFrQwDOIEPRnoAicnRvidEmD
+      2  eyBYxYcGhJJMICJNnfSWC
+      2  bEYuzxsYMWHIBOclrTBkjWQWDElrcIDfu
+      2  attacker
+      2  prDGHbLekiPOXAsrJJ
+      2  ddlbh
+      2  jnYZCbKP
+      2  qiIiCDVhMuioDidzIffPdD
+      2  IAKZt
+      2  eZcekq
+      2  XtZV
+      2  JtfBFGQmgDtAATSpE
+      2  FhGMBPsMSXMLPdwOjUGANKjs
+      2  eyKQtchDEfWibnffEfdvzkwZ
+      2  jNXdyQJjXybkSVlFSsLcv
+      2  vpJsanNYSuHOnVpLWJtg
+      2  FKHovKnTlUODBavBxxR
+      2  atnmJLaEmGUjpD
+      2  DFaiGKQHnxV
+      2  yCOZuXJDZTKbueB
+      2  dpNFvuxSIUJDec
+      2  amLJi
+      2  olFYwuqBZGmKeamBazNokIcRWUWNfND
+      2  AUPBlXqNHDnXddgwJHRtx
+      2  eXfBPTCYqlQDFMQhSvwQiucFdnlUQ
+      2  fyWVnSnJPJQcTUncomUPmuTZd
+      2  GPUbutI
+      2  HbZzqtO
+      2  kLlsHwhpGppxbbfylsePfzmySg
+      2  zKlUCzpJQzljNUoVuB
+      2  QJNlof
+      2  BJLIR
+      2  clOFymcPyuqdOxgTXBgLRqgmRtBBNhlqdp
+      2  cClWsJLslWKvqIvdevkQmrdNiHBOiWAIm
+      2  jUNxZukqeRIgZHF
+      2  qHqmdIzvJtgiYqVwlkdDDcHPkoULs
+      2  bwKWsuINGjrKpHBPfVjtralLMOgMxlEsW
+      2  AmhKeDvHeSqSJWDDgm
+      2  CCWTxi
+      2  UUQAWnoMiCuJNhnWxIZhPItzpTVtcrgxi
+      2  OEPvQGSASgCurWkPQ
+      2  UPdXyLqyMsnYQKhMrEANeClfLmmhvv
+      2  TywxcLgmIa
+      2  VdGFOvUSKByRRTfWRMIelzJVcOTBvNONW
+      2  ZSGVnONJVSOMyVwtXCNdmHEakzYyp
+      2  ZCKIPbsfgVBHBXEmRPXqz
+      2  AkxZmGKRtJiQZsWYtNTlCvLbCncWNDjEIsc
+      2  JPPvNHcaIbwLPbnVYQsaIdP
+      2  FhzquYNFeOBKH
+      2  FeylGYHGdXm
+      2  bTrwIdYWvzwerTAOESpoXTVmux
+      2  DpmYanpYydWinmnFZvfptWcSrCc
+      2  SvlsMFlCSJOnPwmqtiqKpmULYgfSJGjJazO
+      2  dtZVFONayrFSGAjuXUEWfZfWFupCfSqC
+      2  zDDxjBDEYapApqnVzEVZR
+      2  GXfCQnAUEbqNky
+      2  KkhHTglkDeNixZNizkG
+      2  cWTXXrCooxqNlHrU
+      2  uCThqwsOfgMGcJlssKCU
+      2  kCYrXRkDP
+      2  lUXYxIegmDEBVvOXSTIHlsi
+      2  vrtvmwinxppro
+      2  lDcZwBnAfZoyqadKZ
+      2  rlXIHDzhGfToirKRzyEYtOesifcBKxXi
+      2  pBQuPLdeCNKsU
+      2  hoFBPtswhnrGDdHyoNH
+      2  eMpiEfEOvwcjIMDPwKgwQcHRMIxJMfhY
+      2  YvcADAbEZUEutfHTB
+      2  DQwsojlObJYcYHjGPJtSDSeWrIPVKsnm
+      2  DmfpVWfcULFsjcpxYgjCKoDJjUhGpIwvHOr
+      2  UjyaVympuYEAxxkyCrIVkw
+      2  yyyYDy
+      2  fliZbJCoxuzpKbkdLnLeToakhiTzdhP
+      2  fscslawek
+      2  MFhSkfCYDMvuOUWLEQInHijCKOrW
+      2  tcZESEepLInMUQ
+      2  vCpJqCnKsKuBBGeqEJqYEtyFAK
+      2  FaWjIfLdgoqlrzJlZOGuvGHlvsZjc
+      2  mVMjXiqxkeCeInTRpD
+      2  JsqtfMHAjQQdf
+      2  ehWob
+      2  oWYWwqnkbpYigmYNUIPQmamJC
+      2  hBPv
+      2  hBfnIVLUMDBTTpSkVImhPoVIMNzmf
+      2  KWTuflQTgtuVLVaphQevAeKTlZBSH
+      2  gfZTBpqFgWaDuksGYgxJfbiGBNTqTl
+      2  tDSdqgwWMMhYfbBFtyRuGMtO
+      2  qPVKEjqYNpAKadZlPvQOfEfv
+      2  uulLPpOSOaK
+      2  vgfsCLCSZbiNeotfBnosaKivfi
+      2  voTRJbgmMxbaSxgvDBXMXjDptbixBt
+      2  FKDD
+      2  CVyNuDxjSZLGwCYmPy
+      2  AGoVdgufe
+      2  otroKHXuevKCJFQiMnEslOhNFmK
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"smtp\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .smtp.mail_from"
+}
+[TOOL RESULT] count_by
+    161  null
+      1  JTU9WYOcE@VMkjWvlPXbFrQwDOIEPRnoAicnRvidEmD.net
+      1  PW6vQzCg@eyBYxYcGhJJMICJNnfSWC.gov
+      1  jZKFVyEtXjmyp4zHxuu0@bEYuzxsYMWHIBOclrTBkjWQWDElrcIDfu.net
+      1  <administrator>
+      1  sGrkM3w90NyNilETaZ@prDGHbLekiPOXAsrJJ.gov
+      1  n8uqzuLmufjHOubcoW20GcOhDyjPb@ddlbh.gov
+      1  iGGQc5GDkQupIXqjjf4ZrG@jnYZCbKP.us
+      1  AhGr9b2ENy9EbgAgji5gJdGTlN@qiIiCDVhMuioDidzIffPdD.edu
+      1  yn9HQyPQTRaz@IAKZt.gov
+      1  ySTjVzSLHTP2ZT@eZcekq.us
+      1  F@wDkgv.com
+      1  HTZovu1y68Zg0DpPbxnTV6uWQBbBuPq5@XtZV.net
+      1  EdB7s2rOXoe3DHL1nYS35Pvp@JtfBFGQmgDtAATSpE.org
+      1  qklirN9@YKZfHTHGqoXpZFb.com
+      1  K4xwnhPfo6IiAtwtOgb3IlR2xwccCj@YKZfHTHGqoXpZFb.us
+      1  Bw0SD1Lfb5Nr746Kz3vf1mKgA@FhGMBPsMSXMLPdwOjUGANKjs.us
+      1  vsmihJJwwtFXNpVsxPX2VTp6DrbI8x@eyKQtchDEfWibnffEfdvzkwZ.edu
+      1  lDrFc5oXN69Sm4iMr9AW3aGV3THkaZWJq@jNXdyQJjXybkSVlFSsLcv.net
+      1  DL@vpJsanNYSuHOnVpLWJtg.edu
+      1  mxjkMB@FKHovKnTlUODBavBxxR.org
+      1  RKYXDYtzfuYoqmMz4k2YjS85MlNE@atnmJLaEmGUjpD.org
+      1  thQkTa@DFaiGKQHnxV.gov
+      1  XfFU7OhbGO45aPz2WcFCgEGg1u673Y0@yCOZuXJDZTKbueB.org
+      1  SeVmp7gToyN0Cg74wl@dpNFvuxSIUJDec.edu
+      1  ajnjRptgmOTh7T7m8N4i@amLJi.edu
+      1  UUW7fuzUYGBxVukotaS3MyZq4jrp7oU4@olFYwuqBZGmKeamBazNokIcRWUWNfND.us
+      1  rqFLWRRc2twEJ@AUPBlXqNHDnXddgwJHRtx.gov
+      1  vApX1@eXfBPTCYqlQDFMQhSvwQiucFdnlUQ.net
+      1  EsTkLHU90xwtLPgopKHpJR9hTc@fyWVnSnJPJQcTUncomUPmuTZd.net
+      1  <poc@proof.of.concept.com>
+      1  PNgy@GPUbutI.us
+      1  dtImOP@HbZzqtO.com
+      1  rBuySILxmYUGG1bvr3ZFKUSE2@kLlsHwhpGppxbbfylsePfzmySg.edu
+      1  zZjfFKnRZ1nXA44eA8gSYRQV7@zKlUCzpJQzljNUoVuB.com
+      1  lKQ4E8urXcBA@QJNlof.net
+      1  iw213jt0xfXONV@BJLIR.edu
+      1  leHmqEp18P@clOFymcPyuqdOxgTXBgLRqgmRtBBNhlqdp.us
+      1  SkJDIDhQv34vbQ5r1EPhir1@cClWsJLslWKvqIvdevkQmrdNiHBOiWAIm.gov
+      1  Ljj9hkb8BXf@jUNxZukqeRIgZHF.edu
+      1  TijG53fF@qHqmdIzvJtgiYqVwlkdDDcHPkoULs.org
+      1  ustkw9blkVzR7rCXCyUDE8@bwKWsuINGjrKpHBPfVjtralLMOgMxlEsW.com
+      1  gRU2Jb@AmhKeDvHeSqSJWDDgm.us
+      1  Li5@CCWTxi.gov
+      1  dUIx05KoAMvqJlpVDNj8fF5DBqoaXHQ@UUQAWnoMiCuJNhnWxIZhPItzpTVtcrgxi.com
+      1  LqyG9I0t7dpaUCn7Cdq@OEPvQGSASgCurWkPQ.org
+      1  eSxKQGInxOejdpdq@UPdXyLqyMsnYQKhMrEANeClfLmmhvv.edu
+      1  jq4sfwpvnuF6d9OOdGTHtVybL8ItLQ0VZ@TywxcLgmIa.net
+      1  Eo1q49OSO000dSLjJWzKAjWEgJNrsfbnM@VdGFOvUSKByRRTfWRMIelzJVcOTBvNONW.edu
+      1  sogohJSiy1G21moe0pAqZ9K8e@ZSGVnONJVSOMyVwtXCNdmHEakzYyp.net
+      1  hVcONFIGur228YSyn@ZCKIPbsfgVBHBXEmRPXqz.org
+      1  kdIOTQ9z1@AkxZmGKRtJiQZsWYtNTlCvLbCncWNDjEIsc.edu
+      1  HkwA6mHCVNO3aVJN@JPPvNHcaIbwLPbnVYQsaIdP.net
+      1  AB4Kj9Iev946RWYUuTBEA0vhQBAZc@FhzquYNFeOBKH.com
+      1  hKGy@FeylGYHGdXm.gov
+      1  ndjcZEk0jPRBgb9YhwUcNUjlh7gEQ8ZPD@bTrwIdYWvzwerTAOESpoXTVmux.net
+      1  ASMz39qj0r4ONhW3uaAKjr7XNuboWXjaAG@DpmYanpYydWinmnFZvfptWcSrCc.gov
+      1  oIQImLLwNvX7KxTKwwhbEujy7iFpdlmEBH@SvlsMFlCSJOnPwmqtiqKpmULYgfSJGjJazO.org
+      1  GmFajLN3WG
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me examine SMB activity and the SMB-related alerts in detail.
+
+
+--- Turn 31 | 1,363,937 in / 12,410 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature|test(\"SMB|NETBIOS|SRV2\"))) | \"\\(.alert.signature) | \\(.src_ip) -> \\(.dest_ip):\\(.dest_port)\""
+}
+[TOOL RESULT] count_by
+    127  GPL NETBIOS SMB-DS IPC$ unicode share access | 175.45.176.1 -> 149.171.126.11:445
+    118  ET NETBIOS Remote SMB2.0 DoS Exploit | 175.45.176.1 -> 149.171.126.17:445
+      4  GPL NETBIOS SMB-DS IPC$ unicode share access | 175.45.176.2 -> 149.171.126.17:445
+      4  GPL NETBIOS SMB IPC$ unicode share access | 175.45.176.0 -> 149.171.126.12:139
+      4  GPL NETBIOS SMB-DS IPC$ unicode share access | 175.45.176.3 -> 149.171.126.19:445
+      3  ET EXPLOIT Microsoft SRV2.SYS SMB Negotiate ProcessID Function Table Dereference (CVE-2009-3103) | 175.45.176.1 -> 149.171.126.11:445
+      3  ET NETBIOS Remote SMB2.0 DoS Exploit | 175.45.176.1 -> 149.171.126.11:445
+      3  ET EXPLOIT Microsoft SRV2.SYS SMB Negotiate ProcessID Function Table Dereference (CVE-2009-3103) | 175.45.176.2 -> 149.171.126.11:445
+      3  ET NETBIOS Remote SMB2.0 DoS Exploit | 175.45.176.2 -> 149.171.126.11:445
+      2  GPL NETBIOS SMB-DS IPC$ unicode share access | 175.45.176.2 -> 149.171.126.13:445
+      2  GPL NETBIOS SMB IPC$ unicode share access | 175.45.176.2 -> 149.171.126.16:139
+      2  GPL NETBIOS SMB IPC$ unicode share access | 175.45.176.0 -> 149.171.126.11:139
+      2  GPL NETBIOS SMB IPC$ unicode share access | 175.45.176.2 -> 149.171.126.13:139
+      2  GPL NETBIOS SMB SMB_COM_TRANSACTION Max Data Count of 0 DOS Attempt | 175.45.176.0 -> 149.171.126.12:139
+      2  GPL NETBIOS SMB-DS IPC$ unicode share access | 175.45.176.2 -> 149.171.126.11:445
+      2  GPL NETBIOS SMB IPC$ unicode share access | 175.45.176.0 -> 149.171.126.14:139
+      2  GPL NETBIOS SMB IPC$ unicode share access | 175.45.176.2 -> 149.171.126.15:139
+      2  GPL NETBIOS SMB-DS IPC$ unicode share access | 175.45.176.0 -> 149.171.126.19:445
+      2  OS-WINDOWS Microsoft Windows SMB anonymous session IPC share access attempt | 175.45.176.0 -> 149.171.126.19:445
+      2  GPL NETBIOS SMB-DS IPC$ unicode share access | 175.45.176.0 -> 149.171.126.15:445
+      2  GPL NETBIOS SMB IPC$ unicode share access | 175.45.176.2 -> 149.171.126.19:139
+      2  GPL NETBIOS SMB-DS IPC$ unicode share access | 175.45.176.2 -> 149.171.126.19:445
+      2  GPL NETBIOS SMB-DS IPC$ unicode share access | 175.45.176.0 -> 149.171.126.12:445
+      2  GPL NETBIOS SMB IPC$ unicode share access | 175.45.176.2 -> 149.171.126.11:139
+      2  GPL NETBIOS SMB-DS IPC$ unicode share access | 175.45.176.2 -> 149.171.126.15:445
+      2  GPL NETBIOS SMB-DS IPC$ unicode share access | 175.45.176.1 -> 149.171.126.19:445
+      1  SURICATA SMB file overlap | 149.171.126.16 -> 175.45.176.2:6621
+      1  SURICATA SMB file overlap | 149.171.126.13 -> 175.45.176.2:47036
+      1  ET NETBIOS Microsoft Windows NETAPI Stack Overflow Inbound - MS08-067 (20) | 175.45.176.2 -> 149.171.126.16:139
+      1  ET NETBIOS Microsoft Windows NETAPI Stack Overflow Inbound - MS08-067 (30) | 175.45.176.2 -> 149.171.126.16:139
+      1  SURICATA SMB file overlap | 175.45.176.2 -> 149.171.126.16:139
+      1  SURICATA SMB file overlap | 175.45.176.2 -> 149.171.12
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"smb\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port)\""
+}
+[TOOL RESULT] count_by
+    232  175.45.176.0 -> 149.171.126.14:445
+    116  175.45.176.2 -> 149.171.126.12:445
+    116  175.45.176.1 -> 149.171.126.15:445
+    116  175.45.176.2 -> 149.171.126.10:445
+     77  175.45.176.1 -> 149.171.126.11:445
+     49  175.45.176.1 -> 149.171.126.17:445
+     13  175.45.176.0 -> 149.171.126.12:445
+     12  175.45.176.2 -> 149.171.126.19:445
+     10  175.45.176.0 -> 149.171.126.12:139
+      9  175.45.176.2 -> 149.171.126.17:445
+      8  175.45.176.1 -> 149.171.126.19:445
+      7  175.45.176.2 -> 149.171.126.13:445
+      7  175.45.176.2 -> 149.171.126.16:139
+      7  175.45.176.0 -> 149.171.126.11:139
+      7  175.45.176.2 -> 149.171.126.11:445
+      7  175.45.176.0 -> 149.171.126.14:139
+      7  175.45.176.2 -> 149.171.126.15:139
+      7  175.45.176.0 -> 149.171.126.15:445
+      7  175.45.176.2 -> 149.171.126.19:139
+      7  175.45.176.2 -> 149.171.126.11:139
+      6  175.45.176.0 -> 149.171.126.19:445
+      6  175.45.176.2 -> 149.171.126.15:445
+      5  175.45.176.2 -> 149.171.126.13:139
+      2  175.45.176.2 -> 149.171.126.16:445
+      2  175.45.176.3 -> 149.171.126.17:445
+      1  175.45.176.0 -> 149.171.126.16:445
+------------------------------------------------------------------------
+
+--- Turn 32 | 1,449,391 in / 12,975 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"pop3\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | \"\\(.src_ip) -> \\(.dest_ip)\""
+}
+[TOOL RESULT] count_by
+     35  175.45.176.3 -> 149.171.126.15
+     28  175.45.176.1 -> 149.171.126.13
+     28  175.45.176.2 -> 149.171.126.12
+     28  175.45.176.0 -> 149.171.126.16
+     21  175.45.176.1 -> 149.171.126.14
+     21  175.45.176.0 -> 149.171.126.13
+     21  175.45.176.0 -> 149.171.126.12
+     21  175.45.176.0 -> 149.171.126.18
+     21  175.45.176.1 -> 149.171.126.19
+     21  175.45.176.1 -> 149.171.126.11
+     14  175.45.176.2 -> 149.171.126.10
+     14  175.45.176.0 -> 149.171.126.11
+     14  175.45.176.2 -> 149.171.126.13
+     14  175.45.176.3 -> 149.171.126.13
+     14  175.45.176.3 -> 149.171.126.18
+     14  175.45.176.2 -> 149.171.126.15
+     14  175.45.176.0 -> 149.171.126.19
+     14  175.45.176.3 -> 149.171.126.10
+     14  175.45.176.3 -> 149.171.126.17
+     14  175.45.176.2 -> 149.171.126.19
+      8  175.45.176.3 -> 149.171.126.19
+      7  175.45.176.3 -> 149.171.126.11
+      7  175.45.176.0 -> 149.171.126.14
+      7  175.45.176.2 -> 149.171.126.17
+      7  175.45.176.2 -> 149.171.126.18
+      7  175.45.176.1 -> 149.171.126.10
+      7  175.45.176.1 -> 149.171.126.15
+      7  175.45.176.2 -> 149.171.126.16
+      7  175.45.176.0 -> 149.171.126.17
+      7  175.45.176.3 -> 149.171.126.12
+      7  175.45.176.0 -> 149.171.126.10
+      5  175.45.176.2 -> 149.171.126.14
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"pop3\") | .pop3.command"
+}
+[TOOL RESULT] count_by
+    468  null
+------------------------------------------------------------------------
+
+--- Turn 33 | 1,536,073 in / 13,091 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"pop3\") | {timestamp, src_ip, dest_ip, src_port, dest_port, pop3}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T09:54:44.672549+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.10","src_port":22384,"dest_port":110,"pop3":{"response":{"success":true,"status":"OK","header":"Hello there.","data":[]}}}
+{"timestamp":"2015-02-18T09:54:44.787652+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.10","src_port":22384,"dest_port":110,"pop3":{"request":{"command":"USER","args":["sR"]},"response":{"success":true,"status":"OK","header":"Password required.","data":[]}}}
+{"timestamp":"2015-02-18T09:54:44.917235+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.10","src_port":22384,"dest_port":110,"pop3":{"request":{"command":"PASS","args":["leqOFJhIgBpQC"]},"response":{"success":true,"status":"OK","header":"logged in.","data":[]}}}
+{"timestamp":"2015-02-18T09:54:45.039543+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.10","src_port":22384,"dest_port":110,"pop3":{"request":{"command":"LIST","args":[]},"response":{"success":true,"status":"OK","header":"","data":["1 19456"]}}}
+{"timestamp":"2015-02-18T09:54:45.157853+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.10","src_port":22384,"dest_port":110,"pop3":{"request":{"command":"UIDL","args":[]},"response":{"success":true,"status":"OK","header":"","data":["1 MS"]}}}
+{"timestamp":"2015-02-18T09:55:39.331842+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.14","src_port":25851,"dest_port":110,"pop3":{"response":{"success":true,"status":"OK","header":"Hello there.","data":[]}}}
+{"timestamp":"2015-02-18T09:55:39.460500+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.14","src_port":25851,"dest_port":110,"pop3":{"request":{"command":"USER","args":["heiGiuScZdJ"]},"response":{"success":true,"status":"OK","header":"Password required.","data":[]}}}
+{"timestamp":"2015-02-18T09:54:45.351240+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.10","src_port":22384,"dest_port":110,"pop3":{"request":{"command":"RETR","args":["1"]}}}
+{"timestamp":"2015-02-18T09:54:45.459372+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.10","src_port":22384,"dest_port":110,"pop3":{"request":{"command":"QUIT","args":[]},"response":{"success":true,"status":"OK","header":"Bye-bye.","data":[]}}}
+{"timestamp":"2015-02-18T09:55:39.560349+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.14","src_port":25851,"dest_port":110,"pop3":{"request":{"command":"PASS","args":["dasxop"]},"response":{"success":true,"status":"OK","header":"logged in.","data":[]}}}
+{"timestamp":"2015-02-18T09:55:39.661856+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.14","src_port":25851,"dest_port":110,"pop3":{"request":{"command":"LIST","args":[]},"response":{"success":true,"status":"OK","header":"","data":["1 37562"]}}}
+{"timestamp":"2015-02-18T09:55:39.763015+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.14","src_port":25851,"dest_port":110,"pop3":{"request":{"command":"UIDL","args":[]},"response":{"success":true,"status":"OK","header":"","data":["1 BWgTD"]}}}
+{"timestamp":"2015-02-18T09:55:40.028367+0930","sr
+------------------------------------------------------------------------
+
+--- Turn 34 | 1,625,828 in / 13,451 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | select(.alert.signature|test(\"POP3|POP\")) | .alert.signature"
+}
+[TOOL RESULT] count_by
+      2  PROTOCOL-POP USER overflow attempt
+      2  GPL POP3 USER overflow attempt
+      1  PROTOCOL-POP PASS overflow attempt
+      1  PROTOCOL-POP PASS format string attempt
+      1  GPL POP3 POP3 PASS overflow attempt
+      1  GPL POP3 PASS format string attempt
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"pop3\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .pop3.request.command"
+}
+[TOOL RESULT] count_by
+     67  null
+     67  USER
+     67  PASS
+     67  LIST
+     66  UIDL
+     66  RETR
+     66  QUIT
+      1  STAT
+      1  CAPA
+------------------------------------------------------------------------
+
+--- Turn 35 | 1,716,084 in / 13,928 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"http\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .http.http_method"
+}
+[TOOL RESULT] count_by
+    872  GET
+     75  POST
+     19  PROPFIND
+     10  OPTIONS
+      9  null
+      2  PUT
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"http\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .http.status"
+}
+[TOOL RESULT] count_by
+    484  200
+    471  null
+     19  207
+      6  302
+      3  500
+      2  404
+      1  100
+      1  206
+------------------------------------------------------------------------
+
+--- Turn 36 | 1,806,908 in / 14,266 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"http\" and .http.http_method==\"PROPFIND\") | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port) \\(.http.url)\""
+}
+[TOOL RESULT] count_by
+      1  175.45.176.3 -> 149.171.126.14:80 /iROPFd/WaqX1O%20X.puz
+      1  175.45.176.3 -> 149.171.126.14:80 /iROPFd/imeshare.dll
+      1  175.45.176.1 -> 149.171.126.17:80 /mEcR8K0OTh1.xLSx
+      1  175.45.176.1 -> 149.171.126.17:80 /.dll
+      1  175.45.176.1 -> 149.171.126.17:80 /W1VnSn5/wintab32.dll
+      1  175.45.176.1 -> 149.171.126.17:80 /W1VnSn5/AgDVw.Pdf
+      1  175.45.176.1 -> 149.171.126.10:80 /UGhhRL3.gRF
+      1  175.45.176.1 -> 149.171.126.10:80 /measure.dll
+      1  175.45.176.1 -> 149.171.126.16:80 /yywTQjhxDFCSMtzUrCx.HtML
+      1  175.45.176.3 -> 149.171.126.10:80 /n2jR.isp
+      1  175.45.176.3 -> 149.171.126.10:80 /smmscrpt.dll
+      1  175.45.176.3 -> 149.171.126.18:80 /t5f5eBB/tPQq%22%20%7cc:%5cwindows%5cexplorer.exe%20%22.js
+      1  175.45.176.2 -> 149.171.126.15:80 /GRewmHMx/wWJLBxyOK.%7b2E095Dd0-af56-47e4-A099-eaC038decC24%7d/hIfuB5Kd026cQL.doC
+      1  175.45.176.2 -> 149.171.126.15:80 /GRewmHMx/wWJLBxyOK.%7b2E095Dd0-af56-47e4-A099-eaC038decC24%7d/ehtrace.dll
+      1  175.45.176.3 -> 149.171.126.16:80 /ZKE
+      1  175.45.176.0 -> 149.171.126.15:80 /QC7H.wBCat
+      1  175.45.176.0 -> 149.171.126.15:80 /fveapi.dll
+      1  175.45.176.3 -> 149.171.126.16:80 /TWZSF.rDP
+      1  175.45.176.3 -> 149.171.126.16:80 /ieframe.dll
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"http\" and (.http.http_method==\"PUT\" or .http.http_method==\"POST\")) | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port) \\(.http.http_method) \\(.http.url)\""
+}
+[TOOL RESULT] count_by
+      8  175.45.176.2 -> 149.171.126.15:631 POST /printers/printer
+      2  175.45.176.2 -> 149.171.126.14:8082 POST http://YjhMiBkdBEmCxoyDFBBERXWxlXp.net:8082/HtmlTrLauncher
+      1  175.45.176.3 -> 149.171.126.10:80 POST /wiki/index.php?title=Main_Page&action=submit
+      1  175.45.176.1 -> 149.171.126.10:8080 POST /
+      1  175.45.176.2 -> 149.171.126.17:80 POST /VRXnbgmEwMGTh/%7e5c%7e5c140%7e2e81%7e2e163%7e2e201%7e5cPRT1/.printer
+      1  175.45.176.2 -> 149.171.126.10:80 POST /isapi/ocget.dll
+      1  175.45.176.2 -> 149.171.126.10:80 POST /xmlrpc.php
+      1  175.45.176.0 -> 149.171.126.13:7080 POST /admin/confpremenu.php?pa_run_protection=281x340v&installlic=Install&confcode=wXncvCaGht&newkey=OPZNP-34BGH-21GPX-FKYL2-6JDYI;/bin/hostname
+      1  175.45.176.2 -> 149.171.126.14:80 POST /scripts/changelanguagesession.php
+      1  175.45.176.2 -> 149.171.126.12:80 POST /cbmui/ImageUploadServlet
+      1  175.45.176.1 -> 149.171.126.10:8080 POST /SiteScope/services/APIMonitorImpl
+      1  175.45.176.1 -> 149.171.126.16:8080 PUT /ntePvcyqoEk/qNtTCdMF
+      1  175.45.176.0 -> 149.171.126.19:80 POST /index.php
+      1  175.45.176.2 -> 149.171.126.18:8080 POST /nps/servlet/modulemanager
+      1  175.45.176.1 -> 149.171.126.18:80 POST /blog/xmlrpc.php
+      1  175.45.176.3 -> 149.171.126.19:1128 POST /
+      1  175.45.176.3 -> 149.171.126.14:80 POST /goform/formExportDataLogs
+      1  175.45.176.2 -> 149.171.126.19:8020 POST /HttpFileUpload/FileUploadController.do
+      1  175.45.176.2 -> 149.171.126.10:8080 POST /SiteScope/services/APISiteScopeImpl
+      1  175.45.176.0 -> 149.171.126.17:9850 POST Nm9hLIRVQ47NAtaCuEeCBdrcuxpgAM9jHqDmas5cvuBlM9DDTrpEtYIT6px9F2MyplPlPh86QHdhC6evKOLVTIWwnPPqotfaWztNn9q7qJYvzR2Q7b5R6K1SHflYHIZWzAFGlVNP06YTfNGkqQSwDZfuuBWqizNpngNguiA68T3it2vBndA61Am7ni2PTkPyzfDsuiD3iAL4FElNEXYLafRIlxlrMyoyFmJWrShruNsNWciOjPvJXnCbshePM6JS6fFRFRhHfWZDaPV4tgPnP1pNbVim9RP6lEQmFIzmuFjDcQ5Z7Sc7U4ngL3wwM9eQG34pgLYUiFWD0bDsWfKdRzGPhsQgE0nhrs2N43hgTCbuXF8aIWWyWaTSnSCmSyclkCC9MitIq0VEZJntaLnCUg04a7tmPioUwx6IdgR7eCUnJloIcLytd5fZZDluhKJ6Dv3JyxbYrJnTsfE5C5GUVfnI1Rpu2o0ZqeDh1jFPphtfi3CZBiB5kASTZNpyFCLNLkaL7fC9IKeyErhGb2IQDQOmHVRqyyd2owDIxdfPc5bSuipCYJgdHT04YKMvwKMTjVkfY7qeYGJMJ7Olxgfpe9Vl0ZrLpt1R2JuFKi3pwZ6aAG0dheUd5OzvgKGmGwuOYyZ8t6dyKArN1nXYa7oUCQc8IqjLWCcmAW0GtQ514AWEamevZNJtEHrfZdJmpBTfqxr1TAXVXjlP7uyqEOqIk45995roMwfUB0l3InxnhH9XwA8Ztw2os4M4iakzdt4etmGAprhR3QBVHpHUedPKWnks1czudKbJEnmB35frDTL3aUEJ4Ll0KUqrBhmtmohoduUmzXZxHRQH9he5Qmo7MA99KiBaLhS09NygyA9XdBZQPEiErD56i4Wzirr2kUY6finkh4F9L7cmUqrq50VTVoRVI24AUoIeHwtZI86SjbTqXb3DpdJhUynXo7MxXVMhJyNwdQTCx259yNX8WtVREQvq4zXUezehmKKPLoYtPBotYORH1nhMmQ7JNhNN5Fzu7z8G9NXI9UPTmlj9c5boDGDjaknhDkKTzJ0KncwncMvIXqCMY6rPYzs9hExzlElXYs18xmgBAwHn87CSp1fMPajuf2E7eauZIci6zjL3GnZ3dlCl3xctCv34H1bU3cnFdggDuyk2utODGBBu1TYVsGRKyCUbieWTquf9d9l7pvU4meTAy7zrNq2bn7DZ01TODVnmHcHVDa0Oi8B5wmYvIH1AHQx7UwTbTsCiwuFHUDlhDe19BbaI3HpbKtdMIQbRwovJrWyZ7IwfJTmN3OVP3oTsB6shhXHPTOepx1V1dpZxOEvpXXqAhY7Ui2UEFz9Dxtr65ToPjrA8O09oMqxt0JLzDpTVgGZ6i
+------------------------------------------------------------------------
+
+--- Turn 37 | 1,903,640 in / 14,644 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .app_proto==\"http\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .alert.signature"
+}
+[TOOL RESULT] count_by
+    353  INDICATOR-SHELLCODE x86 inc ecx NOOP
+     37  SERVER-WEBAPP server-status access
+     36  ET WEB_SERVER PHP Possible http Remote File Inclusion Attempt
+     35  SURICATA HTTP request buffer too long
+     22  SERVER-WEBAPP remote include path attempt
+     20  OS-OTHER Cisco IOS HTTP configuration attempt
+     11  SERVER-WEBAPP HTTP request with negative Content-Length attempt
+     10  SERVER-WEBAPP ICQ Webfront HTTP DOS
+     10  ET WEB_SERVER Poison Null Byte
+      6  SURICATA HTTP missing Host header
+      5  SERVER-IIS cmd.exe access
+      5  ET WEB_SERVER cmd.exe In URI - Possible Command Execution Attempt
+      5  ET WEB_SERVER /system32/ in Uri - Possible Protected Directory Access Attempt
+      4  SERVER-OTHER Microsoft Frontpage /_vti_bin/ access
+      4  GPL WEB_SERVER /_vti_bin/ access
+      4  SERVER-WEBAPP Netscape dir index wp
+      4  SERVER-WEBAPP Netscape Enterprise Server directory view
+      4  SURICATA HTTP request field missing colon
+      4  SURICATA HTTP Host header invalid
+      3  SERVER-WEBAPP Cisco HTTP double-percent DOS attempt
+      3  ET DOS Cisco Router HTTP DoS
+      3  SERVER-OTHER Adobe Coldfusion snippets attempt
+      3  ET WEB_SERVER Script tag in URI Possible Cross Site Scripting Attempt
+      3  ET WEB_SERVER Possible SQL Injection UNION SELECT in HTTP Request Body
+      3  ET WEB_SERVER XML-RPC for PHP Remote Code Injection
+      3  ET WEB_SERVER SELECT USER SQL Injection Attempt in URI
+      3  SURICATA HTTP Host header ambiguous
+      3  SERVER-WEBAPP oracle web application server access
+      2  ET WEB_SERVER /etc/hosts Detected in URI
+      2  SERVER-IIS Microsoft Windows IIS directory traversal attempt
+      2  SURICATA HTTP Host part of URI is invalid
+      2  SERVER-IIS .cnf access
+      2  GPL EXPLOIT .cnf access
+      2  ET WEB_SERVER Fake Googlebot UA 1 Inbound
+      2  ET WEB_SPECIFIC_APPS iWare Professional SQL Injection Attempt -- index.php D UNION SELECT
+      2  SERVER-IIS ISAPI .idq access
+      2  GPL EXPLOIT ISAPI .idq access
+      2  ET WEB_SERVER Possible SQL Injection (exec) in HTTP Request Body
+      2  ET WEB_SPECIFIC_APPS Awstats Remote Code Execution Attempt
+      2  SERVER-WEBAPP awstats access
+      2  ET HUNTING ZIP File Symlink External Attribute Inbound
+      1  ET WEB_SERVER Microsoft SharePoint Server 2007 _layouts/help.aspx Cross Site Scripting Attempt
+      1  SERVER-WEBAPP root access
+      1  GPL WEB_SERVER /~root access
+      1  ET WEB_SERVER Apache Solr Arbitrary XSLT inclusion attack (CVE-2013-6397)
+      1  ET WEB_SERVER Cisco IOS HTTP Server Exec Command Execution Attempt
+      1  SERVER-OTHER Adobe Coldfusion exampleapp access
+      1  SERVER-WEBAPP Domino collect4.nsf access
+      1  SERVER-IIS ISAPI .printer access
+      1  GPL WEB_SERVER ISAPI .printer access
+      1  SERVER-OTHER Microsoft Frontpage shtml.dll access
+      1  ET WEB_SERVER Possible NGINX Overflow CVE-2013-2028 Exploit Specific
+      1  ET WEB_SERVER Possible SQL Injection Attempt UNION SEL
+------------------------------------------------------------------------
+
+--- Turn 38 | 2,002,886 in / 15,442 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | select(.alert.signature|test(\"PROPFIND|WebDAV|OPTIONS\")) | .alert.signature"
+}
+[TOOL RESULT] count_by
+      1  ET WEB_SERVER Possible Sun Microsystems Sun Java System Web Server Long OPTIONS URI Overflow Attmept
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"http\" and .http.http_method==\"PROPFIND\") | .http.url"
+}
+[TOOL RESULT] count_by
+      1  /iROPFd/WaqX1O%20X.puz
+      1  /iROPFd/imeshare.dll
+      1  /mEcR8K0OTh1.xLSx
+      1  /.dll
+      1  /W1VnSn5/wintab32.dll
+      1  /W1VnSn5/AgDVw.Pdf
+      1  /UGhhRL3.gRF
+      1  /measure.dll
+      1  /yywTQjhxDFCSMtzUrCx.HtML
+      1  /n2jR.isp
+      1  /smmscrpt.dll
+      1  /t5f5eBB/tPQq%22%20%7cc:%5cwindows%5cexplorer.exe%20%22.js
+      1  /GRewmHMx/wWJLBxyOK.%7b2E095Dd0-af56-47e4-A099-eaC038decC24%7d/hIfuB5Kd026cQL.doC
+      1  /GRewmHMx/wWJLBxyOK.%7b2E095Dd0-af56-47e4-A099-eaC038decC24%7d/ehtrace.dll
+      1  /ZKE
+      1  /QC7H.wBCat
+      1  /fveapi.dll
+      1  /TWZSF.rDP
+      1  /ieframe.dll
+------------------------------------------------------------------------
+
+--- Turn 39 | 2,103,308 in / 15,840 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature==\"SERVER-OTHER BGP invalid length\") | {timestamp, src_ip, dest_ip, src_port, dest_port, direction, alert}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T10:13:25.846090+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.18","src_port":36014,"dest_port":179,"direction":"to_server","alert":{"action":"allowed","gid":1,"signature_id":2158,"rev":12,"signature":"SERVER-OTHER BGP invalid length","category":"Potentially Bad Traffic","severity":2,"metadata":{"ruleset":["community"]}}}
+{"timestamp":"2015-02-18T10:13:26.519578+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.18","src_port":44539,"dest_port":179,"direction":"to_server","alert":{"action":"allowed","gid":1,"signature_id":2158,"rev":12,"signature":"SERVER-OTHER BGP invalid length","category":"Potentially Bad Traffic","severity":2,"metadata":{"ruleset":["community"]}}}
+{"timestamp":"2015-02-18T10:13:26.731431+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.18","src_port":26581,"dest_port":179,"direction":"to_server","alert":{"action":"allowed","gid":1,"signature_id":2158,"rev":12,"signature":"SERVER-OTHER BGP invalid length","category":"Potentially Bad Traffic","severity":2,"metadata":{"ruleset":["community"]}}}
+{"timestamp":"2015-02-18T10:13:26.081007+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.18","src_port":41024,"dest_port":179,"direction":"to_server","alert":{"action":"allowed","gid":1,"signature_id":2158,"rev":12,"signature":"SERVER-OTHER BGP invalid length","category":"Potentially Bad Traffic","severity":2,"metadata":{"ruleset":["community"]}}}
+{"timestamp":"2015-02-18T10:13:26.304770+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.18","src_port":40029,"dest_port":179,"direction":"to_server","alert":{"action":"allowed","gid":1,"signature_id":2158,"rev":12,"signature":"SERVER-OTHER BGP invalid length","category":"Potentially Bad Traffic","severity":2,"metadata":{"ruleset":["community"]}}}
+{"timestamp":"2015-02-18T10:13:30.725829+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.18","src_port":36797,"dest_port":179,"direction":"to_server","alert":{"action":"allowed","gid":1,"signature_id":2158,"rev":12,"signature":"SERVER-OTHER BGP invalid length","category":"Potentially Bad Traffic","severity":2,"metadata":{"ruleset":["community"]}}}
+{"timestamp":"2015-02-18T10:13:31.156324+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.18","src_port":10253,"dest_port":179,"direction":"to_server","alert":{"action":"allowed","gid":1,"signature_id":2158,"rev":12,"signature":"SERVER-OTHER BGP invalid length","category":"Potentially Bad Traffic","severity":2,"metadata":{"ruleset":["community"]}}}
+{"timestamp":"2015-02-18T10:13:31.708739+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.18","src_port":40122,"dest_port":179,"direction":"to_server","alert":{"action":"allowed","gid":1,"signature_id":2158,"rev":12,"signature":"SERVER-OTHER BGP invalid length","category":"Potentially Bad Traffic","severity":2,"metadata":{"ruleset":["community"]}}}
+{"timestamp":"2015-02-18T10:13:32.064370+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.18","src_port":51001,"dest_port":179,"direction":"to_server","aler
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me characterize the POP3 activity to see if it's a brute-force/login pattern worth detecting.
+
+
+--- Turn 40 | 2,206,760 in / 17,963 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"pop3\") | select(.pop3.request.command==\"USER\") | \"\\(.src_ip) -> \\(.dest_ip)\""
+}
+[TOOL RESULT] count_by
+      5  175.45.176.3 -> 149.171.126.15
+      4  175.45.176.1 -> 149.171.126.13
+      4  175.45.176.2 -> 149.171.126.12
+      4  175.45.176.0 -> 149.171.126.16
+      3  175.45.176.1 -> 149.171.126.14
+      3  175.45.176.0 -> 149.171.126.13
+      3  175.45.176.0 -> 149.171.126.12
+      3  175.45.176.0 -> 149.171.126.18
+      3  175.45.176.1 -> 149.171.126.19
+      3  175.45.176.1 -> 149.171.126.11
+      2  175.45.176.2 -> 149.171.126.10
+      2  175.45.176.0 -> 149.171.126.11
+      2  175.45.176.2 -> 149.171.126.13
+      2  175.45.176.3 -> 149.171.126.13
+      2  175.45.176.3 -> 149.171.126.18
+      2  175.45.176.2 -> 149.171.126.15
+      2  175.45.176.0 -> 149.171.126.19
+      2  175.45.176.3 -> 149.171.126.10
+      2  175.45.176.3 -> 149.171.126.17
+      2  175.45.176.2 -> 149.171.126.19
+      1  175.45.176.3 -> 149.171.126.11
+      1  175.45.176.0 -> 149.171.126.14
+      1  175.45.176.2 -> 149.171.126.14
+      1  175.45.176.2 -> 149.171.126.17
+      1  175.45.176.2 -> 149.171.126.18
+      1  175.45.176.1 -> 149.171.126.10
+      1  175.45.176.1 -> 149.171.126.15
+      1  175.45.176.2 -> 149.171.126.16
+      1  175.45.176.0 -> 149.171.126.17
+      1  175.45.176.3 -> 149.171.126.12
+      1  175.45.176.0 -> 149.171.126.10
+      1  175.45.176.3 -> 149.171.126.19
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"pop3\") | select(.pop3.request.command==\"PASS\") | .pop3.response.header"
+}
+[TOOL RESULT] count_by
+     66  logged in.
+      1  QgyAPFuGRoSpKUoRzaG
+------------------------------------------------------------------------
+
+--- Turn 41 | 2,313,015 in / 18,237 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "pop3"
+}
+[TOOL RESULT] search_rules
+27 loaded rule(s) match 'pop3' (58564 searched); showing up to 25:
+  sid:2036174  [suricata.rules]  ET DYN_DNS DYNAMIC_DNS Query to a *.mypop3 .net Domain
+  sid:2036175  [suricata.rules]  ET DYN_DNS DYNAMIC_DNS HTTP Request to a *.mypop3 .net Domain
+  sid:2036176  [suricata.rules]  ET DYN_DNS DYNAMIC_DNS Query to a *.mypop3 .org Domain
+  sid:2036177  [suricata.rules]  ET DYN_DNS DYNAMIC_DNS HTTP Request to a *.mypop3 .org Domain
+  sid:2023524  [suricata.rules]  ET MALWARE KeyBoy DNS Lookup (www .eleven.mypop3.org)
+  sid:2100288  [suricata.rules]  GPL POP3 x86 Linux overflow
+  sid:2100289  [suricata.rules]  GPL POP3 x86 SCO overflow
+  sid:2101634  [suricata.rules]  GPL POP3 POP3 PASS overflow attempt
+  sid:2101635  [suricata.rules]  GPL POP3 APOP overflow attempt
+  sid:2101936  [suricata.rules]  GPL POP3 AUTH overflow attempt
+  sid:2101937  [suricata.rules]  GPL POP3 LIST overflow attempt
+  sid:2101938  [suricata.rules]  GPL POP3 XTND overflow attempt
+  sid:2102110  [suricata.rules]  GPL POP3 STAT overflow attempt
+  sid:2102409  [suricata.rules]  GPL POP3 APOP USER overflow attempt
+  sid:2002992  [suricata.rules]  ET SCAN Rapid POP3 Connections - Possible Brute Force Attack
+  sid:2002993  [suricata.rules]  ET SCAN Rapid POP3S Connections - Possible Brute Force Attack
+  sid:2100286  [extra/et_disabled_selected.rules]  GPL POP3 x86 BSD overflow
+  sid:2100287  [extra/et_disabled_selected.rules]  GPL POP3 x86 BSD overflow 2
+  sid:2101866  [extra/et_disabled_selected.rules]  GPL POP3 USER overflow attempt
+  sid:2102108  [extra/et_disabled_selected.rules]  GPL POP3 CAPA overflow attempt
+  sid:2102109  [extra/et_disabled_selected.rules]  GPL POP3 TOP overflow attempt
+  sid:2102111  [extra/et_disabled_selected.rules]  GPL POP3 DELE overflow attempt
+  sid:2102112  [extra/et_disabled_selected.rules]  GPL POP3 RSET overflow attempt
+  sid:2102121  [extra/et_disabled_selected.rules]  GPL POP3 DELE negative argument attempt
+  sid:2102122  [extra/et_disabled_selected.rules]  GPL POP3 UIDL negative argument attempt
+------------------------------------------------------------------------
+
+--- Turn 42 | 2,420,291 in / 19,094 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"pop3\") | .src_ip"
+}
+[TOOL RESULT] count_by
+    140  175.45.176.0
+    113  175.45.176.3
+    110  175.45.176.2
+    105  175.45.176.1
+------------------------------------------------------------------------
+
+--- Turn 43 | 2,528,479 in / 19,661 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "pop3.response"
+}
+[TOOL RESULT] search_rules
+No loaded rule matches 'pop3.response' (58564 rules searched). No signature for this is currently deployed.
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "pop3.request"
+}
+[TOOL RESULT] search_rules
+No loaded rule matches 'pop3.request' (58564 rules searched). No signature for this is currently deployed.
+------------------------------------------------------------------------
+
+--- Turn 44 | 2,637,298 in / 19,882 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "dns.opcode"
+}
+[TOOL RESULT] search_rules
+No loaded rule matches 'dns.opcode' (58564 rules searched). No signature for this is currently deployed.
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "opcode 5"
+}
+[TOOL RESULT] search_rules
+No loaded rule matches 'opcode 5' (58564 rules searched). No signature for this is currently deployed.
+------------------------------------------------------------------------
+
+--- Turn 45 | 2,746,404 in / 20,174 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"dns\" and .dns.type==\"request\") | \"\\(.dns.opcode) \\(.dns.rrtype) \\(.dns.queries[0].rrname)\""
+}
+[TOOL RESULT] count_by
+    992  0 null server-95ab7e05.example.int
+    978  0 null server-95ab7e08.example.int
+    972  0 null server-95ab7e02.example.int
+    946  0 null server-95ab7e01.example.int
+    928  0 null server-95ab7e09.example.int
+    928  0 null server-95ab7e06.example.int
+    910  0 null server-95ab7e03.example.int
+    908  0 null server-95ab7e07.example.int
+    904  0 null server-95ab7e00.example.int
+    904  0 null server-95ab7e04.example.int
+    392  0 null server-95ab7e08.int
+    358  0 null server-95ab7e03.int
+    352  0 null server-95ab7e09.int
+    344  0 null server-95ab7e04.int
+    342  0 null server-95ab7e02.int
+    338  0 null server-95ab7e01.int
+    322  0 null server-95ab7e05.int
+    320  0 null server-95ab7e07.int
+    318  0 null server-95ab7e06.int
+    310  0 null server-95ab7e00.int
+    198  0 null tracker-95ab7e02.int
+    176  0 null tracker-95ab7e03.int
+    174  0 null tracker-95ab7e05.int
+    162  0 null tracker-95ab7e00.int
+    160  0 null tracker-95ab7e01.int
+    158  0 null tracker-95ab7e09.int
+    158  0 null tracker-95ab7e08.int
+    148  0 null tracker-95ab7e04.int
+    138  0 null tracker-95ab7e07.int
+    134  0 null tracker-95ab7e06.int
+     40  0 null xmlrpc.rhn.redhat.com
+     40  0 null xmlrpc.rhn.redhat.com.crcore.local
+      4  5 null test.com
+      4  0 null 5y3g4.evuggmh5.dBz
+      2  0 null uNzQuWuzkadGWF
+      2  0 null wpad.test.com
+      2  0 null pcuBDeRSiQ4QBIKeySpWFNutLEIZYmBXxMw9ZR0AzKNaqb6hL9MBUJ4Omh.com
+      2  0 null XtsK1l6.iS6SZz6P.pmX
+      2  0 null sZ.GX.kNL
+      2  0 null mDGKjGvZa.jA24zE4.uee
+      2  0 null www.poc.com
+      1  0 null fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aPqmJ3PuUDVJ5vGJL6eAoxR8qCcAPr7PQOcMTyuqNQRl29n.fYheWKnl96q7da0aP
+      1  0 null VERSION.BIND
+------------------------------------------------------------------------
+
+--- Turn 46 | 2,857,205 in / 20,584 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"anomaly\") | .anomaly.type"
+}
+[TOOL RESULT] count_by
+  20331  applayer
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"anomaly\") | .anomaly.event"
+}
+[TOOL RESULT] count_by
+  12480  duplicate_negotiate
+   7529  MIME_LONG_LINE
+     61  NO_SERVER_WELCOME_MESSAGE
+     43  URI_DELIM_NON_COMPLIANT
+     37  file_overlap
+     35  REQUEST_FIELD_TOO_LONG
+     26  CONTENT_LENGTH_EXTRA_DATA_START
+     19  INVALID_REPLY
+     17  APPLAYER_DETECT_PROTOCOL_ONLY_ONE_DIRECTION
+      7  MIME_INVALID_QP
+      7  UNABLE_TO_MATCH_RESPONSE_TO_REQUEST
+      6  MISSING_HOST_HEADER
+      6  REQUEST_URI_HOST_INVALID
+      5  request_command_too_long
+      5  REQUEST_BODY_UNEXPECTED
+      4  REQUEST_FIELD_MISSING_COLON
+      4  REQUEST_HEADER_HOST_INVALID
+      3  RESPONSE_HEADER_REPETITION
+      3  MIME_LONG_ENC_LINE
+      3  HOST_HEADER_AMBIGUOUS
+      3  CONTENT_LENGTH_EXTRA_DATA_END
+      2  INVALID_RESPONSE_CHUNK_LEN
+      2  RESPONSE_BODY_UNEXPECTED
+      2  INVALID_PIPELINED_SEQUENCE
+      2  INVALID_GAP
+      2  z_flag_set
+      2  file_before_port
+      1  RESPONSE_FIELD_TOO_LONG
+      1  OVERFLOW_HEARTBEAT_MESSAGE
+      1  RESPONSE_HEADER_NAME_NOT_TOKEN
+      1  unusual_ntlmssp_order
+      1  REQUEST_LINE_MISSING_PROTOCOL
+      1  name_too_long
+      1  malformed_message
+      1  malformed_data
+      1  APPLAYER_PROTO_DETECTION_SKIPPED
+      1  RESPONSE_FIELD_MISSING_COLON
+      1  REQUEST_AUTH_UNRECOGNIZED
+      1  MIME_LONG_FILENAME
+      1  confused_state
+      1  invalid_data
+      1  request_not_found
+      1  APPLAYER_WRONG_DIRECTION_FIRST_DATA
+------------------------------------------------------------------------
+
+--- Turn 47 | 2,968,929 in / 20,977 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"anomaly\" and .anomaly.event==\"duplicate_negotiate\") | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port)\""
+}
+[TOOL RESULT] count_by
+    255  149.171.126.17 -> 175.45.176.1:15151
+    255  149.171.126.17 -> 175.45.176.1:17925
+    255  149.171.126.17 -> 175.45.176.1:15441
+    255  149.171.126.17 -> 175.45.176.1:14463
+    255  149.171.126.17 -> 175.45.176.1:10749
+    255  149.171.126.17 -> 175.45.176.1:15511
+    255  149.171.126.17 -> 175.45.176.1:14041
+    255  149.171.126.17 -> 175.45.176.1:62791
+    255  149.171.126.17 -> 175.45.176.1:13807
+    255  149.171.126.17 -> 175.45.176.1:33311
+    255  149.171.126.17 -> 175.45.176.1:15835
+    255  149.171.126.17 -> 175.45.176.1:6140
+    255  149.171.126.17 -> 175.45.176.1:15498
+    255  149.171.126.17 -> 175.45.176.1:15410
+    255  149.171.126.17 -> 175.45.176.1:20135
+    255  149.171.126.17 -> 175.45.176.1:15442
+    255  149.171.126.17 -> 175.45.176.1:42072
+    255  149.171.126.17 -> 175.45.176.1:4288
+    255  149.171.126.17 -> 175.45.176.1:14625
+    255  149.171.126.17 -> 175.45.176.1:13091
+    255  149.171.126.17 -> 175.45.176.1:18316
+    255  149.171.126.17 -> 175.45.176.1:17773
+    255  149.171.126.17 -> 175.45.176.1:14857
+    255  149.171.126.17 -> 175.45.176.1:15513
+    255  149.171.126.17 -> 175.45.176.1:19318
+    255  149.171.126.17 -> 175.45.176.1:14315
+    255  149.171.126.17 -> 175.45.176.1:10086
+    255  149.171.126.17 -> 175.45.176.1:14069
+    255  149.171.126.17 -> 175.45.176.1:64705
+    255  149.171.126.17 -> 175.45.176.1:36454
+    255  149.171.126.17 -> 175.45.176.1:14015
+    255  149.171.126.17 -> 175.45.176.1:13907
+    255  149.171.126.17 -> 175.45.176.1:15507
+    255  149.171.126.17 -> 175.45.176.1:32877
+    255  149.171.126.17 -> 175.45.176.1:8367
+    255  149.171.126.17 -> 175.45.176.1:16317
+    255  149.171.126.17 -> 175.45.176.1:4789
+    255  149.171.126.17 -> 175.45.176.1:15418
+    255  149.171.126.17 -> 175.45.176.1:15725
+    255  149.171.126.17 -> 175.45.176.1:15492
+    255  149.171.126.17 -> 175.45.176.1:21226
+    255  149.171.126.17 -> 175.45.176.1:15465
+    255  149.171.126.17 -> 175.45.176.1:15182
+    255  149.171.126.17 -> 175.45.176.1:4337
+    255  149.171.126.17 -> 175.45.176.1:13631
+    255  149.171.126.17 -> 175.45.176.1:15432
+    255  149.171.126.17 -> 175.45.176.1:50650
+    255  149.171.126.17 -> 175.45.176.1:13322
+    240  149.171.126.17 -> 175.45.176.1:4694
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"anomaly\" and .anomaly.event==\"MIME_LONG_LINE\") | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port)\""
+}
+[TOOL RESULT] count_by
+      6  149.171.126.2 -> 59.166.0.9:29033
+      6  149.171.126.9 -> 59.166.0.8:39787
+      6  149.171.126.9 -> 59.166.0.6:27204
+      6  149.171.126.9 -> 59.166.0.0:55547
+      6  149.171.126.5 -> 59.166.0.9:30765
+      6  149.171.126.0 -> 59.166.0.2:13400
+      6  149.171.126.8 -> 59.166.0.3:52898
+      6  149.171.126.8 -> 59.166.0.7:1744
+      6  149.171.126.7 -> 59.166.0.9:20733
+      6  149.171.126.0 -> 59.166.0.8:18285
+      6  149.171.126.9 -> 59.166.0.2:17774
+      6  149.171.126.3 -> 59.166.0.7:44212
+      6  149.171.126.9 -> 59.166.0.4:1154
+      6  149.171.126.4 -> 59.166.0.1:57456
+      6  149.171.126.6 -> 59.166.0.4:37535
+      6  149.171.126.6 -> 59.166.0.1:15322
+      6  149.171.126.6 -> 59.166.0.1:40010
+      6  149.171.126.8 -> 59.166.0.3:30717
+      6  149.171.126.9 -> 59.166.0.4:9968
+      6  149.171.126.2 -> 59.166.0.6:10541
+      6  149.171.126.2 -> 59.166.0.4:62111
+      6  149.171.126.7 -> 59.166.0.7:12232
+      6  149.171.126.4 -> 59.166.0.9:52659
+      6  149.171.126.4 -> 59.166.0.3:40284
+      6  149.171.126.1 -> 59.166.0.4:43712
+      6  149.171.126.0 -> 59.166.0.0:20822
+      6  149.171.126.9 -> 59.166.0.6:55668
+      6  149.171.126.6 -> 59.166.0.3:11389
+      6  149.171.126.3 -> 59.166.0.2:15971
+      6  149.171.126.0 -> 59.166.0.2:62671
+      6  149.171.126.6 -> 59.166.0.3:35300
+      6  149.171.126.9 -> 59.166.0.8:31241
+      6  149.171.126.6 -> 59.166.0.0:22540
+      6  149.171.126.7 -> 59.166.0.6:27151
+      6  149.171.126.1 -> 59.166.0.4:62729
+      6  149.171.126.8 -> 59.166.0.9:7897
+      6  149.171.126.3 -> 59.166.0.5:57139
+      6  149.171.126.4 -> 59.166.0.7:53609
+      6  149.171.126.0 -> 59.166.0.0:38924
+      6  149.171.126.1 -> 59.166.0.2:48112
+      6  149.171.126.5 -> 59.166.0.3:60829
+      6  149.171.126.0 -> 59.166.0.1:34987
+      6  149.171.126.0 -> 59.166.0.6:21971
+      6  149.171.126.5 -> 59.166.0.8:40553
+      6  149.171.126.5 -> 59.166.0.6:31894
+      6  149.171.126.4 -> 59.166.0.1:46974
+      6  149.171.126.8 -> 59.166.0.7:9366
+      6  149.171.126.1 -> 59.166.0.1:59674
+      6  149.171.126.1 -> 59.166.0.0:34133
+      6  149.171.126.9 -> 59.166.0.6:34244
+      6  149.171.126.4 -> 59.166.0.9:26635
+      6  149.171.126.0 -> 59.166.0.2:7969
+      6  149.171.126.6 -> 59.166.0.7:37150
+      6  149.171.126.6 -> 59.166.0.6:24376
+      6  149.171.126.2 -> 59.166.0.2:48817
+      6  149.171.126.2 -> 59.166.0.9:37585
+      6  149.171.126.8 -> 59.166.0.9:23286
+      6  149.171.126.2 -> 59.166.0.6:10471
+      6  149.171.126.4 -> 59.166.0.7:38524
+      6  149.171.126.9 -> 59.166.0.2:55766
+      6  149.171.126.3 -> 59.166.0.0:21498
+      6  149.171.126.5 -> 59.166.0.9:17126
+      6  149.171.126.6 -> 59.166.0.0:17270
+      6  149.171.126.1 -> 59.166.0.1:9410
+      6  149.171.126.6 -> 59.166.0.9:27466
+      6  149.171.126.7 -> 59.166.0.4:60494
+      6  149.171.126.6 -> 59.166.0.3:1790
+      6  149.171.126.5 -> 59.166.0.3:54424
+      6  149.171.126.5 -> 59.166.0.7:29536
+      6  149.171.126.3 -> 59.166.0.7:4934
+------------------------------------------------------------------------
+
+--- Turn 48 | 3,086,503 in / 21,415 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "logged in"
+}
+[TOOL RESULT] search_rules
+2 loaded rule(s) match 'logged in' (58564 searched); showing up to 25:
+  sid:2032054  [suricata.rules]  ET PHISHING Google Drive Phishing Landing 2016-08-25
+  sid:162  [extra/snort_disabled_selected.rules]  MALWARE-BACKDOOR Matrix 2.0 Server access
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "POP3 login"
+}
+[TOOL RESULT] search_rules
+No loaded rule matches 'POP3 login' (58564 rules searched). No signature for this is currently deployed.
+------------------------------------------------------------------------
+
+--- Turn 49 | 3,204,641 in / 22,112 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "dns.query"
+}
+[TOOL RESULT] search_rules
+13506 loaded rule(s) match 'dns.query' (58564 searched); showing up to 25:
+  sid:2029107  [suricata.rules]  ET ADWARE_PUP Observed DNS Query to OSX/Bundalore Domain
+  sid:2025531  [suricata.rules]  ET ADWARE_PUP Observed Win32/Foniad Domain (suggedin .info in DNS Lookup)
+  sid:2032357  [suricata.rules]  ET ADWARE_PUP DriverPack Domain in DNS Query
+  sid:2034111  [suricata.rules]  ET ADWARE_PUP Observed DNS Query to Known PUA Host Domain
+  sid:2037895  [suricata.rules]  ET ADWARE_PUP Observed DNS Query to DriverPack Domain ( .drp .su)
+  sid:2039611  [suricata.rules]  ET ADWARE_PUP DriverTurbo Domain (driverturbo .com) in DNS Lookup
+  sid:2039612  [suricata.rules]  ET ADWARE_PUP DriverTurbo Domain (driverfinderpro .com) in DNS Lookup
+  sid:2045705  [suricata.rules]  ET ADWARE_PUP DNS Query to Neoreklami Domain (testupdate .info)
+  sid:2045706  [suricata.rules]  ET ADWARE_PUP DNS Query to Neoreklami Domain (133455789 .xyz)
+  sid:2048361  [suricata.rules]  ET ADWARE_PUP Bypass Ticket Monitoring Domain in DNS Lookup (www .bypass .cn)
+  sid:2048494  [suricata.rules]  ET ADWARE_PUP DNS Query to PacketShare Proxy API Domain (api .packetshare .io)
+  sid:2049148  [suricata.rules]  ET ADWARE_PUP Query to Seetrol RAT Domain (seetrol .co .kr)
+  sid:2030014  [suricata.rules]  ET ADWARE_PUP Observed DNS Query to Malvertising Related Domain
+  sid:2033607  [suricata.rules]  ET ADWARE_PUP Socelars Related Domain in DNS Lookup
+  sid:2043093  [suricata.rules]  ET ADWARE_PUP Observed DNS Query to PUP Domain (omnatuor .com)
+  sid:2012176  [suricata.rules]  ET ADWARE_PUP Lookup of Malware Domain twothousands.cm Likely Infection
+  sid:2024722  [suricata.rules]  ET ADWARE_PUP Malicious Chrome Ext. DNS Query For Adware CnC (startupfraction)
+  sid:2024723  [suricata.rules]  ET ADWARE_PUP Malicious Chrome Ext. DNS Query For Adware CnC (search.feedvertizus)
+  sid:2024725  [suricata.rules]  ET ADWARE_PUP Malicious Chrome Ext. DNS Query For Adware CnC (opurie)
+  sid:2052105  [suricata.rules]  ET ADWARE_PUP Android Fintech Related Domain in DNS Lookup (qt .qtzhreop .com)
+  sid:2052107  [suricata.rules]  ET ADWARE_PUP Android Fintech Related Domain in DNS Lookup (iu .iuuaufbt .com)
+  sid:2052109  [suricata.rules]  ET ADWARE_PUP Android Fintech Related Domain in DNS Lookup (cy .amorcash .com)
+  sid:2052111  [suricata.rules]  ET ADWARE_PUP Android Fintech Related Domain in DNS Lookup (apitai .coccash .com)
+  sid:2052112  [suricata.rules]  ET ADWARE_PUP Android Fintech Related Domain in DNS Lookup (app .truenaira .co)
+  sid:2052113  [suricata.rules]  ET ADWARE_PUP Android Fintech Related Domain in DNS Lookup (api .yumicash .com)
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "dns.rrtype"
+}
+[TOOL RESULT] search_rules
+No loaded rule matches 'dns.rrtype' (58564 rules searched). No signature for this is currently deployed.
+------------------------------------------------------------------------
+
+--- Turn 50 | 3,324,438 in / 22,440 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "anonymous logged in"
+}
+[TOOL RESULT] search_rules
+No loaded rule matches 'anonymous logged in' (58564 rules searched). No signature for this is currently deployed.
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "FTP anonymous"
+}
+[TOOL RESULT] search_rules
+2 loaded rule(s) match 'FTP anonymous' (58564 searched); showing up to 25:
+  sid:2100553  [extra/et_disabled_selected.rules]  GPL FTP FTP anonymous login attempt
+  sid:2101449  [extra/et_disabled_selected.rules]  GPL FTP FTP anonymous ftp login attempt
+------------------------------------------------------------------------
+
+--- Turn 51 | 3,444,682 in / 23,930 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "2002992"
+}
+[TOOL RESULT] search_rules
+1 loaded rule(s) match '2002992' (58564 searched); showing up to 25:
+  sid:2002992  [suricata.rules]  ET SCAN Rapid POP3 Connections - Possible Brute Force Attack
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "Rapid POP3"
+}
+[TOOL RESULT] search_rules
+2 loaded rule(s) match 'Rapid POP3' (58564 searched); showing up to 25:
+  sid:2002992  [suricata.rules]  ET SCAN Rapid POP3 Connections - Possible Brute Force Attack
+  sid:2002993  [suricata.rules]  ET SCAN Rapid POP3S Connections - Possible Brute Force Attack
+------------------------------------------------------------------------
+
+--- Turn 52 | 3,566,567 in / 24,342 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"smtp\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .smtp.command"
+}
+[TOOL RESULT] count_by
+    327  null
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .app_proto==\"smtp\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .alert.signature"
+}
+[TOOL RESULT] count_by
+   1029  INDICATOR-SHELLCODE x86 inc ecx NOOP
+      2  ET WEB_SPECIFIC_APPS ELF file magic encoded Base64 Inbound Web Servers Likely Command Execution 2
+      2  ET WEB_SPECIFIC_APPS ELF file magic encoded Base64 Inbound Web Servers Likely Command Execution 1
+      2  ET HUNTING SUSPICIOUS SMTP EXE - EXE SMTP Attachment
+      1  SERVER-MAIL From comment overflow attempt
+      1  SERVER-MAIL WinZip MIME content-type buffer overflow
+      1  SERVER-MAIL WinZip MIME content-disposition buffer overflow
+      1  SURICATA SMTP invalid pipelined sequence
+      1  ET HUNTING SUSPICIOUS SMTP EXE - ZIP file with .com filename inside
+      1  SURICATA SMTP filename truncated
+      1  ET HUNTING SUSPICIOUS SMTP EXE - RAR file with .scr filename inside
+      1  GPL SMTP MAIL FROM overflow attempt
+------------------------------------------------------------------------
+
+--- Turn 53 | 3,689,123 in / 24,615 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"fileinfo\") | .fileinfo.filename"
+}
+[TOOL RESULT] count_by
+   2618  /
+   2523  /notthere.html
+    796  README.txt
+    758  /announce
+    350  /video.fli
+    189  1t3OWtL5b.txt
+    169  NdTug6XXKpwxPXGMdwp6.txt
+    164  ARxSdjODRsVZyUqwZ05.txt
+    163  MIxTqcm2gznBVeiu.txt
+    142  lM9RfrNnllPPrYW7PvX.txt
+    127  8xQxaXTJnHoXD2JE5r.txt
+    123  AnYjv6l.txt
+    106  edWAb8d05tvFyppb.txt
+     87  LvULxVR0x.txt
+     87  cMIvnIFbcHG9.txt
+     47  /audio.wma
+     19  /server-status
+     18  /nZQKuPm
+     16  /printers/printer
+      7  /libhtp::request_uri_not_seen
+      6  \BROWSER
+      4  /HtmlTrLauncher
+      3  /~blin/poc.xls
+      2  /iROPFd/WaqX1O X.puz
+      2  /iROPFd/imeshare.dll
+      2  \SRVSVC
+      2  /boot.ini
+      2  \LSARPC
+      2  /OvCgi/webappmon.exe
+      2  /mEcR8K0OTh1.xLSx
+      2  /.dll
+      2  /VRXnbgmEwMGTh/~5c~5c140~2e81~2e163~2e201~5cPRT1/.printer
+      2  \spoolss
+      2  /isapi/ocget.dll
+      2  /W1VnSn5/wintab32.dll
+      2  /W1VnSn5/AgDVw.Pdf
+      2  /UGhhRL3.gRF
+      2  /measure.dll
+      2  /yywTQjhxDFCSMtzUrCx.HtML
+      2  /~rchen/poc.dir
+      2  /n2jR.isp
+      2  /smmscrpt.dll
+      2  /~ndezhkam/poc.xls
+      2  /scripts/changelanguagesession.php
+      2  poc.wpd
+      2  \ROUTER
+      2  /SiteScope/services/APIMonitorImpl
+      2  \browser
+      2  /GRewmHMx/wWJLBxyOK.{2E095Dd0-af56-47e4-A099-eaC038decC24}/hIfuB5Kd026cQL.doC
+      2  /GRewmHMx/wWJLBxyOK.{2E095Dd0-af56-47e4-A099-eaC038decC24}/ehtrace.dll
+      2  /~eforoughi/firefox/image.bat
+      2  /RPC2
+      2  \srvsvc
+      2  /~jxia/poc.gif
+      2  \DNSSERVER
+      2  /QC7H.wBCat
+      2  /fveapi.dll
+      2  /work/resultimage.php
+      2  /TWZSF.rDP
+      2  /ieframe.dll
+      2  /login.php
+      2  /zenworks/webapps/KOiEGO.war
+      1  mcvcore.maKi
+      1  pG5oDa2g
+      1  eLWfxXSPkc
+      1  /_layouts/help.aspx?cid0=MS.WSS.manifest.xml<<BoDY/0.ba"s='>'" =">'>" ''/1h onLoAd 	=alert('nichdsxkp')
+      1  >>&tid=X
+      1  /aoCsrhLmTAwWzeKTezXvhwtJNg
+      1  /oKmwKoVbq
+      1  /ErcTzoRqtIiDaACew.css
+      1  /MWSOgEa.jnlp
+      1  /invoker/EJBInvokerServlet
+      1  Lbg.jar
+      1  /Kvb8XrtzLv6fh.dDd
+      1  /mLTBi
+      1  aQVmLLQuaQm.WAV
+      1  T9zvrRDg7E
+      1  QbE5K7JxJ3g.Wmf
+      1  T9zvrRDg7E/zTsVPyGreQ.swf
+      1  /~mbohio/poc.html
+      1  /../../../n9JiTz/BlcnFwg.Oav
+      1  /vJ9u1
+      1  /c7ERwI2Xn6KWxp
+      1  /sI7Zs4X2N9rY
+      1  /OGdFCSUwTkJsNKglQG
+      1  aubJ0eOQI.pdf
+      1  84-progbar_w_bkgnd_image.dir.DCR
+      1  /63C2bgGS5zi.rtf
+      1  eHQ8uS.PNg
+      1  /GMeEf
+      1  HuvOylyCRxWVZdPYQD.xLS
+      1  /../../../../../iJAokSjg/GnolHgJqAoz.NIm
+      1  /inN7XqtpCp.EOt
+      1  /goform/gscan
+      1  DOCSNfMJ)
+      1  /FYlsdIoMyz.wmf
+      1  WkgWrEc.html
+      1  /kL0ixNc1B5e4EegBwSp4.hta
+      1  /SiteScope/
+      1  /goform/_aslvl
+      1  /WorldClient.dll
+      1  /kjn99
+      1  /tcqbEgsFG2
+      1  7uF8neq.html
+      1  /gqYjxlEhuXoLZlO
+      1  3VI0BYdQHDqm4h.pdf
+      1  /~the/poc.mov
+      1  ZMweiHDKCREhKrHNutzdL.doc
+      1  gciutln
+      1  /8pb4e
+      
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"fileinfo\") | .fileinfo.state"
+}
+[TOOL RESULT] count_by
+   8652  CLOSED
+    458  TRUNCATED
+------------------------------------------------------------------------
+
+--- Turn 54 | 3,816,022 in / 26,036 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "classtype:successful-user"
+}
+[TOOL RESULT] search_rules
+32 loaded rule(s) match 'classtype:successful-user' (58564 searched); showing up to 25:
+  sid:2017025  [suricata.rules]  ET ATTACK_RESPONSE Net User Command Response
+  sid:2038604  [suricata.rules]  ET ATTACK_RESPONSE net user Command Output via HTTP POST
+  sid:2009579  [suricata.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Registry Interation Detected
+  sid:2014533  [suricata.rules]  ET MALWARE Metasploit Meterpreter core_channel_* Command Response
+  sid:2014532  [suricata.rules]  ET MALWARE Metasploit Meterpreter stdapi_* Command Response
+  sid:2014531  [suricata.rules]  ET MALWARE Metasploit Meterpreter core_channel_* Command Request
+  sid:2014530  [suricata.rules]  ET MALWARE Metasploit Meterpreter stdapi_* Command Request
+  sid:2010463  [suricata.rules]  ET WEB_SERVER RFI Scanner Success (Fx29ID)
+  sid:2009558  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter File Download Detected
+  sid:2009559  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Process List (ps) Command Detected
+  sid:2009560  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Getuid Command Detected
+  sid:2009561  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Process Migration Detected
+  sid:2009562  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter ipconfig Command Detected
+  sid:2009563  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Sysinfo Command Detected
+  sid:2009564  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Route Command Detected
+  sid:2009565  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Kill Process Command Detected
+  sid:2009566  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Print Working Directory Command Detected
+  sid:2009567  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter View Current Process ID Command Detected
+  sid:2009568  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Execute Command Detected
+  sid:2009569  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter System Reboot/Shutdown Detected
+  sid:2009570  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter System Get Idle Time Command Detected
+  sid:2009571  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Make Directory Command Detected
+  sid:2009572  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Remove Directory Command Detected
+  sid:2009573  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter Change Directory Command Detected
+  sid:2009574  [extra/et_disabled_selected.rules]  ET ATTACK_RESPONSE Metasploit Meterpreter List (ls) Command Detected
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] search_rules
+{
+  "term": "dns.opcode"
+}
+[TOOL RESULT] search_rules
+No loaded rule matches 'dns.opcode' (58564 rules searched). No signature for this is currently deployed.
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me check available pcaps and the current generated rules file location before writing.
+
+
+--- Turn 55 | 3,945,292 in / 27,208 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] list_directory
+{
+  "dir_path": "data/pcaps/unsw"
+}
+[TOOL RESULT] list_directory
+  1.pcap  (2000.0 MB)
+  10.pcap  (2000.0 MB)
+  14.pcap  (2000.0 MB)
+  27.pcap  (596.1 MB)
+  3.pcap  (2000.0 MB)
+  4.pcap  (2000.0 MB)
+  5.pcap  (2000.0 MB)
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "rules/generated/unsw/rounds_plain.rules"
+}
+[TOOL RESULT] read_file
+# rules/generated/unsw/rounds_plain.rules
+# AI-authored rules written against the UNSW-NB15 baseline v2, condition: plain.
+
+# FTP PORT integer-overflow fuzzing.
+# The attacker sends PORT commands where the six comma-separated octets are the
+# SAME oversized decimal value (256, 4096, 65536, ..., 2^31, 2^32) instead of
+# the normal h1,h2,h3,h4,p1,p2 (each <= 255). This probes FTP server integer
+# overflow handling and was not covered by the loaded baseline.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"UNSW FTP PORT command repeated oversized decimal octets - integer overflow fuzzing attempt"; flow:to_server,established; content:"PORT"; nocase; pcre:"/([0-9]{2,}),\1,\1,\1,\1,\1/"; classtype:attempted-user; sid:1000001; rev:1;)
+
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+I've identified two clear attack patterns not covered by the baseline. Let me write detection rules for them.
+
+
+--- Turn 56 | 4,076,064 in / 28,568 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] append_to_file
+{
+  "file_path": "rules/generated/unsw/rounds_plain.rules",
+  "content": "\n# DNS dynamic update (opcode 5) request from external host.\n# The attacker sends DNS UPDATE messages (opcode 5) to an internal DNS server,\n# e.g. wpad.test.com with CNAME/TSIG records. This is a dynamic-DNS update /\n# zone-manipulation probe and is not covered by the loaded baseline.\nalert dns $EXTERNAL_NET any -> $HOME_NET 53 (msg:\"UNSW DNS dynamic update (opcode 5) request from external host\"; dns.opcode:5; classtype:attempted-recon; sid:1000002; rev:1;)\n\n# POP3 successful login from external host.\n# All POP3 traffic in this capture is from the 175.45.176.0/24 attacker range and\n# nearly every USER/PASS sequence succeeds (\"logged in.\"). The baseline only\n# alerts on POP3 buffer overflows and the rapid-POP3 brute-force rule did not fire,\n# so successful mailbox access from EXTERNAL_NET was invisible.\nalert tcp $HOME_NET 110 -> $EXTERNAL_NET any (msg:\"UNSW POP3 successful login from external host\"; flow:to_client,established; content:\"logged in\"; nocase; fast_pattern; classtype:successful-user; sid:1000003; rev:1;)\n"
+}
+[TOOL RESULT] append_to_file
+Successfully appended 1032 bytes to rules/generated/unsw/rounds_plain.rules
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me validate the new rules by running Suricata on the matching pcap.
+
+
+--- Turn 57 | 4,208,228 in / 28,770 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] run_suricata
+{
+  "pcap_path": "data/pcaps/unsw/1.pcap",
+  "run_name": "unsw-1-validate"
+}
+[TOOL RESULT] run_suricata
+Exit code: 0
+Log directory: logs/unsw-1-validate/
+
+stdout:
+i: suricata: This is Suricata version 8.0.6 RELEASE running in USER mode
+W: detect-flowbits: flowbit 'ET.http2' is checked but not set. Checked in 2034095 and 0 other sigs
+W: mpm-hs: Failed to create Hyperscan cache folder, make sure the  parent folder is writeable or adjust sgh-mpm-caching-path setting (/var/lib/suricata/cache/sgh)
+i: threads: Threads created -> RX: 1 W: 12 FM: 1 FR: 1   Engine started.
+i: suricata: Signal Received.  Stopping engine.
+i: pcap: read 1 file, 3526992 packets, 1943568152 bytes
+
+stderr:
+/bigyan/capstone-ids/rules/extra/snort_disabled_selected.rules at line 1967
+E: rule-vars: Variable "SIP_SERVERS" is not defined in configuration file
+E: detect: error parsing signature "alert tcp $SIP_SERVERS $SIP_PORTS -> $EXTERNAL_NET any (msg:"PROTOCOL-VOIP Excessive number of SIP 4xx responses potential user or password guessing attempt"; flow:to_client,established,only_stream; sip_stat_code:4; content:"SIP/2.0"; fast_pattern:only; detection_filter:track by_src, count 100, seconds 25; metadata:policy max-detect-ips drop, ruleset community, service sip; reference:url,blog.sipvicious.org/2008/02/detecting-sip-attacks-with-snort.html; classtype:attempted-recon; sid:27904; rev:3;)" from file /home/bigyan/capstone-ids/rules/extra/snort_disabled_selected.rules at line 1968
+E: rule-vars: Variable "SIP_SERVERS" is not defined in configuration file
+E: detect: error parsing signature "alert udp $EXTERNAL_NET any -> $SIP_SERVERS $SIP_PORTS (msg:"OS-OTHER Bash environment variable injection attempt"; flow:stateless; sip_header; content:"() {"; metadata:policy max-detect-ips drop, policy security-ips drop, ruleset community, service sip; reference:cve,2014-6271; reference:cve,2014-6277; reference:cve,2014-6278; reference:cve,2014-7169; classtype:attempted-admin; sid:32041; rev:4;)" from file /home/bigyan/capstone-ids/rules/extra/snort_disabled_selected.rules at line 1981
+E: rule-vars: Variable "SIP_SERVERS" is not defined in configuration file
+E: detect: error parsing signature "alert tcp $EXTERNAL_NET any -> $SIP_SERVERS $SIP_PORTS (msg:"OS-OTHER Bash environment variable injection attempt"; flow:to_server,established; sip_header; content:"() {"; metadata:policy max-detect-ips drop, policy security-ips drop, ruleset community, service sip; reference:cve,2014-6271; reference:cve,2014-6277; reference:cve,2014-6278; reference:cve,2014-7169; classtype:attempted-admin; sid:32042; rev:4;)" from file /home/bigyan/capstone-ids/rules/extra/snort_disabled_selected.rules at line 1982
+
+
+suricata.log (last 30 lines):
+[10112 - Suricata-Main] 2026-10-01 20:50:57 Error: detect: error parsing signature "alert udp $EXTERNAL_NET any -> $SIP_SERVERS $SIP_PORTS (msg:"PROTOCOL-VOIP inbound INVITE message"; flow:to_server; content:"INVITE"; fast_pattern:only; sip_method:invite; metadata:policy max-detect-ips drop, ruleset community, service sip; reference:url,www.ietf.org/rfc/rfc3261.txt; classtype:protocol-
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+The new rules parsed without errors. Let me verify they fired in the validation run.
+
+
+--- Turn 58 | 4,343,250 in / 28,954 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-validate/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==1000002 or .alert.signature_id==1000003)) | .alert.signature"
+}
+[TOOL RESULT] count_by
+     68  UNSW POP3 successful login from external host
+      4  UNSW DNS dynamic update (opcode 5) request from external host
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me deep-dive on the FTP attack outcome with attacker-scoped counts.
+
+
+--- Turn 59 | 4,478,501 in / 29,540 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ftp\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .ftp.command"
+}
+[TOOL RESULT] count_by
+    157  null
+    155  USER
+    151  PASS
+     35  PASV
+     33  TYPE
+     33  RETR
+     32  SIZE
+      2  NLST
+      2  SITE
+      1  MKD
+      1  SYST
+      1  PWD
+      1  NOOP
+      1  CWD
+      1  PORT
+      1  LIST
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ftp\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .ftp.reply[0]"
+}
+[TOOL RESULT] count_by
+    112  Welcome to my FTP Server
+    112  Please specify the password.
+    112  Login successful.
+     32  Guest login ok, send your complete e-mail address as password.
+     32  Logged in anonymously.
+     32  Type okay.
+     10  4X7bWp93OzrfwvHI19wLH9cTf7PJMqCY1JAibTdYiyxpVIAExHhYpZnXAD6p3Hobc94KjdlPQM1a06a6mXkibjoHAdGP1vqsoB2S0D4ws5LeBD98lUvJxLCZp313q7HpbaX1UMUYIjAjQ3SNjB8wOFG0FAEwffk71NlKiHFa4FAPGqZPCH2yZkughRMmq7VIcKYwepPnQqg7cNW8ifAhrkM1Nrb4pgX2p0hZUtuXcY2DbPAZC8YGb7C3JuX0GzlQ4PnRCBHXi51h7y5UFaum8AHTampJSd268J8pXTE0o3UXUJBIy8CcK05IR1qCCZaexqk7x0NYZprDGnHEocPctTIHUkHk17p4cqRCBHQU8YOc4Y2y4xviU8AbKquMwIxYItN1czzKzS5xOJnyuSGAPytaQDjNc3ElmnPSjZ2iiL3piS4b7ANsRCQkpmqebHbTHejRSWyFZcLgxFuRnQ8tZ6bCHo5BiG7u6mWbhwOi3MFH3wCCCdKYcVXADfrDXcMfUYSd1iA4xI3am1EWQ27sAvbJaVvYl3npmZfXQ5BJCzwmIGrbGyvXufZedcGUbMuIDLtlGy1xrSWr88JXsj5vL5F95SMHPTa21V4ZVcLHjNTUaULheJKyrLMeweptNGPcduo1OkSy5cB2JqejeHI9nA0BEUR73cCv7XGcWKIzPBI9LDcUR5ZugUtRMvYY0pS5TW8dntpNEZw95zMs1eBLaS61fSXQA7cEWo6nX4YnRPbUns0Z9hA5uyWajsBLELfMywmEt7TfO6Wbw5YDyNdrKF5ZSuEvY55irAKDfqU7yurlvu6QmTfTCsDDI2TDlIa3ovyibEWuefYusIgYKPZsKdccoHWS7Lzl8D5FCGTiWCl4lvCFOCuh33UzABYjAdLxbPVXTin1lP3sL8vuqy19Q4p1NcsviqBCXWqfr0dcJTXDPUmWwqjcC1Ns8m3Sq3xFutdMMcOzyxWImEUBg01QbwFiuRYJmIpKJzMAQKrhmHeq4aNarjmAxIKsdB
+      9  null
+      8  1663
+      4  Anonymous login ok, send your complete email address as your password.
+      3  Anonymous access granted.
+      2  249
+      2  Data connection already open; Transfer starting.226 Transfer completed.
+      2  196
+      1  fudqduoEXMrxDTWbObmj NcFTPd Server (licensed copy) ready.
+      1  Entering Passive Mode (149,171,126,11,200,204)
+      1  McXoKKxxEmaYXp NcFTPd Server (licensed copy) ready.
+      1  Entering Passive Mode (149,171,126,11,233,153)
+      1  455
+      1  Data connection accepted from 175.45.176.1:35134; transfer starting for BlcnFwg.Oav (455 bytes)
+      1  hNMrODPbTZyP NcFTPd Server (licensed copy) ready.
+      1  Entering Passive Mode (149,171,126,15,249,33)
+      1  Data connection accepted from 175.45.176.2:54767; transfer starting for jfaPUBjqrxB.Hlj (249 bytes)
+      1  RaOLsfJVarINKcJwXsAvGsPaj NcFTPd Server (licensed copy) ready.
+      1  Entering Passive Mode (149,171,126,15,224,16)
+      1  Data connection accepted from 175.45.176.3:17498; transfer starting for GnolHgJqAoz.NIm (1663 bytes)
+      1  sFEYVtoRtaEajyEVqShHQWEtM NcFTPd Server (licensed copy) ready.
+      1  Entering Passive Mode (149,171,126,13,194,166)
+      1  1977
+      1  Data connection accepted from 175.45.176.3:20355; transfer starting for AwriGL.aqd (1977 bytes)
+      1  WvubXsaQuvtxBdaBNtREpdNBNCOADsJTnCM Microsoft FTP Service
+      1  Entering Passive Mode (149,171,126,14,212,25)
+      1  ZqxYHhNmqfqaBUnnSdUGnueOmrcLSzEBndo NcFTPd Server (licensed copy) ready.
+      1  Entering Passive Mode (149,171,126,17,194,61)
+      1  Data connection accepted from 175.45.176.0:17284; transfer starting for fnSsbitya.izJ (249 bytes)
+      1  +OK Microsoft Exchange Server 2003 POP3 server version 6.5.
+------------------------------------------------------------------------
+
+--- Turn 60 | 4,617,775 in / 30,105 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ftp\") | .src_ip"
+}
+[TOOL RESULT] count_by
+    935  59.166.0.7
+    935  59.166.0.4
+    891  59.166.0.3
+    891  59.166.0.0
+    888  59.166.0.9
+    810  59.166.0.1
+    801  59.166.0.2
+    786  59.166.0.5
+    770  59.166.0.8
+    748  59.166.0.6
+    408  175.45.176.3
+     88  175.45.176.1
+     65  175.45.176.2
+     46  175.45.176.0
+------------------------------------------------------------------------
+
+--- Turn 61 | 4,757,779 in / 30,799 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature==\"GPL FTP FTP anonymous login attempt\") | .src_ip"
+}
+[TOOL RESULT] count_by
+    363  175.45.176.3
+     32  175.45.176.1
+     24  175.45.176.2
+     15  175.45.176.0
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"ftp\") | select((.src_ip // \"x\") | startswith(\"175.45.176\")) | .ftp.command"
+}
+[TOOL RESULT] count_by
+    157  null
+    155  USER
+    151  PASS
+     35  PASV
+     33  TYPE
+     33  RETR
+     32  SIZE
+      2  NLST
+      2  SITE
+      1  MKD
+      1  SYST
+      1  PWD
+      1  NOOP
+      1  CWD
+      1  PORT
+      1  LIST
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me establish the time window of the alert activity.
+
+
+--- Turn 62 | 4,898,628 in / 31,452 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-1-baseline/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | .timestamp[0:16]"
+}
+[TOOL RESULT] count_by
+    830  2015-02-18T10:31
+    431  2015-02-18T10:26
+    410  2015-02-18T10:25
+    390  2015-02-18T10:32
+    297  2015-02-18T10:13
+    266  2015-02-18T10:27
+    258  2015-02-18T10:28
+    254  2015-02-18T10:15
+    243  2015-02-18T10:33
+    241  2015-02-18T10:18
+    236  2015-02-18T10:14
+    227  2015-02-18T10:30
+    221  2015-02-18T10:24
+    220  2015-02-18T10:29
+    214  2015-02-18T10:16
+    214  2015-02-18T10:19
+    200  2015-02-18T10:21
+    199  2015-02-18T10:17
+    173  2015-02-18T10:20
+    163  2015-02-18T10:12
+    137  2015-02-18T10:34
+    131  2015-02-18T10:22
+    115  2015-02-18T10:11
+    112  2015-02-18T10:23
+     99  2015-02-18T10:10
+     57  2015-02-18T09:53
+     57  2015-02-18T10:35
+     53  2015-02-18T09:54
+     50  2015-02-18T10:09
+     48  2015-02-18T10:08
+     27  2015-02-18T09:55
+     25  2015-02-18T10:36
+      5  2015-02-18T09:56
+      2  2015-02-18T10:07
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+I now have a complete picture. Let me do one final check on the file I wrote to confirm it's correct.
+
+
+--- Turn 63 | 5,040,617 in / 35,894 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "rules/generated/unsw/rounds_plain.rules"
+}
+[TOOL RESULT] read_file
+# rules/generated/unsw/rounds_plain.rules
+# AI-authored rules written against the UNSW-NB15 baseline v2, condition: plain.
+
+# FTP PORT integer-overflow fuzzing.
+# The attacker sends PORT commands where the six comma-separated octets are the
+# SAME oversized decimal value (256, 4096, 65536, ..., 2^31, 2^32) instead of
+# the normal h1,h2,h3,h4,p1,p2 (each <= 255). This probes FTP server integer
+# overflow handling and was not covered by the loaded baseline.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"UNSW FTP PORT command repeated oversized decimal octets - integer overflow fuzzing attempt"; flow:to_server,established; content:"PORT"; nocase; pcre:"/([0-9]{2,}),\1,\1,\1,\1,\1/"; classtype:attempted-user; sid:1000001; rev:1;)
+
+# DNS dynamic update (opcode 5) request from external host.
+# The attacker sends DNS UPDATE messages (opcode 5) to an internal DNS server,
+# e.g. wpad.test.com with CNAME/TSIG records. This is a dynamic-DNS update /
+# zone-manipulation probe and is not covered by the loaded baseline.
+alert dns $EXTERNAL_NET any -> $HOME_NET 53 (msg:"UNSW DNS dynamic update (opcode 5) request from external host"; dns.opcode:5; classtype:attempted-recon; sid:1000002; rev:1;)
+
+# POP3 successful login from external host.
+# All POP3 traffic in this capture is from the 175.45.176.0/24 attacker range and
+# nearly every USER/PASS sequence succeeds ("logged in."). The baseline only
+# alerts on POP3 buffer overflows and the rapid-POP3 brute-force rule did not fire,
+# so successful mailbox access from EXTERNAL_NET was invisible.
+alert tcp $HOME_NET 110 -> $EXTERNAL_NET any (msg:"UNSW POP3 successful login from external host"; flow:to_client,established; content:"logged in"; nocase; fast_pattern; classtype:successful-user; sid:1000003; rev:1;)
+
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+# Triage Report: `logs/unsw-1-baseline/eve.json`
+
+## 1. Big picture
+
+| Metric | Value |
+|---|---|
+| Total alert events | **6,605** |
+| Total events in eve.json | ~127k (flow 43,413; dns 28,862; anomaly 20,331; fileinfo 9,110; ftp 9,062; http 7,216; alert 6,605; smtp 3,032; ssh 1,449; ftp_data 1,224; smb 843; pop3 468; etc.) |
+| Alert time window | **2015-02-18 09:53:31 → 10:36:xx (+0930)**, roughly 43 minutes |
+| Unique signatures | At least **~180** (tool output truncated before the tail of 1- and 2-count rules) |
+| Attacker-origin alerts | **5,549 of 6,605 (84%)** come from the known attacker range `175.45.176.0/24` (`.0`=833, `.1`=1,753, `.2`=1,516, `.3`=1,447) |
+
+The remaining ~16% of alerts are mostly server responses to those attacks (e.g. BGP resets) and a small amount of client-to-server noise.
+
+## 2. Alert categorisation
+
+**Real attack signatures (true positives):**
+- `INDICATOR-SHELLCODE x86 inc ecx NOOP` / `GPL SHELLCODE x86 NOOP` / Metasploit bind-shell / setuid-setgid — 2,222 alerts in the "Executable code was detected" category. Attacker-driven exploit/shellcode payloads carried over SMTP, HTTP, FTP, SMB, and BGP flows.
+- `GPL FTP FTP anonymous login attempt` (434), `GPL FTP command overflow attempt` (170), `FTP PASS overflow` (34), `FTP format string` (13+) — FTP brute-force/fuzzing.
+- SMB family: `GPL NETBIOS SMB-DS IPC$ unicode share access` (151), `ET NETBIOS Remote SMB2.0 DoS Exploit` (124), `CVE-2009-3103` (6), `MS08-067` (2), `MS04-007` (1).
+- `SERVER-OTHER BGP invalid length` / `GPL MISC BGP invalid length` (50) — BGP malformed-message fuzzing.
+- Web attacks: `PHP RFI` (36), `server-status access` (37), `cmd.exe` (5+5), `/system32/` (5), SQLi/XSS/XXE/Struts/SiteScope/etc. (many 1–3 count rules).
+- TFTP: `GET passwd` (4), `GET/PUT filename overflow` (8+8), `TFTPGUI Long Transport Mode Buffer Overflow` (16).
+- RPC portmap recon/exploit: 388 alerts across `rexd/admind/cmsd/nisd/status/rwalld/ttdbserv/...`.
+- Backdoors/trojans: `GateCrasher` (3), `DeepThroat` (2), `Doly` (1).
+- VNC: `RealVNC Server Authentication Bypass Successful` (2) + attempts (2).
+- Heartbleed (3), BackupExec/Veritas (6), Solaris TTYPROMPT (5), PPTP overflow (62), Siemens Gigaset DoS (102), ICQ Webfront DoS (10), Cisco IOS HTTP config (20).
+
+**Noise / false positives:**
+- `SERVER-OTHER BGP spoofed connection reset attempt` (1,698) — see below.
+- SURICATA stream/app-layer parser events (`STREAM ... out of window/invalid ack/invalid timestamp`, `SMB file overlap`, `ApplLayer Detect protocol only one direction`, `SMTP no server welcome message`, HTTP parser anomalies) — ~200 events, artifacts of synthetic capture/reassembly.
+- `GPL MISC IP Proto 103 PIM` (8) — informational.
+- Many rules are **double-counted** because both the `PROTOCOL-*` and `GPL *` variants fire on the same packet (e.g. `PROTOCOL-TFTP Get` + `GPL TFTP Get`).
+
+## 3. Confirmed attacks — deep dive
+
+### FTP (attacker-scoped)
+Filter: `select(.event_type=="ftp") | select((.src_ip // "x") | startswith("175.45.176"))`
+
+- `USER` 155, `PASS` 151, `PASV` 35, `TYPE` 33, `RETR` 33, `SIZE` 32.
+- 434 anonymous-login alerts all originate from the attacker range (`.3`=363, `.1`=32, `.2`=24, `.0`=15).
+- Outcome: server replies show **32 "Logged in anonymously."**, **112 "Login successful."** for random credentials, and multiple **completed data transfers** (`Data connection accepted from 175.45.176.x ... transfer starting/completed`, filenames like random `.txt`, sizes 81–9,932 bytes). The attacker obtained both anonymous and authenticated FTP access and moved files. Technique: FTP brute-force + fuzzing + data transfer.
+
+### SMB (attacker-scoped)
+- `IPC$ unicode share access`: 127 alerts from `.1 → 149.171.126.11:445`, plus others across `.0/.2/.3`.
+- `SMB2.0 DoS Exploit`: 118 from `.1 → 149.171.126.17:445`.
+- `CVE-2009-3103` (6), `MS08-067` (2), `MS04-007 Kill-Bill` (1).
+- Corroborating parser anomaly: **12,480 `duplicate_negotiate`** anomalies from `149.171.126.17 → 175.45.176.1` — a repeated SMB negotiate storm consistent with the SMB2.0 DoS exploit. Technique: SMB exploit/DoS + share enumeration.
+
+### BGP (attacker-scoped)
+- `BGP invalid length`: 50 alerts, mostly `.1 → 149.171.126.18:179` over ~30 seconds (10:13:25–10:14:15), with many unique ephemeral source ports. This is malformed-BGP fuzzing against an internal BGP service.
+- The 1,698 `BGP spoofed connection reset attempt` alerts fire on the ordinary TCP RSTs that close these failed fuzz connections (both directions). The server legitimately resets connections after receiving invalid BGP data — **this is a false positive**, not a spoofed-reset attack.
+
+### POP3 (attacker-scoped) — **was invisible to the baseline**
+Filter: `select(.event_type=="pop3") | select((.src_ip // "x") | startswith("175.45.176"))`
+
+- **All 468 POP3 events in the capture are from the attacker range** (`.0`=140, `.1`=105, `.2`=110, `.3`=113). No benign POP3 traffic exists in this pcap.
+- Commands: `USER` 67, `PASS` 67, `LIST` 67, `UIDL` 66, `RETR` 66, `QUIT` 66.
+- Outcome: **66 of 67 `PASS` commands got `"logged in."`** — the attacker successfully logged into internal mailboxes and retrieved messages (`RETR`). The loaded baseline only fired 6 POP3 overflow/format-string alerts and its "Rapid POP3 brute force" rule did not fire. This was a significant coverage gap.
+
+### DNS (attacker-scoped) — **partially invisible**
+- 4 `dns` requests with **opcode 5 (dynamic UPDATE)** from `.2 → 149.171.126.17` (`wpad.test.com` CNAME/TSIG records). Dynamic DNS update from an external host is a zone-manipulation probe and had **no alert**.
+- Other odd queries: `VERSION.BIND TXT` (already detected by `PROTOCOL-DNS named version attempt`), `TLSA`/`RRSIG`/`ANY`/`rrtype 252/49164/251` random-label queries (not alerted).
+
+## 4. Actions taken
+
+I wrote two new detection rules to `rules/generated/unsw/rounds_plain.rules` and validated them by re-running Suricata on `data/pcaps/unsw/1.pcap`:
+
+| SID | Rule | Validation result |
+|---|---|---|
+| 1000002 | DNS dynamic update (opcode 5) from `$EXTERNAL_NET` to `$HOME_NET:53` | **4 alerts** — exactly the 4 attacker UPDATE requests |
+| 1000003 | POP3 `"logged in"` from `$HOME_NET:110` to `$EXTERNAL_NET` | **68 alerts** — matching the attacker's successful mailbox logins |
+
+Suricata exited 0 with no parse errors for the new rules (the only `E:` lines were pre-existing `SIP_SERVERS` rule errors in the shipped extra rulesets).
+
+## 5. Proposed suppressions (for engineer approval — NOT written)
+
+These look like false positives / parser noise in this capture:
+
+```
+# BGP fuzzing flows close with ordinary TCP RSTs; this rule fires on both
+# directions of those legitimate resets and produced 1,698 of the 6,605 alerts.
+suppress gen_id 1, sig_id 2523
+```
+
+Lower-priority parser-noise candidates (optional):
+
+```
+# SMB file transfers generate overlapping-file anomalies in this synthetic pcap.
+suppress gen_id 1, sig_id 2225006
+# TCP reassembly artifacts, not attack behaviour.
+suppress gen_id 1, sig_id 2210020
+suppress gen_id 1, sig_id 2210029
+suppress gen_id 1, sig_id 2210045
+suppress gen_id 1, sig_id 2210044
+```
+
+## 6. Coverage gaps identified
+
+1. **POP3 mailbox access** — 66 successful external logins + mail retrieval; no baseline rule fired. *Addressed with SID 1000003.*
+2. **DNS dynamic UPDATE (opcode 5)** — external zone-update probe; no baseline rule. *Addressed with SID 1000002.*
+3. **WebDAV `PROPFIND` scanning** — 19 external `PROPFIND` requests to internal web servers with random DLL/CLSID paths; no `PROPFIND`/WebDAV rule fired. Candidate for a future `http.method` rule.
+4. **SMB `duplicate_negotiate` storm** — 12,480 anomalies vs 124 `SMB2.0 DoS` alerts; the engine anomaly is a strong corroborating signal but is not surfaced as a detect alert.
+5. **SMTP fuzzing** — the attacker sent hundreds of randomised `HELO`/`MAIL FROM` values; mostly only the generic x86-NOOP shellcode rules fired, so the SMTP fuzzing itself is not specifically modelled.
+6. **BGP high-rate connection/reset pattern** — only malformed-length packets are alerted; the connection-storm behaviour itself is not modelled (and the spoofed-reset rule is misleading).
+
+
+--- Turn 64 | 5,187,577 in / 38,482 out ---
+
+========================================================================
+[FINAL REPORT]
+========================================================================
+# Triage Report: `logs/unsw-1-baseline/eve.json`
+
+## 1. Big picture
+
+| Metric | Value |
+|---|---|
+| Total alert events | **6,605** |
+| Total events in eve.json | ~127k (flow 43,413; dns 28,862; anomaly 20,331; fileinfo 9,110; ftp 9,062; http 7,216; alert 6,605; smtp 3,032; ssh 1,449; ftp_data 1,224; smb 843; pop3 468; etc.) |
+| Alert time window | **2015-02-18 09:53:31 → 10:36:xx (+0930)**, roughly 43 minutes |
+| Unique signatures | At least **~180** (tool output truncated before the tail of 1- and 2-count rules) |
+| Attacker-origin alerts | **5,549 of 6,605 (84%)** come from the known attacker range `175.45.176.0/24` (`.0`=833, `.1`=1,753, `.2`=1,516, `.3`=1,447) |
+
+The remaining ~16% of alerts are mostly server responses to those attacks (e.g. BGP resets) and a small amount of client-to-server noise.
+
+## 2. Alert categorisation
+
+**Real attack signatures (true positives):**
+- `INDICATOR-SHELLCODE x86 inc ecx NOOP` / `GPL SHELLCODE x86 NOOP` / Metasploit bind-shell / setuid-setgid — 2,222 alerts in the "Executable code was detected" category. Attacker-driven exploit/shellcode payloads carried over SMTP, HTTP, FTP, SMB, and BGP flows.
+- `GPL FTP FTP anonymous login attempt` (434), `GPL FTP command overflow attempt` (170), `FTP PASS overflow` (34), `FTP format string` (13+) — FTP brute-force/fuzzing.
+- SMB family: `GPL NETBIOS SMB-DS IPC$ unicode share access` (151), `ET NETBIOS Remote SMB2.0 DoS Exploit` (124), `CVE-2009-3103` (6), `MS08-067` (2), `MS04-007` (1).
+- `SERVER-OTHER BGP invalid length` / `GPL MISC BGP invalid length` (50) — BGP malformed-message fuzzing.
+- Web attacks: `PHP RFI` (36), `server-status access` (37), `cmd.exe` (5+5), `/system32/` (5), SQLi/XSS/XXE/Struts/SiteScope/etc. (many 1–3 count rules).
+- TFTP: `GET passwd` (4), `GET/PUT filename overflow` (8+8), `TFTPGUI Long Transport Mode Buffer Overflow` (16).
+- RPC portmap recon/exploit: 388 alerts across `rexd/admind/cmsd/nisd/status/rwalld/ttdbserv/...`.
+- Backdoors/trojans: `GateCrasher` (3), `DeepThroat` (2), `Doly` (1).
+- VNC: `RealVNC Server Authentication Bypass Successful` (2) + attempts (2).
+- Heartbleed (3), BackupExec/Veritas (6), Solaris TTYPROMPT (5), PPTP overflow (62), Siemens Gigaset DoS (102), ICQ Webfront DoS (10), Cisco IOS HTTP config (20).
+
+**Noise / false positives:**
+- `SERVER-OTHER BGP spoofed connection reset attempt` (1,698) — see below.
+- SURICATA stream/app-layer parser events (`STREAM ... out of window/invalid ack/invalid timestamp`, `SMB file overlap`, `ApplLayer Detect protocol only one direction`, `SMTP no server welcome message`, HTTP parser anomalies) — ~200 events, artifacts of synthetic capture/reassembly.
+- `GPL MISC IP Proto 103 PIM` (8) — informational.
+- Many rules are **double-counted** because both the `PROTOCOL-*` and `GPL *` variants fire on the same packet (e.g. `PROTOCOL-TFTP Get` + `GPL TFTP Get`).
+
+## 3. Confirmed attacks — deep dive
+
+### FTP (attacker-scoped)
+Filter: `select(.event_type=="ftp") | select((.src_ip // "x") | startswith("175.45.176"))`
+
+- `USER` 155, `PASS` 151, `PASV` 35, `TYPE` 33, `RETR` 33, `SIZE` 32.
+- 434 anonymous-login alerts all originate from the attacker range (`.3`=363, `.1`=32, `.2`=24, `.0`=15).
+- Outcome: server replies show **32 "Logged in anonymously."**, **112 "Login successful."** for random credentials, and multiple **completed data transfers** (`Data connection accepted from 175.45.176.x ... transfer starting/completed`, filenames like random `.txt`, sizes 81–9,932 bytes). The attacker obtained both anonymous and authenticated FTP access and moved files. Technique: FTP brute-force + fuzzing + data transfer.
+
+### SMB (attacker-scoped)
+- `IPC$ unicode share access`: 127 alerts from `.1 → 149.171.126.11:445`, plus others across `.0/.2/.3`.
+- `SMB2.0 DoS Exploit`: 118 from `.1 → 149.171.126.17:445`.
+- `CVE-2009-3103` (6), `MS08-067` (2), `MS04-007 Kill-Bill` (1).
+- Corroborating parser anomaly: **12,480 `duplicate_negotiate`** anomalies from `149.171.126.17 → 175.45.176.1` — a repeated SMB negotiate storm consistent with the SMB2.0 DoS exploit. Technique: SMB exploit/DoS + share enumeration.
+
+### BGP (attacker-scoped)
+- `BGP invalid length`: 50 alerts, mostly `.1 → 149.171.126.18:179` over ~30 seconds (10:13:25–10:14:15), with many unique ephemeral source ports. This is malformed-BGP fuzzing against an internal BGP service.
+- The 1,698 `BGP spoofed connection reset attempt` alerts fire on the ordinary TCP RSTs that close these failed fuzz connections (both directions). The server legitimately resets connections after receiving invalid BGP data — **this is a false positive**, not a spoofed-reset attack.
+
+### POP3 (attacker-scoped) — **was invisible to the baseline**
+Filter: `select(.event_type=="pop3") | select((.src_ip // "x") | startswith("175.45.176"))`
+
+- **All 468 POP3 events in the capture are from the attacker range** (`.0`=140, `.1`=105, `.2`=110, `.3`=113). No benign POP3 traffic exists in this pcap.
+- Commands: `USER` 67, `PASS` 67, `LIST` 67, `UIDL` 66, `RETR` 66, `QUIT` 66.
+- Outcome: **66 of 67 `PASS` commands got `"logged in."`** — the attacker successfully logged into internal mailboxes and retrieved messages (`RETR`). The loaded baseline only fired 6 POP3 overflow/format-string alerts and its "Rapid POP3 brute force" rule did not fire. This was a significant coverage gap.
+
+### DNS (attacker-scoped) — **partially invisible**
+- 4 `dns` requests with **opcode 5 (dynamic UPDATE)** from `.2 → 149.171.126.17` (`wpad.test.com` CNAME/TSIG records). Dynamic DNS update from an external host is a zone-manipulation probe and had **no alert**.
+- Other odd queries: `VERSION.BIND TXT` (already detected by `PROTOCOL-DNS named version attempt`), `TLSA`/`RRSIG`/`ANY`/`rrtype 252/49164/251` random-label queries (not alerted).
+
+## 4. Actions taken
+
+I wrote two new detection rules to `rules/generated/unsw/rounds_plain.rules` and validated them by re-running Suricata on `data/pcaps/unsw/1.pcap`:
+
+| SID | Rule | Validation result |
+|---|---|---|
+| 1000002 | DNS dynamic update (opcode 5) from `$EXTERNAL_NET` to `$HOME_NET:53` | **4 alerts** — exactly the 4 attacker UPDATE requests |
+| 1000003 | POP3 `"logged in"` from `$HOME_NET:110` to `$EXTERNAL_NET` | **68 alerts** — matching the attacker's successful mailbox logins |
+
+Suricata exited 0 with no parse errors for the new rules (the only `E:` lines were pre-existing `SIP_SERVERS` rule errors in the shipped extra rulesets).
+
+## 5. Proposed suppressions (for engineer approval — NOT written)
+
+These look like false positives / parser noise in this capture:
+
+```
+# BGP fuzzing flows close with ordinary TCP RSTs; this rule fires on both
+# directions of those legitimate resets and produced 1,698 of the 6,605 alerts.
+suppress gen_id 1, sig_id 2523
+```
+
+Lower-priority parser-noise candidates (optional):
+
+```
+# SMB file transfers generate overlapping-file anomalies in this synthetic pcap.
+suppress gen_id 1, sig_id 2225006
+# TCP reassembly artifacts, not attack behaviour.
+suppress gen_id 1, sig_id 2210020
+suppress gen_id 1, sig_id 2210029
+suppress gen_id 1, sig_id 2210045
+suppress gen_id 1, sig_id 2210044
+```
+
+## 6. Coverage gaps identified
+
+1. **POP3 mailbox access** — 66 successful external logins + mail retrieval; no baseline rule fired. *Addressed with SID 1000003.*
+2. **DNS dynamic UPDATE (opcode 5)** — external zone-update probe; no baseline rule. *Addressed with SID 1000002.*
+3. **WebDAV `PROPFIND` scanning** — 19 external `PROPFIND` requests to internal web servers with random DLL/CLSID paths; no `PROPFIND`/WebDAV rule fired. Candidate for a future `http.method` rule.
+4. **SMB `duplicate_negotiate` storm** — 12,480 anomalies vs 124 `SMB2.0 DoS` alerts; the engine anomaly is a strong corroborating signal but is not surfaced as a detect alert.
+5. **SMTP fuzzing** — the attacker sent hundreds of randomised `HELO`/`MAIL FROM` values; mostly only the generic x86-NOOP shellcode rules fired, so the SMTP fuzzing itself is not specifically modelled.
+6. **BGP high-rate connection/reset pattern** — only malformed-length packets are alerted; the connection-storm behaviour itself is not modelled (and the spoofed-reset rule is misleading).

@@ -78,6 +78,36 @@
 
   select:focus, button:focus { outline: 2px solid var(--accent); outline-offset: -1px; }
 
+  .profile-info {
+    padding: 6px 24px;
+    font-size: 12px;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--border);
+  }
+  .profile-info:empty { display: none; }
+
+  /* Public demo (triage.bigyan.work) — hidden in the local research tool */
+  .public-only { display: none; }
+  body.public .public-only { display: revert; }
+  body.public .local-only { display: none; }
+  button.replay { background: var(--green); color: var(--bg); border-color: var(--green); font-weight: 600; }
+  button.replay:disabled { opacity: 0.4; cursor: not-allowed; }
+  .public-bar { padding: 10px 24px; font-size: 13px; color: var(--text-dim); background: var(--bg);
+    border-bottom: 1px solid var(--border); line-height: 1.5; }
+  .public-bar b { color: var(--text); }
+  .public-bar a, .downloads a { color: var(--accent); text-decoration: none; }
+  .public-bar a:hover, .downloads a:hover { text-decoration: underline; }
+  .downloads { padding: 8px 24px; font-size: 12px; color: var(--text-dim); border-bottom: 1px solid var(--border);
+    display: flex; gap: 6px 16px; flex-wrap: wrap; align-items: center; }
+  .downloads:empty { display: none; }
+  .model-fixed { font-size: 13px; color: var(--text); }
+  @media (max-width: 640px) {
+    .controls { padding: 10px 12px; gap: 8px; }
+    .controls select { flex: 1 1 100%; }
+    button.export { margin-left: 0; }
+    .public-bar, .downloads, .profile-info { padding-left: 12px; padding-right: 12px; }
+  }
+
   button.primary {
     background: var(--accent);
     color: var(--bg);
@@ -330,6 +360,15 @@
   <span class="badge">AI-Powered</span>
 </div>
 
+<div class="public-bar public-only" id="publicBar">
+  <b>Live demo of our capstone project</b> (HIT401, Charles Darwin University). An AI analyst investigates
+  Suricata intrusion alerts from a public attack dataset and writes detection rules.
+  Press <b>Replay</b> to watch a recorded run instantly, or <b>Start Triage</b> for a live run (a few minutes).
+  The AI never sees the datasets' answer labels.
+  <span id="reportLink" style="display:none">&nbsp;·&nbsp; <a href="/report.pdf" target="_blank" rel="noopener">Project report (PDF)</a></span>
+  &nbsp;·&nbsp; <a href="https://github.com/bigyan-siwakoti/Intrusion_Detection_System" target="_blank" rel="noopener">Source code</a>
+</div>
+
 <div class="controls">
   <label style="color: var(--text-dim); font-size: 13px;">Run:</label>
   <select id="runSelect">
@@ -337,17 +376,30 @@
   </select>
 
   <label style="color: var(--text-dim); font-size: 13px; margin-left: 8px;">Model:</label>
-  <select id="modelSelect">
+  <span class="model-fixed public-only" id="modelFixed">DeepSeek V4 Pro</span>
+  <select id="modelSelect" class="local-only">
     <option value="claude-sonnet-5">Sonnet 5 (fast, cheaper)</option>
     <option value="claude-opus-5">Opus 5 (best, pricier)</option>
     <option value="claude-opus-4-6">Opus 4.6</option>
     <option value="claude-haiku-4-5-20251001">Haiku 4.5 (cheapest)</option>
+    <option disabled>──────────</option>
+    <option value="deepseek-flash">DeepSeek V4 Flash (fast, budget)</option>
+    <option value="deepseek-v4-pro">DeepSeek V4 Pro (strongest)</option>
   </select>
 
+  <label style="color: var(--text-dim); font-size: 13px; margin-left: 8px;">Profile:</label>
+  <select id="profileSelect">
+    <option value="">Loading profiles...</option>
+  </select>
+
+  <button id="replayBtn" class="replay public-only" disabled>&#9654; Replay</button>
   <button id="startBtn" class="primary" disabled>Start Triage</button>
   <button id="stopBtn" class="stop" style="display:none;">Stop</button>
   <button id="exportBtn" class="export" disabled>Export Log</button>
 </div>
+
+<div class="profile-info" id="profileInfo"></div>
+<div class="downloads" id="downloads"></div>
 
 <div class="status-bar" id="statusBar">
   <div class="stat"><span class="label">Status:</span> <span class="value" id="statusText">Ready</span></div>
@@ -369,6 +421,8 @@
 const panel = document.getElementById('streamPanel');
 const runSelect = document.getElementById('runSelect');
 const modelSelect = document.getElementById('modelSelect');
+const profileSelect = document.getElementById('profileSelect');
+const profileInfo = document.getElementById('profileInfo');
 const startBtn = document.getElementById('startBtn');
 const stopBtn = document.getElementById('stopBtn');
 const exportBtn = document.getElementById('exportBtn');
@@ -377,6 +431,9 @@ const turnCount = document.getElementById('turnCount');
 const inputTokens = document.getElementById('inputTokens');
 const outputTokens = document.getElementById('outputTokens');
 const welcomeMsg = document.getElementById('welcomeMsg');
+const replayBtn = document.getElementById('replayBtn');
+const downloadsEl = document.getElementById('downloads');
+let publicMode = false;
 
 let eventSource = null;
 let currentThinkingEl = null;
@@ -388,6 +445,8 @@ let triageLog = [];
 let triageStartTime = null;
 let triageRunName = '';
 let triageModel = '';
+let triageProfile = '';
+let profiles = [];
 
 // Track scroll — stop auto-scroll if user scrolls up
 panel.addEventListener('scroll', () => {
@@ -402,6 +461,42 @@ function scrollToBottom() {
 }
 
 // Load available runs
+// Profiles (src/profiles.py) — only those for the selected run's dataset are offered
+async function loadProfiles() {
+  try {
+    profiles = await (await fetch('/api/profiles')).json();
+  } catch (e) {
+    profileSelect.innerHTML = '<option value="">Error loading profiles</option>';
+    return;
+  }
+  fillProfiles();
+}
+
+function runDataset() {
+  return runSelect.value.toLowerCase().includes('unsw') ? 'unsw' : 'cic';
+}
+
+function fillProfiles() {
+  const keep = profileSelect.value;
+  const ds = runDataset();
+  profileSelect.innerHTML = '';
+  profiles.filter(p => p.dataset === ds).forEach(p => {
+    const opt = document.createElement('option');
+    opt.value = p.name;
+    opt.textContent = p.name;
+    profileSelect.appendChild(opt);
+  });
+  if ([...profileSelect.options].some(o => o.value === keep)) profileSelect.value = keep;
+  showProfile();
+}
+
+function showProfile() {
+  const p = profiles.find(x => x.name === profileSelect.value);
+  profileInfo.textContent = p
+    ? `${p.description}  Extra tools: ${p.tools.length ? p.tools.join(', ') : 'none'}${p.alerts_only ? '  (alert events only)' : ''}`
+    : '';
+}
+
 async function loadRuns() {
   try {
     const resp = await fetch('/api/runs');
@@ -456,10 +551,57 @@ function addEvent(html) {
   return div;
 }
 
+function setIdle() {
+  startBtn.disabled = false;
+  startBtn.style.display = '';
+  stopBtn.style.display = 'none';
+  replayBtn.disabled = false;
+  if (publicMode) refreshDownloads();
+}
+
+function demoId() {
+  return runSelect.value.includes('demo-unsw') ? 'unsw' : 'cic';
+}
+
+async function refreshDownloads() {
+  try {
+    const files = await (await fetch(`/api/downloads?demo_id=${demoId()}`)).json();
+    downloadsEl.innerHTML = files.length
+      ? '<span>Download:</span>' + files.map(f =>
+          `<a href="/download/${demoId()}/${encodeURIComponent(f.file)}">${escapeHtml(f.name)}</a>`).join('')
+      : '';
+  } catch (e) { downloadsEl.innerHTML = ''; }
+}
+
+async function loadConfig() {
+  try {
+    const cfg = await (await fetch('/api/config')).json();
+    publicMode = !!cfg.public;
+    if (cfg.report) document.getElementById('reportLink').style.display = '';
+  } catch (e) { publicMode = false; }
+  if (publicMode) {
+    document.body.classList.add('public');
+    const w = document.querySelector('#welcomeMsg p');
+    if (w) w.innerHTML = 'Pick a dataset, then press <strong>Replay</strong> to watch the AI analyst investigate a recorded run, or <strong>Start Triage</strong> for a live run.';
+  }
+}
+
+function startReplay() {
+  startStream(`/api/replay?demo_id=${demoId()}`, 'Replaying');
+}
+
 function startTriage() {
   const evePath = runSelect.value;
   const model = modelSelect.value;
-  if (!evePath) return;
+  const profile = profileSelect.value;
+  if (!evePath || !profile) return;
+  startStream(`/api/triage?eve_path=${encodeURIComponent(evePath)}&model=${encodeURIComponent(model)}&profile=${encodeURIComponent(profile)}`, 'Running');
+}
+
+function startStream(url, label) {
+  const evePath = runSelect.value;
+  const model = publicMode ? 'deepseek-v4-pro' : modelSelect.value;
+  const profile = profileSelect.value;
 
   // Clear panel and log
   panel.innerHTML = '';
@@ -471,18 +613,20 @@ function startTriage() {
   triageStartTime = new Date();
   triageRunName = runSelect.options[runSelect.selectedIndex].textContent;
   triageModel = model;
+  triageProfile = profile;
   exportBtn.disabled = true;
 
   startBtn.disabled = true;
   startBtn.style.display = 'none';
+  replayBtn.disabled = true;
   stopBtn.style.display = '';
-  statusText.textContent = 'Running';
+  statusText.textContent = label;
   statusText.style.color = 'var(--accent)';
   turnCount.textContent = '—';
   inputTokens.textContent = '—';
   outputTokens.textContent = '—';
 
-  eventSource = new EventSource(`/api/triage?eve_path=${encodeURIComponent(evePath)}&model=${encodeURIComponent(model)}`);
+  eventSource = new EventSource(url);
 
   eventSource.onmessage = (e) => {
     const event = JSON.parse(e.data);
@@ -493,9 +637,7 @@ function startTriage() {
     eventSource.close();
     statusText.textContent = 'Disconnected';
     statusText.style.color = 'var(--red)';
-    startBtn.disabled = false;
-    startBtn.style.display = '';
-    stopBtn.style.display = 'none';
+    setIdle();
   };
 }
 
@@ -506,9 +648,7 @@ function stopTriage() {
   }
   statusText.textContent = 'Stopped';
   statusText.style.color = 'var(--yellow)';
-  startBtn.disabled = false;
-  startBtn.style.display = '';
-  stopBtn.style.display = 'none';
+  setIdle();
 }
 
 function handleEvent(event) {
@@ -591,9 +731,7 @@ function handleEvent(event) {
     `);
     statusText.textContent = 'Complete';
     statusText.style.color = 'var(--green)';
-    startBtn.disabled = false;
-    startBtn.style.display = '';
-    stopBtn.style.display = 'none';
+    setIdle();
     exportBtn.disabled = false;
     if (eventSource) { eventSource.close(); eventSource = null; }
   }
@@ -601,21 +739,17 @@ function handleEvent(event) {
     addEvent(`<div class="event-error">Error: ${escapeHtml(event.message)}</div>`);
     statusText.textContent = 'Error';
     statusText.style.color = 'var(--red)';
-    startBtn.disabled = false;
-    startBtn.style.display = '';
-    stopBtn.style.display = 'none';
+    setIdle();
     exportBtn.disabled = false;
     if (eventSource) { eventSource.close(); eventSource = null; }
   }
   else if (t === 'stream_end') {
     if (eventSource) { eventSource.close(); eventSource = null; }
-    if (statusText.textContent === 'Running') {
+    if (statusText.textContent === 'Running' || statusText.textContent === 'Replaying') {
       statusText.textContent = 'Complete';
       statusText.style.color = 'var(--green)';
     }
-    startBtn.disabled = false;
-    startBtn.style.display = '';
-    stopBtn.style.display = 'none';
+    setIdle();
     exportBtn.disabled = false;
   }
 }
@@ -641,6 +775,7 @@ function exportLog() {
   lines.push('='.repeat(72));
   lines.push(`Run:      ${triageRunName}`);
   lines.push(`Model:    ${triageModel}`);
+  lines.push(`Profile:  ${triageProfile}`);
   lines.push(`Started:  ${triageStartTime.toISOString()}`);
   lines.push(`Ended:    ${endTime.toISOString()}`);
   lines.push(`Duration: ${durationMin}m ${durationRemSec}s`);
@@ -770,9 +905,12 @@ function exportLog() {
 }
 
 startBtn.addEventListener('click', startTriage);
+replayBtn.addEventListener('click', startReplay);
 stopBtn.addEventListener('click', stopTriage);
 exportBtn.addEventListener('click', exportLog);
-loadRuns();
+runSelect.addEventListener('change', () => { fillProfiles(); if (publicMode) refreshDownloads(); });
+profileSelect.addEventListener('change', showProfile);
+loadConfig().then(loadRuns).then(loadProfiles).then(() => { if (publicMode) { replayBtn.disabled = false; refreshDownloads(); } });
 </script>
 
 </body>

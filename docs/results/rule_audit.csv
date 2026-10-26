@@ -1,0 +1,51 @@
+sid,dataset,author_session,file,load_status,cic_alerts,cic_on_attack,cic_on_benign,unsw_alerts,unsw_gt_matched,unsw_attacker_involved,unsw_pcaps_fired,duplicate_of,notes
+3000001,CIC,"DeepSeek V3, Wednesday tuned (triage-2026-09-04-04-10-26.txt)",(removed),deleted,336,55,1,,,,,,deleted by V4 Pro on a false 'stock ET' claim; text preserved in transcript
+3000002,CIC,"DeepSeek V3, Wednesday tuned (triage-2026-09-04-04-10-26.txt)",(removed),deleted,14,1,0,,,,,,deleted by V4 Pro on a false 'stock ET' claim; text preserved in transcript
+3000003,CIC,"DeepSeek V3, Wednesday tuned (triage-2026-09-04-04-10-26.txt)",wednesday_slowloris.rules,loads,463,457,0,,,,,,rewritten in place by V4 Pro (http.method -> raw TCP depth:8)
+3000004,CIC,"DeepSeek V4 Pro, Wednesday raw (triage-2026-09-15-11-26-28.txt)",wednesday_slowloris.rules,loads,188,188,0,,,,,,
+7600001,CIC,"DeepSeek V4 Pro, Thursday tuned (triage-2026-09-15-13-31-04.txt)",thursday_webattacks_infiltration.rules,loads,8,8,0,,,,,,
+7600002,CIC,"DeepSeek V4 Pro, Thursday tuned (triage-2026-09-15-13-31-04.txt)",thursday_webattacks_infiltration.rules,fails to load,,,,,,,,,fails to parse: smb.command keyword unknown
+7600003,CIC,"DeepSeek V4 Pro, Thursday tuned (triage-2026-09-15-13-31-04.txt)",thursday_webattacks_infiltration.rules,loads,4,2,2,,,,,,
+7600004,CIC,"DeepSeek V4 Pro, Thursday tuned (triage-2026-09-15-13-31-04.txt)",thursday_webattacks_infiltration.rules,loads,768,0,434,,,,,,"false positive: fires on routine FTP uploads from every workstation, Tuesday and Thursday; all label-matched hits are BENIGN"
+7600005,CIC,"DeepSeek V4 Pro, Thursday tuned (triage-2026-09-15-13-31-04.txt)",thursday_webattacks_infiltration.rules,fails to load,,,,,,,,,fails to parse: smb.command keyword unknown
+7600006,CIC,"DeepSeek V4 Pro, Thursday tuned (triage-2026-09-15-13-31-04.txt)",thursday_webattacks_infiltration.rules,fails to load,,,,,,,,,fails to parse: malformed dcerpc.iface
+7600007,CIC,"DeepSeek V4 Pro, Thursday raw (triage-2026-09-15-13-30-50.txt)",thursday_raw_synsweep.rules,loads,244,0,244,,,,,,fires only on compromised host .8; labels mark these flows BENIGN (CIC labels only 36 Infiltration flows) - disputed
+7600101,CIC,"DeepSeek V4 Pro, Wednesday raw (triage-2026-09-15-11-26-28.txt)",wednesday_heartbleed.rules,"loads, cannot fire",,,,,,,,,loads but can never fire: tls.invalid_encrypted_heartbeat not registered in Suricata 8.0.6
+7600102,CIC,"DeepSeek V4 Pro, Wednesday raw (triage-2026-09-15-11-26-28.txt)",wednesday_heartbleed.rules,loads,,,,339,268,339,6,,Heartbleed file never loaded in any Wednesday replay
+7600103,CIC,"DeepSeek V4 Pro, Wednesday raw (triage-2026-09-15-11-26-28.txt)",wednesday_heartbleed.rules,loads,,,,287,227,287,6,,Heartbleed file never loaded in any Wednesday replay
+7600201,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-3 triage",unsw_triage.rules,loads,,,,53,17,53,4,,
+7600202,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-3 triage",unsw_triage.rules,loads,,,,2,2,2,1,,
+7600203,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-3 triage",unsw_triage.rules,loads,,,,3,3,3,3,,
+7600204,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-1 triage",unsw_triage.rules,loads,,,,97,33,97,5,,
+7600205,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-1 triage",unsw_triage.rules,loads,,,,10,8,10,4,,
+7600401,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-4 triage",unsw_triage.rules,loads,,,,115,101,115,6,,
+7600402,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-4 triage",unsw_triage.rules,loads,,,,98,80,98,6,,
+7600501,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-5 triage",unsw_triage.rules,loads,,,,339,268,339,6,7600102,re-authored copy of CIC rule
+7600502,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-5 triage",unsw_triage.rules,loads,,,,287,227,287,6,7600103,re-authored copy of CIC rule
+7600503,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-5 triage",unsw_triage.rules,loads,,,,195,170,195,6,,
+7600504,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-5 triage",unsw_triage.rules,loads,,,,511,442,511,6,,
+7600505,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-5 triage",unsw_triage.rules,loads,,,,27,26,27,6,,
+7601001,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-10 triage",unsw_triage.rules,loads,,,,4,0,4,2,,model skipped validation; replay-validated by the team
+7601002,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-10 triage",unsw_triage.rules,loads,,,,14,10,14,4,,model skipped validation; replay-validated by the team
+7601003,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-10 triage",unsw_triage.rules,loads,,,,4,1,4,4,,model skipped validation; replay-validated by the team
+7601401,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-14 triage",unsw_triage.rules,loads,,,,14,10,14,4,7601002,duplicate logic
+7601402,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-14 triage",unsw_triage.rules,loads,,,,27,26,27,6,7600505,duplicate logic
+7601403,UNSW,"DeepSeek V4 Pro, UNSW-NB15 unsw-14 triage",unsw_triage.rules,loads,,,,45,5,45,4,,same purpose as 7601003 but broader (13 vs 1 hits on pcap 14)
+9000001,CIC,"DeepSeek V3, Tuesday triage (2 Sep; committed c14b002; no transcript kept)",tuesday_bruteforce.rules,loads,,,,,,,,,did not fire on Tuesday replay (stateful hostbits chain / thresholds never met)
+9000002,CIC,"DeepSeek V3, Tuesday triage (2 Sep; committed c14b002; no transcript kept)",tuesday_bruteforce.rules,loads,,,,,,,,,did not fire on Tuesday replay (stateful hostbits chain / thresholds never met)
+9000003,CIC,"DeepSeek V3, Tuesday triage (2 Sep; committed c14b002; no transcript kept)",tuesday_bruteforce.rules,loads,,,,,,,,,did not fire on Tuesday replay (stateful hostbits chain / thresholds never met)
+9000004,CIC,"DeepSeek V3, Tuesday triage (2 Sep; committed c14b002; no transcript kept)",tuesday_bruteforce.rules,loads,575,574,0,,,,,,
+9000005,CIC,"DeepSeek V3, Tuesday triage (2 Sep; committed c14b002; no transcript kept)",tuesday_bruteforce.rules,loads,,,,,,,,,did not fire on Tuesday replay (stateful hostbits chain / thresholds never met)
+9500001,CIC,"Claude Opus 5, Tuesday triage (CLI run, not logged; committed c14b002)",bruteforce_campaigns.rules,loads,185,185,0,,,,,,
+9500002,CIC,"Claude Opus 5, Tuesday triage (CLI run, not logged; committed c14b002)",bruteforce_campaigns.rules,loads,376,376,0,4,0,4,2,,
+9500003,CIC,"DeepSeek V4 Pro, Friday tuned (triage-2026-09-15-13-30-21.txt)",friday_ddos.rules,loads,,,,,,,,,
+9600001,CIC,"DeepSeek V4 Pro, Friday raw (triage-2026-09-15-13-30-09.txt)",friday_ddos_portscan.rules,loads,49,49,0,,,,,,
+9600002,CIC,"DeepSeek V4 Pro, Friday raw (triage-2026-09-15-13-30-09.txt)",friday_ddos_portscan.rules,loads,17,15,2,,,,,,
+9600003,CIC,"DeepSeek V4 Pro, Friday raw (triage-2026-09-15-13-30-09.txt)",bruteforce_campaigns.rules,loads,510,505,4,,,,,9600001,copy placed in Claude's bruteforce_campaigns.rules so it would load
+9600004,CIC,"DeepSeek V4 Pro, Friday raw (triage-2026-09-15-13-30-09.txt)",bruteforce_campaigns.rules,loads,17,16,1,,,,,9600002,copy placed in Claude's bruteforce_campaigns.rules so it would load
+9600005,CIC,"DeepSeek V4 Pro, Friday validation run for Week 9 demo (21 Sep; no transcript kept)",friday_botnet_ares.rules,loads,,,,,,,,,first ARES draft; file never loaded; superseded by 9700001-3
+9600006,CIC,"DeepSeek V4 Pro, Friday validation run for Week 9 demo (21 Sep; no transcript kept)",friday_botnet_ares.rules,loads,,,,,,,,,first ARES draft; file never loaded; superseded by 9700001-3
+9600007,CIC,"DeepSeek V4 Pro, Friday validation run for Week 9 demo (21 Sep; no transcript kept)",friday_botnet_ares.rules,loads,,,,,,,,,first ARES draft; file never loaded; superseded by 9700001-3
+9700001,CIC,"DeepSeek V4 Pro, Friday validation run for Week 9 demo (21 Sep; no transcript kept)","bruteforce_campaigns.rules, friday_botnet_c2.rules",loads,5,5,0,,,,,,"defined in two files (friday_botnet_c2.rules, bruteforce_campaigns.rules)"
+9700002,CIC,"DeepSeek V4 Pro, Friday validation run for Week 9 demo (21 Sep; no transcript kept)","bruteforce_campaigns.rules, friday_botnet_c2.rules",loads,5,5,0,,,,,,"defined in two files (friday_botnet_c2.rules, bruteforce_campaigns.rules)"
+9700003,CIC,"DeepSeek V4 Pro, Friday validation run for Week 9 demo (21 Sep; no transcript kept)","bruteforce_campaigns.rules, friday_botnet_c2.rules",loads,5,5,0,,,,,,"defined in two files (friday_botnet_c2.rules, bruteforce_campaigns.rules)"

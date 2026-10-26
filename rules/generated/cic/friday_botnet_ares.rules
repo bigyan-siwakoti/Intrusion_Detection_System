@@ -1,0 +1,57 @@
+# =============================================================================
+# Custom detection rules — Friday Working-Hours (CIC-IDS2017) ARES botnet C2
+# Triage of logs/friday-validate-rules-loaded/eve.json
+#
+# Confirmed threat the loaded ruleset DID NOT alert on:
+#   - 5 internal hosts (bots) polled external C2 205.174.165.73:8080
+#     between 2017-07-07 22:34 and 23:32 (+0930):
+#       192.168.10.5  botid=mitacs-pc3 (Windows 8.1)
+#       192.168.10.8  botid=mitacs-pc2 (Windows Vista)
+#       192.168.10.9  botid=mitacs-pc6 (Windows 7)
+#       192.168.10.14 botid=mitacs-pc5 (Windows 10)
+#       192.168.10.15 botid=mitacs-pc4 (Windows 10)
+#   - HTTP patterns observed (all answered 200 by the C2):
+#       666x GET  /api/pop?botid=<botid>&sysinfo=Windows%20<ver>   (command poll)
+#        70x POST /api/upload or /api/report                        (exfil/report)
+#   - User-Agent: python-requests/2.14.2 (597) and python-requests/2.18.1 (139).
+#     The C2 IP is the same infrastructure as the Thursday reverse-shell C2
+#     (205.174.165.73, port 444), reinforcing the attribution.
+#   - No alert in the run (stock ET or custom) fired for any of this traffic;
+#     only INFO/parser noise was present during the 22:00-00:00 window.
+#
+# Coverage gap addressed: ARES/Python botnet C2 over HTTP on port 8080.
+# =============================================================================
+
+# 1. Bot polling the C2 for commands.
+alert http $HOME_NET any -> $EXTERNAL_NET 8080 ( \
+    msg:"CUSTOM ARES Botnet C2 Poll - internal host requests /api/pop with botid"; \
+    flow:to_server,established; \
+    http.method; content:"GET"; nocase; \
+    http.uri; content:"/api/pop"; nocase; \
+    http.uri; content:"botid="; nocase; \
+    http.user_agent; content:"python-requests"; nocase; \
+    threshold:type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; priority:1; \
+    sid:9600005; rev:1;)
+
+# 2. Bot uploading command output / exfiltrated data.
+alert http $HOME_NET any -> $EXTERNAL_NET 8080 ( \
+    msg:"CUSTOM ARES Botnet C2 Exfil - internal host POST to /api/upload"; \
+    flow:to_server,established; \
+    http.method; content:"POST"; nocase; \
+    http.uri; content:"/api/upload"; nocase; \
+    http.user_agent; content:"python-requests"; nocase; \
+    threshold:type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; priority:1; \
+    sid:9600006; rev:1;)
+
+# 3. Bot reporting task completion to the C2.
+alert http $HOME_NET any -> $EXTERNAL_NET 8080 ( \
+    msg:"CUSTOM ARES Botnet C2 Task Report - internal host POST to /api/report"; \
+    flow:to_server,established; \
+    http.method; content:"POST"; nocase; \
+    http.uri; content:"/api/report"; nocase; \
+    http.user_agent; content:"python-requests"; nocase; \
+    threshold:type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; priority:1; \
+    sid:9600007; rev:1;)

@@ -1,0 +1,19 @@
+# rules/generated/unsw/rounds_research.rules
+# AI-authored rules written against the UNSW-NB15 baseline v2, condition: research.
+
+# UNSW-NB15 confirmed: attacker (175.45.176.0/24) enumerates and exfiltrates files
+# from FTP servers via directory-traversal RETR/SIZE commands (e.g. "RETR /../../../../../file").
+# FTP app-layer events show SIZE -> 213 (file exists) and RETR -> 150/226 (transfer completed).
+alert tcp $EXTERNAL_NET any -> $HOME_NET $FTP_PORTS (msg:"UNSW FTP directory traversal file retrieval (RETR ../)"; flow:to_server,established; content:"RETR"; nocase; content:"../"; distance:0; within:64; classtype:attempted-recon; sid:1100001; rev:1;)
+alert tcp $EXTERNAL_NET any -> $HOME_NET $FTP_PORTS (msg:"UNSW FTP directory traversal file size check (SIZE ../)"; flow:to_server,established; content:"SIZE"; nocase; content:"../"; distance:0; within:64; classtype:attempted-recon; sid:1100002; rev:1;)
+
+# UNSW-NB15 confirmed: attacker (175.45.176.0/24) sends sustained unidirectional
+# UDP traffic to RIP port 520 on 149.171.126.12 (629 flows, 2 pkts each, no replies).
+# No deployed signature covers this. External UDP to an internal RIP port is
+# consistent with route injection / RIP flooding.
+alert udp $EXTERNAL_NET any -> $HOME_NET 520 (msg:"UNSW external UDP flood to RIP port 520 (possible route injection/DoS)"; flow:to_server; threshold:type both, track by_src, count 30, seconds 60; classtype:attempted-dos; sid:1100003; rev:1;)
+
+# UNSW-NB15 confirmed: attacker floods internal PPTP server 149.171.126.19:1723
+# (151955 bytes in 120 pkts over 3s, only 1426 bytes back). The only signature that
+# fired on it was the Siemens WLAN rule (sid:2009976), which is a product mismatch.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 1723 (msg:"UNSW PPTP data flood to port 1723"; flow:to_server,established; threshold:type both, track by_src, count 100, seconds 10; classtype:attempted-dos; sid:1100004; rev:1;)

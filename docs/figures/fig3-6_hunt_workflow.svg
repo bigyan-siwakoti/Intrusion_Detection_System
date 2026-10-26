@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="560" viewBox="0 0 1100 560" font-family="DejaVu Sans, Arial, sans-serif">
+<title>Hunt workflow</title>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="#5b6774"/></marker></defs>
+<rect width="1100" height="560" fill="white"/>
+<text x="40" y="44" font-size="22" font-weight="700" fill="#1d2733">Hunt condition: the detection-engineering lifecycle as an agent procedure</text>
+<text x="40" y="70" font-size="13" fill="#5b6774">Profile unsw-v2-hunt · no attacker range in the prompt · every rule must pass the gate before the engine lets it be saved</text>
+<rect x="40" y="120" width="180" height="90" rx="10" fill="#eef4fa" stroke="#1f4e79" stroke-width="2"/>
+<text x="130.0" y="146" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733">1  Coverage map</text>
+<text x="130.0" y="168" text-anchor="middle" font-size="11" fill="#5b6774">event types vs alerts</text>
+<text x="130.0" y="185" text-anchor="middle" font-size="11" fill="#5b6774">per app protocol</text>
+<line x1="220" y1="165" x2="243" y2="165" stroke="#5b6774" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="245" y="120" width="180" height="90" rx="10" fill="#eef4fa" stroke="#1f4e79" stroke-width="2"/>
+<text x="335.0" y="146" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733">2  Hunt the gaps</text>
+<text x="335.0" y="168" text-anchor="middle" font-size="11" fill="#5b6774">stack_values: rare</text>
+<text x="335.0" y="185" text-anchor="middle" font-size="11" fill="#5b6774">content fields first</text>
+<line x1="425" y1="165" x2="448" y2="165" stroke="#5b6774" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="450" y="120" width="180" height="90" rx="10" fill="#eef4fa" stroke="#1f4e79" stroke-width="2"/>
+<text x="540.0" y="146" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733">3  Hypothesis</text>
+<text x="540.0" y="168" text-anchor="middle" font-size="11" fill="#5b6774">search_rules: covered?</text>
+<text x="540.0" y="185" text-anchor="middle" font-size="11" fill="#5b6774">lookup_vulnerability</text>
+<line x1="630" y1="165" x2="653" y2="165" stroke="#5b6774" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="655" y="120" width="180" height="90" rx="10" fill="#eef4fa" stroke="#1f4e79" stroke-width="2"/>
+<text x="745.0" y="146" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733">4  Write rule</text>
+<text x="745.0" y="168" text-anchor="middle" font-size="11" fill="#5b6774">ADS comment: goal,</text>
+<text x="745.0" y="185" text-anchor="middle" font-size="11" fill="#5b6774">blind spots, FPs</text>
+<line x1="835" y1="165" x2="858" y2="165" stroke="#5b6774" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="860" y="120" width="180" height="90" rx="10" fill="#fff6ec" stroke="#d9822b" stroke-width="2"/>
+<text x="950.0" y="146" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733">5  test_rule</text>
+<text x="950.0" y="168" text-anchor="middle" font-size="11" fill="#5b6774">replay as written</text>
+<text x="950.0" y="185" text-anchor="middle" font-size="11" fill="#5b6774">+ widened to any</text>
+<line x1="950.0" y1="210" x2="950.0" y2="300" stroke="#5b6774" stroke-width="2" marker-end="url(#ah)"/>
+<polygon points="950.0,300 1045.0,350 950.0,400 855.0,350" fill="#ffffff" stroke="#d9822b" stroke-width="2"/>
+<text x="950.0" y="346" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733">VERDICT</text>
+<text x="950.0" y="364" text-anchor="middle" font-size="10.5" fill="#5b6774">per sid</text>
+<line x1="950.0" y1="400" x2="950.0" y2="450" stroke="#2e7d4f" stroke-width="2" marker-end="url(#ah)"/><text x="956.0" y="419.0" font-size="11" fill="#2e7d4f">PASS</text>
+<rect x="840.0" y="452" width="220" height="80" rx="10" fill="#edf7f0" stroke="#2e7d4f" stroke-width="2"/>
+<text x="950.0" y="478" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733">6  append_to_file</text>
+<text x="950.0" y="500" text-anchor="middle" font-size="11" fill="#5b6774">only the exact text</text>
+<text x="950.0" y="517" text-anchor="middle" font-size="11" fill="#5b6774">that passed</text>
+<path d="M 855.0 350 L 520 350 L 520 210" fill="none" stroke="#b03a2e" stroke-width="2" marker-end="url(#ah)"/>
+<text x="540" y="378" font-size="12" fill="#b03a2e" font-weight="700">FAIL → tighten on content/behaviour, or drop</text>
+<text x="540" y="396" font-size="11" fill="#5b6774">fires 0 times · or widened rule fires between internal hosts</text>
+<rect x="40" y="270" width="380" height="150" rx="10" fill="#f4f6f8" stroke="#9aa3ad" stroke-width="2"/>
+<text x="230.0" y="296" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733">Engine-enforced write gate</text>
+<text x="230.0" y="318" text-anchor="middle" font-size="11" fill="#5b6774">write_file to the rule file: blocked</text>
+<text x="230.0" y="335" text-anchor="middle" font-size="11" fill="#5b6774">any path except the profile rule file: blocked</text>
+<text x="230.0" y="352" text-anchor="middle" font-size="11" fill="#5b6774">a rule edited after its test: blocked</text>
+<text x="230.0" y="369" text-anchor="middle" font-size="11" fill="#5b6774">untested rule: blocked</text>
+<text x="40" y="470" font-size="12" fill="#5b6774">Sources of the procedure: Palantir ADS framework; SpecterOps capability abstraction;</text>
+<text x="40" y="488" font-size="12" fill="#5b6774">stack counting (least frequency of occurrence); RuleAutoPilot execution-grounded validation.</text>
+</svg>

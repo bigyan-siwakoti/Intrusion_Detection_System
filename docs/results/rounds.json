@@ -1,0 +1,390 @@
+{
+  "plain-r1": {
+    "unclassified_rules": 0,
+    "ai_new": 354,
+    "ai_new_genuine": 0,
+    "tcpudp": 14935,
+    "base_det": 3720,
+    "full_det": 4161,
+    "base_alerts": 33200,
+    "base_gt": 19181,
+    "full_alerts": 35069,
+    "full_gt": 18870,
+    "ai_alerts": 1034,
+    "ai_gt": 615,
+    "ai_noattacker": 0,
+    "rules_written": 16,
+    "rules_fired": 5,
+    "usage": {
+      "runs": 6,
+      "lookups": 0,
+      "search_rules_calls": 87,
+      "sids_after_lookup": []
+    },
+    "fired_after_lookup": 0
+  },
+  "research-r1": {
+    "unclassified_rules": 0,
+    "ai_new": 77,
+    "ai_new_genuine": 18,
+    "tcpudp": 14935,
+    "base_det": 3720,
+    "full_det": 3770,
+    "base_alerts": 33200,
+    "base_gt": 19181,
+    "full_alerts": 34216,
+    "full_gt": 20006,
+    "ai_alerts": 991,
+    "ai_gt": 864,
+    "ai_noattacker": 0,
+    "rules_written": 12,
+    "rules_fired": 6,
+    "usage": {
+      "runs": 6,
+      "lookups": 7,
+      "search_rules_calls": 63,
+      "sids_after_lookup": [
+        1100003,
+        1100004,
+        1100010,
+        1100011
+      ]
+    },
+    "fired_after_lookup": 2
+  },
+  "plain-r2": {
+    "unclassified_rules": 0,
+    "ai_new": 1689,
+    "ai_new_genuine": 12,
+    "tcpudp": 14935,
+    "base_det": 3720,
+    "full_det": 5418,
+    "base_alerts": 33200,
+    "base_gt": 19181,
+    "full_alerts": 37324,
+    "full_gt": 22761,
+    "ai_alerts": 4265,
+    "ai_gt": 3514,
+    "ai_noattacker": 0,
+    "rules_written": 16,
+    "rules_fired": 16,
+    "usage": {
+      "runs": 6,
+      "lookups": 0,
+      "search_rules_calls": 87,
+      "sids_after_lookup": []
+    },
+    "fired_after_lookup": 0
+  },
+  "research-r2": {
+    "unclassified_rules": 0,
+    "ai_new": 401,
+    "ai_new_genuine": 50,
+    "tcpudp": 14935,
+    "base_det": 3720,
+    "full_det": 4077,
+    "base_alerts": 33200,
+    "base_gt": 19181,
+    "full_alerts": 35625,
+    "full_gt": 21209,
+    "ai_alerts": 2193,
+    "ai_gt": 1936,
+    "ai_noattacker": 0,
+    "rules_written": 12,
+    "rules_fired": 11,
+    "usage": {
+      "runs": 6,
+      "lookups": 7,
+      "search_rules_calls": 63,
+      "sids_after_lookup": [
+        1100003,
+        1100004,
+        1100010,
+        1100011
+      ]
+    },
+    "fired_after_lookup": 4
+  },
+  "hunt-r1": {
+    "unclassified_rules": 0,
+    "ai_new": 180,
+    "ai_new_genuine": 180,
+    "tcpudp": 14935,
+    "base_det": 3720,
+    "full_det": 4043,
+    "base_alerts": 33200,
+    "base_gt": 19181,
+    "full_alerts": 30149,
+    "full_gt": 16820,
+    "ai_alerts": 531,
+    "ai_gt": 393,
+    "ai_noattacker": 0,
+    "rules_written": 25,
+    "rules_fired": 25,
+    "usage": {
+      "runs": 3,
+      "lookups": 13,
+      "search_rules_calls": 116,
+      "sids_after_lookup": [
+        7800001,
+        7800002,
+        7800003,
+        7800004,
+        7800005,
+        7800006,
+        7800007,
+        7800017,
+        7800018,
+        7800019,
+        7800020,
+        7800021,
+        7800022,
+        7800023,
+        7800024,
+        7800026
+      ]
+    },
+    "fired_after_lookup": 16
+  },
+  "baseline-holdout": {
+    "gt_events": 4693,
+    "tcpudp": 4634,
+    "base_det": 1368,
+    "base_alerts": 8123,
+    "base_gt": 5304
+  },
+  "plain-r2-holdout": {
+    "unclassified_rules": 0,
+    "ai_new": 532,
+    "ai_new_genuine": 5,
+    "tcpudp": 4634,
+    "base_det": 1363,
+    "full_det": 1895,
+    "base_alerts": 8074,
+    "base_gt": 5293,
+    "full_alerts": 9071,
+    "full_gt": 6253,
+    "ai_alerts": 966,
+    "ai_gt": 950,
+    "ai_noattacker": 0,
+    "rules_written": 16,
+    "rules_fired": 14,
+    "usage": {
+      "runs": 6,
+      "lookups": 0,
+      "search_rules_calls": 87,
+      "sids_after_lookup": []
+    },
+    "fired_after_lookup": 0
+  },
+  "research-r2-holdout": {
+    "unclassified_rules": 0,
+    "ai_new": 155,
+    "ai_new_genuine": 13,
+    "tcpudp": 4634,
+    "base_det": 1363,
+    "full_det": 1524,
+    "base_alerts": 8074,
+    "base_gt": 5293,
+    "full_alerts": 8946,
+    "full_gt": 6011,
+    "ai_alerts": 835,
+    "ai_gt": 701,
+    "ai_noattacker": 0,
+    "rules_written": 12,
+    "rules_fired": 10,
+    "usage": {
+      "runs": 6,
+      "lookups": 7,
+      "search_rules_calls": 63,
+      "sids_after_lookup": [
+        1100003,
+        1100004,
+        1100010,
+        1100011
+      ]
+    },
+    "fired_after_lookup": 2
+  },
+  "hunt-r1-holdout": {
+    "unclassified_rules": 0,
+    "ai_new": 71,
+    "ai_new_genuine": 71,
+    "tcpudp": 4634,
+    "base_det": 1372,
+    "full_det": 1444,
+    "base_alerts": 8122,
+    "base_gt": 5319,
+    "full_alerts": 8272,
+    "full_gt": 5444,
+    "ai_alerts": 155,
+    "ai_gt": 142,
+    "ai_noattacker": 0,
+    "rules_written": 25,
+    "rules_fired": 17,
+    "usage": {
+      "runs": 3,
+      "lookups": 13,
+      "search_rules_calls": 116,
+      "sids_after_lookup": [
+        7800001,
+        7800002,
+        7800003,
+        7800004,
+        7800005,
+        7800006,
+        7800007,
+        7800017,
+        7800018,
+        7800019,
+        7800020,
+        7800021,
+        7800022,
+        7800023,
+        7800024,
+        7800026
+      ]
+    },
+    "fired_after_lookup": 12
+  },
+  "holdout_extra": {
+    "benign_captures": {
+      "plain": {
+        "25": 0,
+        "25_genuine": 0,
+        "50": 0,
+        "50_genuine": 0
+      },
+      "research": {
+        "25": 0,
+        "25_genuine": 0,
+        "50": 0,
+        "50_genuine": 0
+      },
+      "hunt": {
+        "25": 0,
+        "25_genuine": 0,
+        "50": 0,
+        "50_genuine": 0
+      },
+      "hunt2": {
+        "25": 0,
+        "25_genuine": 0,
+        "50": 0,
+        "50_genuine": 0
+      }
+    },
+    "combined": {
+      "genuine_new_union": 101,
+      "tcpudp": 4634,
+      "pts": 2.18,
+      "note": "union of per-condition genuine events; each condition attributed within its own replay"
+    },
+    "combined_by_set": {
+      "plain+research+hunt": {
+        "genuine_new_union": 86,
+        "pts": 1.86
+      },
+      "hunt+hunt2": {
+        "genuine_new_union": 87,
+        "pts": 1.88
+      }
+    }
+  },
+  "hunt2-r1": {
+    "unclassified_rules": 0,
+    "ai_new": 143,
+    "ai_new_genuine": 136,
+    "tcpudp": 14935,
+    "base_det": 3720,
+    "full_det": 3955,
+    "base_alerts": 33200,
+    "base_gt": 19181,
+    "full_alerts": 32671,
+    "full_gt": 18555,
+    "ai_alerts": 677,
+    "ai_gt": 578,
+    "ai_noattacker": 0,
+    "rules_written": 32,
+    "rules_fired": 32,
+    "usage": {
+      "runs": 3,
+      "lookups": 6,
+      "search_rules_calls": 90,
+      "sids_after_lookup": [
+        7900101,
+        7900102,
+        7900103,
+        7900104,
+        7900105,
+        7900106,
+        7900107,
+        7900108,
+        7900109,
+        7900110,
+        7900111,
+        7900112,
+        7900113,
+        7900114,
+        7900115,
+        7900116,
+        7900301,
+        7900302,
+        7900303,
+        7900304,
+        7900305,
+        7900306,
+        7900307
+      ]
+    },
+    "fired_after_lookup": 23
+  },
+  "hunt2-r1-holdout": {
+    "unclassified_rules": 0,
+    "ai_new": 51,
+    "ai_new_genuine": 49,
+    "tcpudp": 4634,
+    "base_det": 1368,
+    "full_det": 1413,
+    "base_alerts": 8123,
+    "base_gt": 5304,
+    "full_alerts": 8294,
+    "full_gt": 5456,
+    "ai_alerts": 177,
+    "ai_gt": 177,
+    "ai_noattacker": 0,
+    "rules_written": 32,
+    "rules_fired": 22,
+    "usage": {
+      "runs": 3,
+      "lookups": 6,
+      "search_rules_calls": 90,
+      "sids_after_lookup": [
+        7900101,
+        7900102,
+        7900103,
+        7900104,
+        7900105,
+        7900106,
+        7900107,
+        7900108,
+        7900109,
+        7900110,
+        7900111,
+        7900112,
+        7900113,
+        7900114,
+        7900115,
+        7900116,
+        7900301,
+        7900302,
+        7900303,
+        7900304,
+        7900305,
+        7900306,
+        7900307
+      ]
+    },
+    "fired_after_lookup": 14
+  }
+}

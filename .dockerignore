@@ -1,0 +1,24 @@
+# Only src/, config/, rules/generated/, demo/, scripts/ and requirements.txt go into the image.
+.git
+.github
+venv
+.venv
+**/__pycache__
+*.pyc
+*.env
+.env
+capstone-ids_apis.txt
+data
+logs
+docs
+images
+meeting_minutes
+transcripts_failed
+triage-*.txt
+rules/suricata.rules
+rules/extra
+rules/snapshots
+demo-runs
+*.pptx
+*.docx
+*.pdf

@@ -1,0 +1,275 @@
+# rules/generated/unsw_triage.rules
+# Detection rules authored during triage of logs/unsw-3-raw/eve.json (UNSW-NB15 pcap 3).
+#
+# Confirmed campaigns in this capture (attacker range 175.45.176.0/24):
+#   A. FTP weak-password login success against 149.171.126.19:21
+#      (59 successful PASS "password" logins; stock rules only saw the USER
+#       overflow/fuzz strings, not the successful authentication).
+#   B. SMB IPC$ share connect burst from 175.45.176.1 -> 149.171.126.15:445
+#      (58 negotiate+tree-connect sessions in ~40s; stock GPL SID 2102466
+#       fires per-session but does not consolidate the burst).
+#   C. Outbound Windows cmd.exe shell banner from 149.171.126.13 to
+#      175.45.176.3:63031 (backdoor listener on :37726; stock ET/GPL rules
+#      fired on the banner, this rule re-anchors the HOME_NET -> EXTERNAL_NET
+#      direction for the UNSW network model).
+
+# --- A. FTP weak-password login success ------------------------------------
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 ( \
+    msg:"CUSTOM FTP weak-password login success - repeated PASS password from external host"; \
+    flow:to_server,established; \
+    content:"PASS password"; nocase; \
+    threshold:type threshold, track by_src, count 5, seconds 120; \
+    classtype:attempted-admin; \
+    sid:7600201; rev:1;)
+
+# --- B. SMB IPC$ share connect burst ---------------------------------------
+# Matches the UTF-16LE or ASCII IPC$ share name inside SMB TREE_CONNECT_ANDX.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 ( \
+    msg:"CUSTOM SMB IPC$ share access burst - SMB enumeration/bruteforce"; \
+    flow:to_server,established; \
+    pcre:"/I(\x00)?P(\x00)?C(\x00)?\x24/i"; \
+    threshold:type threshold, track by_src, count 20, seconds 60; \
+    classtype:attempted-recon; \
+    sid:7600202; rev:1;)
+
+# --- C. Outbound Windows cmd.exe shell banner ------------------------------
+# A HOME_NET host sending the Windows cmd.exe banner to an external host is a
+# strong backdoor/reverse-shell indicator (observed 149.171.126.13 -> 175.45.176.3).
+alert tcp $HOME_NET any -> $EXTERNAL_NET any ( \
+    msg:"CUSTOM Outbound Windows cmd.exe shell banner from internal host (backdoor/reverse shell)"; \
+    flow:established; \
+    content:"Microsoft Windows"; nocase; \
+    content:"Copyright"; nocase; \
+    threshold:type limit, track by_src, count 1, seconds 3600; \
+    classtype:trojan-activity; \
+    sid:7600203; rev:1;)
+
+# --- D. FTP password fuzz/brute-force success (UNSW pcap 1) -----------------
+# Confirmed in logs/unsw-1-raw/eve.json:
+#   175.45.176.3 -> 149.171.126.18:21
+#   59 x "PASS <fuzz-payload>" answered with "230 Login successful." between
+#   10:25:38 and 10:29:21. Stock GPL SID 2101972 only fires on the overflow
+#   shaped PASS strings; it misses the successful-authentication side entirely.
+alert tcp $HOME_NET 21 -> $EXTERNAL_NET any ( \
+    msg:"CUSTOM FTP login success burst from external host - password fuzz/brute force"; \
+    flow:to_client,established; \
+    content:"230 Login successful"; nocase; \
+    threshold:type threshold, track by_dst, count 5, seconds 120; \
+    classtype:attempted-admin; \
+    sid:7600204; rev:1;)
+
+# --- E. Slow SMB IPC$ share sweep (UNSW pcap 1) -----------------------------
+# Confirmed in logs/unsw-1-raw/eve.json:
+#   175.45.176.1 -> 149.171.126.11:445
+#   58 x SMB1 TREE_CONNECT_ANDX to \149.171.126.11\IPC$ between 10:17:09 and
+#   10:27:31 (~10 min). SID 7600202 above requires 20/60s (written for the
+#   faster pcap-3 burst); this slower sustained enumeration was only caught by
+#   the per-session stock rule 2102466.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 ( \
+    msg:"CUSTOM SMB IPC$ share access sustained sweep - SMB enumeration"; \
+    flow:to_server,established; \
+    pcre:"/I(\x00)?P(\x00)?C(\x00)?\x24/i"; \
+    threshold:type threshold, track by_src, count 20, seconds 600; \
+    classtype:attempted-recon; \
+    sid:7600205; rev:1;)
+
+# --- F. Cisco IOS HTTP server exec probe (UNSW pcap 4) ----------------------
+# Confirmed in logs/unsw-4-raw/eve.json:
+#   17 requests from 175.45.176.0/24 to 149.171.126.0/24 with URI
+#   /level/NN/exec//show (and /level/15/exec/-/buffers/assigned/dump).
+#   Stock ET SID 2010623 fired only once, so the campaign was largely invisible.
+alert http $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM Cisco IOS HTTP server command execution probe - /level/NN/exec/"; \
+    flow:to_server,established; \
+    http.uri; content:"/level/"; pcre:"/\/level\/[0-9]{1,3}\/exec\//i"; \
+    classtype:attempted-admin; \
+    reference:url,www.cisco.com/c/en/us/support/docs/security/ios-http-server/10111-http.html; \
+    sid:7600401; rev:1;)
+
+# --- G. TFTP read request with oversized filename (UNSW pcap 4) --------------
+# Confirmed in logs/unsw-4-raw/eve.json:
+#   175.45.176.3 -> 149.171.126.19:69 (6 RRQ with 1024-1464 byte filenames),
+#   175.45.176.1 -> 149.171.126.14:69 (1 RRQ with 1024 byte filename),
+#   175.45.176.0 -> 149.171.126.14:69 (1 RRQ with 256 byte filename).
+#   Stock GPL SID 2100518 only flags TFTP WRQ ("Put"); these read-request
+#   overflow attempts were not alerted.
+alert udp $EXTERNAL_NET any -> $HOME_NET 69 ( \
+    msg:"CUSTOM TFTP read request with oversized filename - possible buffer overflow"; \
+    content:"|00 01|"; depth:2; \
+    pcre:"/[^\x00]{255,}\x00/R"; \
+    classtype:attempted-admin; \
+    reference:cve,1999-0183; \
+    sid:7600402; rev:1;)
+
+# --- H. Heartbleed recon/exploit precursor (UNSW pcap 5) --------------------
+# Confirmed in logs/unsw-5-raw/eve.json:
+#   175.45.176.2 -> 149.171.126.17:7002 (TLS on non-standard port)
+#   Repeated short TLS handshakes (74 handshake-burst alerts + 62 non-standard
+#   port alerts in the raw run) preceded a real Heartbleed leak: 5 flows with
+#   ~5 KB to server and ~504 KB returned to client each.
+#   Stock SURICATA 2230012 only fired for a different pair (.18:443); the big
+#   leak on :7002 was visible only via the burst/non-standard-port behaviour.
+alert tls $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM UNSW-5 Heartbleed recon - TLS handshake burst from external host"; \
+    flow:to_server,established; \
+    threshold:type threshold, track by_src, count 5, seconds 300; \
+    classtype:attempted-recon; reference:cve,2014-0160; \
+    sid:7600501; rev:1;)
+
+alert tls $EXTERNAL_NET any -> $HOME_NET ![443,8443] ( \
+    msg:"CUSTOM UNSW-5 Heartbleed recon - TLS handshake on non-standard port from external host"; \
+    flow:to_server,established; \
+    threshold:type threshold, track by_src, count 5, seconds 300; \
+    classtype:attempted-recon; reference:cve,2014-0160; \
+    sid:7600502; rev:1;)
+
+# --- I. FTP directory traversal file download (UNSW pcap 5) ------------------
+# Confirmed in logs/unsw-5-raw/eve.json:
+#   175.45.176.2 -> 149.171.126.16:21
+#   Anonymous login, then SIZE/RETR of "/../../<dir>/<file>" paths; 4 files
+#   were returned ("Transfer completed"). Stock rules caught the PASS overflow
+#   and MKD shellcode but not the traversal-based file exfiltration.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 ( \
+    msg:"CUSTOM UNSW-5 FTP directory traversal download attempt (RETR /../)"; \
+    flow:to_server,established; \
+    content:"RETR "; nocase; \
+    content:"/../"; within:20; \
+    classtype:attempted-admin; \
+    sid:7600503; rev:1;)
+
+# --- J. RPC portmap sweep consolidation (UNSW pcap 5) ------------------------
+# Confirmed in logs/unsw-5-raw/eve.json:
+#   Attacker range 175.45.176.0/24 swept TCP and UDP port 111 (rpcbind) across
+#   149.171.126.0/24, generating dozens of per-program GPL portmap request
+#   alerts (rstatd, cachefsd, amountd, ypserv, rexd, sadmind, etc.). Those
+#   stock rules see individual program probes but not the sweep itself.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 111 ( \
+    msg:"CUSTOM UNSW-5 RPC portmap TCP sweep from external host"; \
+    flow:to_server,established; \
+    threshold:type threshold, track by_src, count 10, seconds 60; \
+    classtype:attempted-recon; \
+    sid:7600504; rev:1;)
+
+alert udp $EXTERNAL_NET any -> $HOME_NET 111 ( \
+    msg:"CUSTOM UNSW-5 RPC portmap UDP sweep from external host"; \
+    threshold:type threshold, track by_src, count 10, seconds 60; \
+    classtype:attempted-recon; \
+    sid:7600505; rev:1;)
+
+
+# --- K. SSH connection burst to HOME_NET SSH (UNSW pcap 10) -----------------
+# Confirmed in logs/unsw-10-raw/eve.json:
+#   175.45.176.0 -> 149.171.126.13:22
+#   10 distinct TCP connections in ~1 second (14:31:49-14:31:50), each only
+#   reaching the server banner (OpenSSH_5.3p1); stock ET 2001219 fired once.
+#   Custom 9500002 (bruteforce_campaigns.rules) is NOT loaded by the UNSW
+#   validation config, so this rule re-anchors the detection for UNSW runs.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 ( \
+    msg:"CUSTOM SSH connection burst to HOME_NET SSH server - possible brute-force/scan"; \
+    flow:to_server; \
+    flags:S; \
+    threshold:type threshold, track by_src, count 10, seconds 60; \
+    classtype:attempted-recon; \
+    sid:7601001; rev:1;)
+
+# --- L. TFTP directory traversal read (UNSW pcap 10) ------------------------
+# Confirmed in logs/unsw-10-raw/eve.json:
+#   175.45.176.0 -> 149.171.126.17:69  RRQ ../../../../../../passwd
+#   175.45.176.1 -> 149.171.126.19:69  RRQ /O5sLsl/../../../../../boot.ini
+#   Stock GPL 2101443 only catches the literal "passwd" file; generic
+#   traversal reads (boot.ini etc.) are not alerted. No response was returned
+#   in this capture, so this is an attempt, but the intent is unambiguous.
+alert udp $EXTERNAL_NET any -> $HOME_NET 69 ( \
+    msg:"CUSTOM TFTP directory traversal read attempt"; \
+    content:"|00 01|"; depth:2; \
+    content:"../"; distance:0; within:200; \
+    classtype:attempted-admin; \
+    sid:7601002; rev:1;)
+
+# --- M. FTP PASS format-string/overflow fuzz campaign (UNSW pcap 10) --------
+# Confirmed in logs/unsw-10-raw/eve.json:
+#   175.45.176.0 -> 149.171.126.15:21
+#   59 PASS attempts, 58 of which were format-string/overflow fuzz payloads
+#   (%n%n..., %s%s..., %99999999s/d, %@..., long A buffers, \xff runs). All 59
+#   were answered "230 Login successful." Stock GPL 2101972 caught 34 of the
+#   overflow-shaped PASS strings; this rule consolidates the format-string
+#   family that 2101972 can miss and marks the campaign.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 ( \
+    msg:"CUSTOM FTP PASS format-string fuzz campaign"; \
+    flow:to_server,established; \
+    content:"PASS "; nocase; \
+    pcre:"/PASS [^\r\n]*%[0-9]*[nsduxp@%]/i"; \
+    threshold:type threshold, track by_src, count 5, seconds 120; \
+    classtype:attempted-admin; \
+    sid:7601003; rev:1;)
+
+# =============================================================================
+# UNSW-NB15 pcap 14 triage additions
+# =============================================================================
+# Confirmed multi-vector campaign, 2015-02-18 16:06:11 - 16:30:47 +0930,
+# from 175.45.176.0/24 (175.45.176.0-.3) against 149.171.126.0/24.
+#
+# Stock ruleset already catches most individual attempts (SMB IPC$, FTP PASS
+# overflow, TFTP Put, RPC portmap per-program, web SQLi/cmd.exe/XSS, SNMP, DNS,
+# IMAP overflow, SMTP EXE attachments). The gaps consolidated below are:
+#   1. TFTP directory-traversal reads (stock 2101443 only flags "passwd"; the
+#      boot.ini / ../../passwd traversal RRQs were silent).
+#   2. The overall RPC portmap UDP sweep (stock GPL rules fire per-program, but
+#      nothing consolidates the sweep; the existing 7600504-style rule covers
+#      TCP only).
+#   3. FTP PASS format-string fuzz payloads that are NOT overflow-shaped (stock
+#      2101972 fires only on the longest/overflow strings; 60 successful
+#      anonymous fuzz logins were seen, of which 34 were flagged).
+
+# --- 1. TFTP directory traversal read (RRQ for ../ path) --------------------
+alert udp $EXTERNAL_NET any -> $HOME_NET 69 ( \
+    msg:"CUSTOM UNSW-14 TFTP directory traversal read - RRQ for ../ path from external host"; \
+    content:"|00 01|"; depth:2; \
+    content:"../"; within:64; \
+    classtype:attempted-admin; \
+    sid:7601401; rev:1;)
+
+# --- 2. RPC portmap UDP sweep consolidation --------------------------------
+alert udp $EXTERNAL_NET any -> $HOME_NET 111 ( \
+    msg:"CUSTOM UNSW-14 RPC portmap UDP sweep from external host"; \
+    flow:to_server; \
+    threshold:type threshold, track by_src, count 10, seconds 60; \
+    classtype:attempted-recon; \
+    sid:7601402; rev:1;)
+
+# --- 3. FTP PASS format-string fuzz (non-overflow payloads) -----------------
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 ( \
+    msg:"CUSTOM UNSW-14 FTP PASS format-string fuzz attempt - %n/%s/%99999999s payload"; \
+    flow:to_server,established; \
+    content:"PASS "; nocase; \
+    pcre:"/%(n|s|@|[0-9]+[a-zA-Z])/iR"; \
+    classtype:attempted-admin; \
+    sid:7601403; rev:1;)
+
+# --- K. BGP port 179 connection sweep (UNSW holdout) ------------------------
+# Confirmed in logs/unsw-1-hunt2-r1-holdout/eve.json:
+#   688 TCP flows from 175.45.176.0/24 to 149.171.126.0/24:179 across four
+#   source IPs and five servers. Stock rules fire per-packet on malformed BGP
+#   lengths (2158/2102158) and reset attempts (2523) but do not consolidate
+#   the sweep behaviour itself.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 179 ( \
+    msg:"CUSTOM BGP port 179 connection sweep from external host"; \
+    flow:to_server,established; \
+    threshold:type threshold, track by_src, count 30, seconds 60; \
+    classtype:attempted-recon; \
+    sid:7600601; rev:1;)
+
+# --- L. SMB1 TREE_CONNECT_ANDX burst / share-name fuzz ----------------------
+# Confirmed in logs/unsw-1-hunt2-r1-holdout/eve.json:
+#   175.45.176.1 -> 149.171.126.18:445 made 58 TREE_CONNECT_ANDX attempts in
+#   ~2m21s with progressively longer Unicode share names. Stock rules only
+#   alert on IPC$ (2102466); this non-IPC$ fuzz was silent. Also consolidates
+#   the 58-session IPC$ burst from 175.45.176.0 -> 149.171.126.15:445.
+#   SMB1 header magic + SMB_COM_TREE_CONNECT_ANDX (0x75).
+alert tcp $EXTERNAL_NET any -> $HOME_NET 445 ( \
+    msg:"CUSTOM SMB1 TREE_CONNECT_ANDX burst - share enumeration/fuzz"; \
+    flow:to_server,established; \
+    content:"|FF 53 4D 42 75|"; \
+    threshold:type threshold, track by_src, count 20, seconds 60; \
+    classtype:attempted-recon; \
+    sid:7600602; rev:1;)

@@ -1,0 +1,42 @@
+{
+  "plain-r2": {
+    "captures": [
+      4,
+      5,
+      14
+    ],
+    "tcpudp": 8182,
+    "genuine_new": 7,
+    "pts": 0.09
+  },
+  "research-r2": {
+    "captures": [
+      4,
+      5,
+      14
+    ],
+    "tcpudp": 8182,
+    "genuine_new": 18,
+    "pts": 0.22
+  },
+  "hunt-r1": {
+    "captures": [
+      4,
+      5,
+      14
+    ],
+    "tcpudp": 8182,
+    "genuine_new": 113,
+    "pts": 1.38
+  },
+  "hunt2-r1": {
+    "captures": [
+      4,
+      5,
+      14
+    ],
+    "tcpudp": 8182,
+    "genuine_new": 75,
+    "pts": 0.92
+  }
+}

@@ -1,0 +1,60 @@
+# rules/generated/wednesday_heartbleed.rules
+# Generated detection for the Wednesday 2017 Heartbleed (CVE-2014-0160) exploitation.
+#
+# CONFIRMED THREAT — true positive.
+# Attacker 172.16.0.1 (known CIC-IDS2017 external attacker) exploited a vulnerable
+# OpenSSL TLS service on victim 192.168.10.51:444.
+#
+# Evidence (logs/wednesday-raw/eve.json):
+#   - 2017-07-06 03:42:20, flow 172.16.0.1:45022 -> 192.168.10.51:444
+#     flow.bytes_toserver = 1,963,593   (1.9 MB of crafted heartbeat requests)
+#     flow.bytes_toclient = 81,482,031  (81.5 MB returned to the attacker)
+#   - A normal TLS handshake on the same service is ~350-850 B up / ~0.4-1.6 KB down.
+#     The 81.5 MB response is the out-of-bounds memory disclosure: repeated crafted
+#     Heartbeat requests leaking ~64 KB of server process memory each.
+#   - ET 2018377 "Possible OpenSSL HeartBleed Large HeartBeat Response" fired ONCE
+#     (192.168.10.51:444 -> 172.16.0.1:45022); SURICATA 2230014 "invalid encrypted
+#     heartbeat" fired twice. The stock heartbeat-payload rules are unreliable
+#     because the heartbeat record is encrypted, so most of the exploitation is
+#     invisible to the stock ruleset.
+#   - Immediately before the exploit there were repeated short TLS handshakes to
+#     :444 (03:22:55, 03:23:13, 03:29:47, 03:39:50, 03:39:54, 03:40:02, 03:40:08,
+#     03:42:15) — the attacker was fingerprinting the vulnerable service (identical
+#     JA3 7c657f99ee40e9602437b4c56bcc4c16).
+#
+# NOTE: cumulative flow volume (the decisive 81.5 MB leak) cannot be matched by a
+# single packet rule. These rules anchor on the app-layer heartbeat anomaly plus
+# the recon burst that preceded exploitation.
+
+# --- 1. Heartbleed heartbeat anomaly, direction-scoped to the leak -----------
+# Suricata's TLS parser saw an invalid/encrypted heartbeat. Scoped to_server
+# (external client -> HOME_NET service) so the offending direction is explicit,
+# complementing stock 2230014 which alerts in both directions.
+alert tls $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM TLS Heartbleed exploitation attempt - invalid encrypted heartbeat to HOME_NET TLS service (CVE-2014-0160)"; \
+    flow:to_server,established; \
+    app-layer-event:tls.invalid_encrypted_heartbeat; \
+    classtype:attempted-user; reference:cve,2014-0160; reference:url,heartbleed.com; \
+    sid:7600101; rev:2;)
+
+# --- 2. Sustained TLS handshake burst from one external host -----------------
+# The attacker opened repeated short TLS handshakes to the SAME HOME_NET TLS
+# service before the big leak. In this capture the final 5-minute window
+# (03:39:50-03:44:50) contains 5 handshakes, so count 5 / 300s catches it.
+alert tls $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"; \
+    flow:to_server,established; \
+    threshold:type threshold, track by_src, count 5, seconds 300; \
+    classtype:attempted-recon; reference:cve,2014-0160; \
+    sid:7600102; rev:2;)
+
+# --- 3. TLS service on a non-standard port touched by external recon ---------
+# Legitimate HOME_NET TLS services are on 443/8443. The vulnerable service here
+# sat on TCP/444. Flag external clients repeatedly probing a non-standard TLS
+# port (including 444). Count 5 / 300s matches the observed pre-exploit burst.
+alert tls $EXTERNAL_NET any -> $HOME_NET ![443,8443] ( \
+    msg:"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"; \
+    flow:to_server,established; \
+    threshold:type threshold, track by_src, count 5, seconds 300; \
+    classtype:attempted-recon; \
+    sid:7600103; rev:2;)

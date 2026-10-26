@@ -1,0 +1,155 @@
+{
+  "categories": [
+    "Analysis",
+    "Backdoor",
+    "DoS",
+    "Exploits",
+    "Fuzzers",
+    "Generic",
+    "Reconnaissance",
+    "Shellcode",
+    "Worms"
+  ],
+  "runs": {
+    "unsw-3": {
+      "main": [
+        "Exploits",
+        "Fuzzers",
+        "Reconnaissance"
+      ],
+      "any": [
+        "Backdoor",
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Reconnaissance",
+        "Worms"
+      ]
+    },
+    "unsw-1": {
+      "main": [
+        "Backdoor",
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Reconnaissance"
+      ],
+      "any": [
+        "Backdoor",
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Reconnaissance",
+        "Worms"
+      ]
+    },
+    "unsw-4": {
+      "main": [
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Shellcode"
+      ],
+      "any": [
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Shellcode"
+      ]
+    },
+    "unsw-5": {
+      "main": [
+        "Backdoor",
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Reconnaissance",
+        "Shellcode"
+      ],
+      "any": [
+        "Backdoor",
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Reconnaissance",
+        "Shellcode",
+        "Worms"
+      ]
+    },
+    "unsw-10": {
+      "main": [
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Reconnaissance"
+      ],
+      "any": [
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic",
+        "Reconnaissance"
+      ]
+    },
+    "unsw-14": {
+      "main": [
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic"
+      ],
+      "any": [
+        "DoS",
+        "Exploits",
+        "Fuzzers",
+        "Generic"
+      ]
+    }
+  },
+  "coverage_tcpudp": {
+    "Analysis": [
+      0,
+      62
+    ],
+    "Backdoor": [
+      3,
+      74
+    ],
+    "DoS": [
+      64,
+      670
+    ],
+    "Exploits": [
+      593,
+      5057
+    ],
+    "Fuzzers": [
+      558,
+      3942
+    ],
+    "Generic": [
+      104,
+      2677
+    ],
+    "Reconnaissance": [
+      431,
+      2142
+    ],
+    "Shellcode": [
+      3,
+      279
+    ],
+    "Worms": [
+      6,
+      32
+    ]
+  }
+}

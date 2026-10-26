@@ -1,0 +1,182 @@
+# rules/generated/unsw_bare.rules
+# Detection rules authored by the AI triage engine for UNSW-NB15 under the bare-alert condition (Experiment 1).
+#
+# Triage of logs/unsw-3-bare/eve.json (893 alerts, 2015-02-18 11:01:36-11:29:10 +0930).
+# HOME_NET = 149.171.126.0/24 (servers) + 59.166.0.0/24 (clients).
+# EXTERNAL_NET includes known attacker range 175.45.176.0/24.
+#
+# Coverage gaps addressed:
+#   1. GPL 2102466 fires once per SMB IPC$ share access, producing a wall of
+#      identical per-connection alerts (124 from 175.45.176.1 -> 149.171.126.15
+#      in ~50s). No stock rule articulates the brute-force campaign itself.
+#   2. The RPC portmap sweep (176 GPL "RPC portmap ... request" alerts across
+#      12 HOME_NET servers, TCP+UDP/111, from all four attacker IPs) is reported
+#      only as individual RPC program queries. No stock rule flags the
+#      source-level sweep.
+
+# --- 1. SMB IPC$ share-access brute force (external -> HOME_NET SMB) ---------
+# One external host repeatedly attempting the IPC$ share on 445 is credential
+# brute-forcing / share enumeration. Thresholds aggregate the per-connection
+# stock GPL alerts into one campaign-level alert.
+alert smb $EXTERNAL_NET any -> $HOME_NET 445 ( \
+    msg:"CUSTOM SMB IPC$ share-access brute force from external host"; \
+    flow:to_server,established; \
+    smb.share; content:"IPC$"; nocase; \
+    threshold:type threshold, track by_src, count 20, seconds 60; \
+    classtype:attempted-user; \
+    sid:7700001; rev:1;)
+
+# --- 2. RPC portmap sweep (external -> HOME_NET portmapper) -----------------
+# A single external host generating many TCP/UDP packets to port 111 across
+# HOME_NET is running a portmapper/RPC program enumeration sweep. The stock
+# GPL portmap rules fire per RPC program; this rule collapses the source-level
+# sweep into one alert.
+alert ip $EXTERNAL_NET any -> $HOME_NET 111 ( \
+    msg:"CUSTOM RPC portmap sweep - external host hammering portmapper 111"; \
+    threshold:type threshold, track by_src, count 30, seconds 120; \
+    classtype:attempted-recon; \
+    sid:7700002; rev:1;)
+
+# --- Additional rules from triage of logs/unsw-1-bare/eve.json (997 alerts) ---
+# Confirmed attack patterns not already covered by rules 7700001/7700002:
+#   1. Heartbleed (CVE-2014-0160): attacker 175.45.176.2 -> 149.171.126.11:443
+#      triggered a large heartbeat response from the server (ET 2018382 +
+#      SURICATA 2230012). Recon bursts preceded/followed it (7600102/7600103
+#      fired 133 times in this capture).
+#   2. FTP PASS overflow/brute-force: 175.45.176.3 -> 149.171.126.18:21 made
+#      17 overflowing PASS attempts in ~2 minutes (34 stock GPL 2101972 alerts).
+#   3. TFTP abuse: attacker hosts issued TFTP GET passwd (2101443) and repeated
+#      TFTP Put uploads (2100518) to internal servers on UDP/69.
+
+# --- 3. Heartbleed overflow heartbeat exploit attempt ----------------------
+alert tls $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM Heartbleed overflow heartbeat exploit attempt (CVE-2014-0160)"; \
+    flow:to_server,established; \
+    app-layer-event:tls.overflow_heartbeat; \
+    classtype:attempted-user; \
+    reference:cve,2014-0160; reference:url,heartbleed.com; \
+    sid:7700003; rev:1;)
+
+# --- 4. TLS heartbeat/handshake burst (Heartbleed recon precursor) ---------
+alert tls $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"; \
+    flow:to_server,established; \
+    threshold:type threshold, track by_src, count 5, seconds 300; \
+    classtype:attempted-recon; \
+    reference:cve,2014-0160; \
+    sid:7700004; rev:1;)
+
+# --- 5. FTP PASS overflow / credential brute-force campaign -----------------
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 ( \
+    msg:"CUSTOM FTP PASS overflow/brute-force campaign from external host"; \
+    flow:to_server,established; \
+    content:"PASS"; nocase; \
+    threshold:type threshold, track by_src, count 10, seconds 60; \
+    classtype:attempted-admin; \
+    sid:7700005; rev:1;)
+
+# --- 6. TFTP GET passwd attempt from external host -------------------------
+alert udp $EXTERNAL_NET any -> $HOME_NET 69 ( \
+    msg:"CUSTOM TFTP GET passwd attempt from external host"; \
+    content:"|00 01|"; depth:2; \
+    content:"passwd"; nocase; \
+    classtype:attempted-admin; \
+    sid:7700006; rev:1;)
+
+# --- 7. TFTP write (Put) burst from external host ---------------------------
+alert udp $EXTERNAL_NET any -> $HOME_NET 69 ( \
+    msg:"CUSTOM TFTP write (Put) burst from external host"; \
+    content:"|00 02|"; depth:2; \
+    threshold:type threshold, track by_src, count 5, seconds 60; \
+    classtype:attempted-admin; \
+    sid:7700007; rev:1;)
+
+# --- Additional rules from triage of logs/unsw-10-bare/eve.json (799 alerts) ---
+# Confirmed attack patterns not already covered by rules 7700001-7700007:
+#   1. Slow RPC portmap sweep: the 168 stock GPL "RPC portmap ... request"
+#      alerts were spread across ~26 minutes, peaking at only 8 queries/min
+#      per source. The existing 7700002 threshold (30/120s) does NOT fire on
+#      this low-and-slow sweep, so the campaign went uncollapsed.
+#   2. Slow SMB IPC$ share-access sweep: 34 stock SMB share-access alerts
+#      from four attacker IPs, but max 2 per source per minute. Existing
+#      7700001 (20/60s) misses it; a longer-window threshold collapses it.
+#   3. SSH brute-force campaign: 9500002 fired in the run (from
+#      bruteforce_campaigns.rules), but unsw_bare.rules is the only generated
+#      file loaded for UNSW validation and had no SSH campaign rule.
+
+# --- 8. Slow RPC portmap sweep (external -> HOME_NET portmapper) -------------
+# One external host querying RPC program numbers on port 111 at low volume
+# over a long window. Per-source totals observed: 58/46/38/26 queries in
+# ~26 minutes. Count 20/1800s collapses each source's sweep into one alert.
+alert ip $EXTERNAL_NET any -> $HOME_NET 111 ( \
+    msg:"CUSTOM Slow RPC portmap sweep - low-and-slow portmapper enumeration from external host"; \
+    threshold:type threshold, track by_src, count 20, seconds 1800; \
+    classtype:attempted-recon; \
+    sid:7700008; rev:1;)
+
+# --- 9. Slow SMB IPC$ share-access sweep (external -> HOME_NET SMB) ----------
+# One external host attempting the IPC$ share on 139/445 at low volume over
+# a long window. Per-source totals observed: 14/12/6/2 attempts in ~26 min.
+# Count 5/1800s collapses three of the four observed sources into one alert
+# each; the fourth (2 attempts) stays below threshold.
+alert smb $EXTERNAL_NET any -> $HOME_NET [139,445] ( \
+    msg:"CUSTOM Slow SMB IPC$ share-access sweep from external host"; \
+    flow:to_server,established; \
+    smb.share; content:"IPC$"; nocase; \
+    threshold:type threshold, track by_src, count 5, seconds 1800; \
+    classtype:attempted-user; \
+    sid:7700009; rev:1;)
+
+# --- 10. SSH brute-force campaign (external -> HOME_NET SSH) ------------------
+# Sustained low-and-slow SSH connection attempts from one external host.
+# Mirrors the confirmed 9500002 campaign alert so the pattern is present in
+# the only generated file loaded for UNSW validation runs.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 ( \
+    msg:"CUSTOM SSH Brute-Force Campaign - sustained connection attempts to HOME_NET SSH"; \
+    flow:to_server; \
+    flags:S; \
+    threshold:type threshold, track by_src, count 10, seconds 3600; \
+    classtype:attempted-recon; \
+    sid:7700010; rev:1;)
+
+# --- Additional rules from triage of logs/exp1-bare-unsw-3/eve.json (1107 alerts) ---
+# Confirmed attack patterns not already collapsed by rules 7700001-7700010:
+#   1. DCERPC invalid bind storm: 69 x GPL 2102190 from 175.45.176.2 ->
+#      149.171.126.18:135 in ~2 minutes (11:14:37-11:15:42). Stock rule fires
+#      once per invalid bind; no campaign-level rule exists.
+#   2. FTP USER overflow/brute-force: 26 x GPL 2101734 from 175.45.176.1 ->
+#      149.171.126.19:21 in ~35s, plus %/quote username anomalies. Existing
+#      7700005 only covers PASS.
+#   3. MySQL brute-force/scan: 19 x ET 2010937 + 4 x ET 2002842 from
+#      175.45.176.1 -> 149.171.126.17:3306 over ~3 minutes.
+
+# --- 11. DCERPC invalid-bind / connection storm (external -> HOME_NET MSRPC) --
+# One external host repeatedly opening connections and issuing malformed DCE/RPC
+# binds to 135. Collapses the per-bind stock alert into one campaign alert.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 135 ( \
+    msg:"CUSTOM DCERPC invalid-bind/connection storm to HOME_NET MSRPC endpoint"; \
+    flow:to_server,established; \
+    threshold:type threshold, track by_src, count 20, seconds 120; \
+    classtype:attempted-admin; \
+    sid:7700011; rev:1;)
+
+# --- 12. FTP USER overflow / brute-force campaign (external -> HOME_NET FTP) --
+# Sustained USER commands to one FTP server. Mirrors the existing PASS campaign
+# rule so the USER phase of the same attack is collapsed too.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 ( \
+    msg:"CUSTOM FTP USER overflow/brute-force campaign from external host"; \
+    flow:to_server,established; \
+    content:"USER"; nocase; \
+    threshold:type threshold, track by_src, count 10, seconds 60; \
+    classtype:attempted-admin; \
+    sid:7700012; rev:1;)
+
+# --- 13. MySQL brute-force/scan campaign (external -> HOME_NET MySQL) ---------
+# Sustained connections to 3306 from one external host. Collapses the per-port
+# ET SCAN and per-login brute-force alerts into one campaign alert.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 3306 ( \
+    msg:"CUSTOM MySQL brute-force/scan campaign from external host"; \
+    flow:to_server,established; \
+    threshold:type threshold, track by_src, count 10, seconds 120; \
+    classtype:attempted-recon; \
+    sid:7700013; rev:1;)

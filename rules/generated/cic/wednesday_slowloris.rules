@@ -1,0 +1,45 @@
+# rules/generated/wednesday_slowloris.rules
+# Generated detection for the Wednesday 2017 HTTP-layer DoS campaign.
+#
+# Confirmed on 192.168.10.50 (DVWA web server, /dv/login.php) from attacker
+# 172.16.0.1 ($EXTERNAL_NET):
+#   - 187x ET 3000001 "Slowloris HTTP DoS toolkit (slowhttptest) targeting web login"
+#   - 6x ET 3000002 "Sustained Slowloris HTTP DoS traffic (slowhttptest referer burst)"
+#   - 867 "FAKEVERB" method requests to /dv/login.php
+#   - 149,703 GET /?<random>=<random> requests in 23:15-23:31 (~8.8k/min), all 200 OK
+#   - 278x SURICATA HTTP Request excessive header repetition [2221035]
+#
+# Stock ET Open already contains SIDs 3000001 and 3000002 and they fired on this
+# capture. Do NOT redeclare those SIDs here (duplicate-SID collision). The two
+# rules below add coverage for the vectors the stock rules miss.
+
+# 1. Malformed/alt request verb (FAKEVERB) against the web server.
+#    slowhttptest used this as an alternate vector when it was not carrying the
+#    identifying referer. 867 requests seen from 172.16.0.1 to 192.168.10.50:80.
+#
+#    IMPORTANT: Suricata's HTTP parser does not expose this non-standard method
+#    in the http.method/http.request_line sticky buffers for detection (the
+#    method is logged in eve.json as http.http_method=FAKEVERB, but http.*
+#    content rules did not fire during validation). The raw TCP payload does
+#    contain it at offset 0, so this rule uses an alert-tcp match with depth:8.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 80 ( \
+    msg:"ET TROJAN non-standard HTTP verb targeting web login (possible DoS tool)"; \
+    flow:to_server,established; \
+    content:"FAKEVERB"; nocase; depth:8; \
+    threshold:type threshold, track by_src, count 10, seconds 60; \
+    classtype:attempted-dos; \
+    sid:3000003; rev:3;)
+
+# 2. Hulk-style cache-busting HTTP GET flood. Dominant volume vector in this
+#    capture: ~150k bare "GET /?<random-name>=<random-value>" requests from one
+#    source to one web server in ~17 minutes (~8.8k/min). Stock rate rule
+#    2014103 only fired 3x. Single http.uri buffer avoids a duplicate-sticky-
+#    buffer warning while still requiring both "/" and "=" in the URI.
+alert http $EXTERNAL_NET any -> $HOME_NET 80 ( \
+    msg:"ET TROJAN Sustained HTTP cache-busting GET flood (Hulk-style DoS)"; \
+    flow:to_server,established; \
+    http.method; content:"GET"; nocase; \
+    http.uri; content:"/"; content:"="; \
+    threshold:type threshold, track by_src, count 1500, seconds 60; \
+    classtype:attempted-dos; \
+    sid:3000004; rev:2;)

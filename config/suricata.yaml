@@ -2329,6 +2329,9 @@ default-rule-path: /home/bigyan/capstone-ids/rules
 
 rule-files:
   - suricata.rules
+  - generated/cic/tuesday_bruteforce.rules
+  - generated/cic/bruteforce_campaigns.rules
+  - generated/cic/wednesday_slowloris.rules
 
 ##
 ## Auxiliary configuration files.

@@ -1,0 +1,60 @@
+# rules/generated/unsw/rounds_plain.rules
+# AI-authored rules written against the UNSW-NB15 baseline v2, condition: plain.
+
+# FTP PORT integer-overflow fuzzing.
+# The attacker sends PORT commands where the six comma-separated octets are the
+# SAME oversized decimal value (256, 4096, 65536, ..., 2^31, 2^32) instead of
+# the normal h1,h2,h3,h4,p1,p2 (each <= 255). This probes FTP server integer
+# overflow handling and was not covered by the loaded baseline.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"UNSW FTP PORT command repeated oversized decimal octets - integer overflow fuzzing attempt"; flow:to_server,established; content:"PORT"; nocase; pcre:"/([0-9]{2,}),\1,\1,\1,\1,\1/"; classtype:attempted-user; sid:1000001; rev:1;)
+
+# DNS dynamic update (opcode 5) request from external host.
+# The attacker sends DNS UPDATE messages (opcode 5) to an internal DNS server,
+# e.g. wpad.test.com with CNAME/TSIG records. This is a dynamic-DNS update /
+# zone-manipulation probe and is not covered by the loaded baseline.
+alert dns $EXTERNAL_NET any -> $HOME_NET 53 (msg:"UNSW DNS dynamic update (opcode 5) request from external host"; dns.opcode:5; classtype:attempted-recon; sid:1000002; rev:1;)
+
+# POP3 successful login from external host.
+# All POP3 traffic in this capture is from the 175.45.176.0/24 attacker range and
+# nearly every USER/PASS sequence succeeds ("logged in."). The baseline only
+# alerts on POP3 buffer overflows and the rapid-POP3 brute-force rule did not fire,
+# so successful mailbox access from EXTERNAL_NET was invisible.
+alert tcp $HOME_NET 110 -> $EXTERNAL_NET any (msg:"UNSW POP3 successful login from external host"; flow:to_client,established; content:"logged in"; nocase; fast_pattern; classtype:successful-user; sid:1000003; rev:1;)
+
+# FTP successful login from an external host.
+# The attacker range 175.45.176.0/24 authenticated to internal FTP servers 91 times
+# (FTP 230 "Login successful"), mostly as user "anonymous" and often with overflow /
+# format-string payloads in USER/PASS. The baseline only flags the login *attempt*
+# (sid 2100553), so successful external logins were invisible.
+alert tcp $HOME_NET 21 -> $EXTERNAL_NET any (msg:"UNSW FTP successful login from external host"; flow:to_client,established; content:"Login successful"; nocase; fast_pattern; classtype:successful-user; sid:1000004; rev:1;)
+
+# WebDAV PROPFIND enumeration from an external host.
+# 15 PROPFIND requests from 175.45.176.0/24 to internal web servers, 14 of which
+# returned 207 Multi-Status (successful WebDAV directory enumeration). No loaded
+# rule fired on this activity, leaving external WebDAV enumeration invisible.
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"UNSW WebDAV PROPFIND enumeration from external host"; flow:to_server,established; http.method; content:"PROPFIND"; nocase; fast_pattern; classtype:attempted-recon; sid:1000005; rev:1;)
+
+# FTP path traversal command from external host.
+# Attackers in 175.45.176.0/24 authenticate to internal FTP servers and then
+# issue RETR commands containing "/../" path segments to read files outside
+# the FTP root. The baseline flags FTP login/overflow attempts but has no rule
+# for FTP path traversal.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"UNSW FTP path traversal command from external host"; flow:to_server,established; content:"/../"; fast_pattern; classtype:attempted-recon; sid:1000006; rev:1;)
+
+# POP3 RETR mailbox exfiltration from external host.
+# The attacker range authenticates to internal POP3 servers and then issues
+# RETR commands to download mailbox contents. The baseline has POP3 overflow
+# rules but no rule for successful mailbox retrieval by an external host.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 110 (msg:"UNSW POP3 RETR mailbox exfiltration from external host"; flow:to_server,established; content:"RETR"; nocase; fast_pattern; classtype:attempted-user; sid:1000007; rev:1;)
+
+# DNS ANY query flood for www.exa.dpn from external host.
+# 175.45.176.0 sent 2572 identical ANY queries for www.exa.dpn to the internal
+# DNS server 149.171.126.12, which answered NXDOMAIN each time. No loaded DNS
+# rule covers this flood.
+alert dns $EXTERNAL_NET any -> $HOME_NET 53 (msg:"UNSW DNS ANY query flood for www.exa.dpn from external host"; dns.query; content:"www.exa.dpn"; nocase; fast_pattern; threshold:type limit, track by_src, count 20, seconds 60; classtype:attempted-dos; sid:1000008; rev:1;)
+
+# LDAP SASL CRAM-MD5 bind attempt from external host.
+# The attacker range sends LDAP bind requests using SASL CRAM-MD5 with
+# oversized credentials to internal LDAP servers. No loaded LDAP rule covers
+# this activity.
+alert tcp $EXTERNAL_NET any -> $HOME_NET 389 (msg:"UNSW LDAP SASL CRAM-MD5 bind attempt from external host"; flow:to_server,established; content:"CRAM-MD5"; nocase; fast_pattern; classtype:attempted-user; sid:1000009; rev:1;)

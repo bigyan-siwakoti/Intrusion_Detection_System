@@ -1,0 +1,422 @@
+{
+  "1000001": {
+    "class": "behavioural",
+    "reason": "FTP PORT with repeated oversized octets (malformed field)"
+  },
+  "1000002": {
+    "class": "topology",
+    "reason": "any DNS dynamic update from outside; no attack constraint"
+  },
+  "1000003": {
+    "class": "topology",
+    "reason": "any successful POP3 login to an outside client"
+  },
+  "1000004": {
+    "class": "topology",
+    "reason": "any successful FTP login to an outside client"
+  },
+  "1000005": {
+    "class": "topology",
+    "reason": "any WebDAV PROPFIND from outside"
+  },
+  "1000006": {
+    "class": "behavioural",
+    "reason": "FTP path traversal '/../'"
+  },
+  "1000007": {
+    "class": "topology",
+    "reason": "any POP3 RETR from outside"
+  },
+  "1000008": {
+    "class": "dataset-indicator",
+    "reason": "DNS query for generator-specific hostname www.exa.dpn"
+  },
+  "1000009": {
+    "class": "topology",
+    "reason": "any LDAP CRAM-MD5 bind from outside (normal auth mechanism)"
+  },
+  "1000010": {
+    "class": "topology",
+    "reason": "any SIP REGISTER from outside"
+  },
+  "1000011": {
+    "class": "topology",
+    "reason": "any SIP INVITE from outside"
+  },
+  "1000012": {
+    "class": "signature",
+    "reason": "boot.ini requested over HTTP (file-disclosure attempt)"
+  },
+  "1000013": {
+    "class": "topology",
+    "reason": "any Lotus Domino .nsf request from outside"
+  },
+  "1000014": {
+    "class": "behavioural",
+    "reason": "LDAP bind as domain administrator from outside"
+  },
+  "1000015": {
+    "class": "dataset-indicator",
+    "reason": "LDAP search for generator-specific domain dc=foobar,dc=com"
+  },
+  "1000016": {
+    "class": "topology",
+    "reason": "any SMTP MAIL FROM from outside"
+  },
+  "1100001": {
+    "class": "behavioural",
+    "reason": "FTP RETR with '../' traversal"
+  },
+  "1100002": {
+    "class": "behavioural",
+    "reason": "FTP SIZE with '../' traversal"
+  },
+  "1100003": {
+    "class": "behavioural",
+    "reason": "UDP/520 rate threshold (RIP flood)"
+  },
+  "1100004": {
+    "class": "behavioural",
+    "reason": "TCP/1723 rate threshold (PPTP flood)"
+  },
+  "1100005": {
+    "class": "topology",
+    "reason": "any POP3 RETR from outside"
+  },
+  "1100006": {
+    "class": "topology",
+    "reason": "any SIP INVITE from outside"
+  },
+  "1100007": {
+    "class": "topology",
+    "reason": "any SIP REGISTER from outside"
+  },
+  "1100008": {
+    "class": "topology",
+    "reason": "any POP3 RETR from outside"
+  },
+  "1100009": {
+    "class": "behavioural",
+    "reason": "UDP/53 rate threshold (DNS flood)"
+  },
+  "1100010": {
+    "class": "signature",
+    "reason": "IIS Unicode directory traversal to boot.ini (CVE-2000-0884)"
+  },
+  "1100011": {
+    "class": "signature",
+    "reason": "JBoss /invoker/EJBInvokerServlet probe"
+  },
+  "1100012": {
+    "class": "topology",
+    "reason": "any POP3 RETR from outside"
+  },
+  "7600201": {
+    "class": "behavioural",
+    "reason": "FTP PASS 'password' burst (weak-password brute force)"
+  },
+  "7600202": {
+    "class": "behavioural",
+    "reason": "SMB IPC$ access burst"
+  },
+  "7600203": {
+    "class": "behavioural",
+    "reason": "outbound Windows cmd.exe banner (shell)"
+  },
+  "7600204": {
+    "class": "topology",
+    "reason": "5+ FTP 'Login successful' replies to an outside host"
+  },
+  "7600205": {
+    "class": "behavioural",
+    "reason": "slow SMB IPC$ sweep"
+  },
+  "7600401": {
+    "class": "signature",
+    "reason": "Cisco IOS HTTP /level/N/exec"
+  },
+  "7600402": {
+    "class": "behavioural",
+    "reason": "TFTP read request with oversized filename"
+  },
+  "7600501": {
+    "class": "topology",
+    "reason": "any outside host making 5 TLS connections in 5 min"
+  },
+  "7600502": {
+    "class": "topology",
+    "reason": "same, non-443/8443 ports"
+  },
+  "7600503": {
+    "class": "behavioural",
+    "reason": "FTP RETR /../ traversal"
+  },
+  "7600504": {
+    "class": "behavioural",
+    "reason": "TCP/111 portmap rate"
+  },
+  "7600505": {
+    "class": "behavioural",
+    "reason": "UDP/111 portmap rate"
+  },
+  "7601001": {
+    "class": "behavioural",
+    "reason": "SSH SYN rate"
+  },
+  "7601002": {
+    "class": "behavioural",
+    "reason": "TFTP ../ traversal"
+  },
+  "7601003": {
+    "class": "behavioural",
+    "reason": "FTP PASS format string burst"
+  },
+  "7601401": {
+    "class": "behavioural",
+    "reason": "TFTP ../ traversal (dup)"
+  },
+  "7601402": {
+    "class": "behavioural",
+    "reason": "UDP/111 portmap rate (dup)"
+  },
+  "7601403": {
+    "class": "behavioural",
+    "reason": "FTP PASS format string"
+  },
+  "7600102": {
+    "class": "topology",
+    "reason": "CIC 'Heartbleed recon': any outside host making 5 TLS connections in 5 min"
+  },
+  "7600103": {
+    "class": "topology",
+    "reason": "CIC: same, non-443/8443"
+  },
+  "7800001": {
+    "class": "signature",
+    "reason": "http.user_agent backdoor string (D-Link CVE-2013-6026)"
+  },
+  "7800002": {
+    "class": "signature",
+    "reason": "jovgraph.exe URI + exploit padding (HP OpenView overflow)"
+  },
+  "7800003": {
+    "class": "signature",
+    "reason": "nnmRptConfig.exe URI + format-string marker"
+  },
+  "7800004": {
+    "class": "signature",
+    "reason": "CSUserCGI.exe URI + exploit padding (Cisco ACS overflow)"
+  },
+  "7800005": {
+    "class": "signature",
+    "reason": "access to a known-vulnerable CGI path"
+  },
+  "7800006": {
+    "class": "signature",
+    "reason": "OvWebHelp.exe Topic + exploit filler (HP OpenView overflow)"
+  },
+  "7800007": {
+    "class": "signature",
+    "reason": "PHP passthru in a URL parameter (webshell drop)"
+  },
+  "7800008": {
+    "class": "signature",
+    "reason": "HTTP raw URI: IIS overlong UTF-8 traversal encoding %c0%ae%c0%ae (technique)"
+  },
+  "7800009": {
+    "class": "signature",
+    "reason": "HTTP raw URI: encoded backslash traversal %2e%2e%5c (technique)"
+  },
+  "7800010": {
+    "class": "signature",
+    "reason": "HTTP raw URI: format-string probe %99999999 (technique)"
+  },
+  "7800011": {
+    "class": "signature",
+    "reason": "HTTP User-Agent: PHP code injection 'phpinfo'"
+  },
+  "7800012": {
+    "class": "signature",
+    "reason": "HTTP User-Agent: XSS '<<ScrIPt' (tool-specific casing)"
+  },
+  "7800013": {
+    "class": "signature",
+    "reason": "HTTP raw URI: encoded '<<<' XSS probe"
+  },
+  "7800014": {
+    "class": "signature",
+    "reason": "FTP RETR with /../ traversal (technique)"
+  },
+  "7800015": {
+    "class": "signature",
+    "reason": "HTTP raw URI: ..%5c traversal (technique)"
+  },
+  "7800016": {
+    "class": "signature",
+    "reason": "FTP command format-string probe %99999999 (technique)"
+  },
+  "7800017": {
+    "class": "signature",
+    "reason": "HP HPEinc remote file inclusion: /HPE/ + HPEinc= parameter"
+  },
+  "7800018": {
+    "class": "signature",
+    "reason": "Novell ZENworks UploadServlet: .war upload to /zenworks"
+  },
+  "7800019": {
+    "class": "signature",
+    "reason": "HTTP raw URI: /../ traversal (generic technique)"
+  },
+  "7800020": {
+    "class": "signature",
+    "reason": "HTTP raw URI: <img ... onerror= XSS"
+  },
+  "7800021": {
+    "class": "signature",
+    "reason": "DNS AUTHORS.BIND fingerprinting query"
+  },
+  "7800022": {
+    "class": "behavioural",
+    "reason": "SIP INVITE with URI >= 300 chars (overflow length check)"
+  },
+  "7800023": {
+    "class": "signature",
+    "reason": "TLS certificate subject containing a NUL byte (null-prefix technique)"
+  },
+  "7800024": {
+    "class": "signature",
+    "reason": "SMTP RCPT TO containing %n format specifier"
+  },
+  "7800026": {
+    "class": "behavioural",
+    "reason": "SMB to 445: >=16 repeated fuzz characters in a filename (malformed input)"
+  },
+  "7900001": {
+    "class": "signature",
+    "reason": "DNS VERSION.BIND fingerprinting query"
+  },
+  "7900002": {
+    "class": "signature",
+    "reason": "DNS AUTHORS.BIND fingerprinting query"
+  },
+  "7900003": {
+    "class": "signature",
+    "reason": "DNS AXFR zone-transfer request (recon; borderline \u2014 legitimate secondaries also request AXFR)"
+  },
+  "7900004": {
+    "class": "signature",
+    "reason": "WebDAV PROPFIND for a .dll with the MiniRedir client (DLL-load exploit pattern)"
+  },
+  "7900008": {
+    "class": "signature",
+    "reason": "HTTP URI obfuscated XSS: '<' + 'JavaScrIpt' + 'alert'"
+  },
+  "7900006": {
+    "class": "signature",
+    "reason": "HTTP URI ../../../../ traversal (technique)"
+  },
+  "7900012": {
+    "class": "signature",
+    "reason": "HTTP raw URI ..%5c encoded-backslash traversal (technique)"
+  },
+  "7900013": {
+    "class": "signature",
+    "reason": "HTTP raw URI ..\\..\\ raw-backslash traversal (technique)"
+  },
+  "7900010": {
+    "class": "signature",
+    "reason": "LDAP SASL CRAM-MD5 bind with 40-byte space padding (overflow attempt)"
+  },
+  "7900101": {
+    "class": "signature",
+    "reason": "HTTP raw URI format-string probe %99999999 (technique)"
+  },
+  "7900102": {
+    "class": "signature",
+    "reason": "HTTP raw URI repeated %n format string (technique)"
+  },
+  "7900103": {
+    "class": "signature",
+    "reason": "HTTP raw URI repeated %s format string (technique)"
+  },
+  "7900104": {
+    "class": "signature",
+    "reason": "HTTP raw URI overlong UTF-8 traversal %c0%ae%c0%ae (technique)"
+  },
+  "7900105": {
+    "class": "signature",
+    "reason": "FTP RETR with /../../ traversal (technique)"
+  },
+  "7900106": {
+    "class": "topology",
+    "reason": "LDAP modify-DN request from outside HOME_NET: an ordinary LDAP operation, no attack constraint"
+  },
+  "7900107": {
+    "class": "dataset-indicator",
+    "reason": "LDAP bind DN 'dc\\administrator': keyed on this lab's own domain string"
+  },
+  "7900108": {
+    "class": "behavioural",
+    "reason": "SMB duplicate-negotiate parser event, threshold 10 per source in 60 s"
+  },
+  "7900109": {
+    "class": "signature",
+    "reason": "FTP SIZE with /../../ traversal (technique)"
+  },
+  "7900110": {
+    "class": "signature",
+    "reason": "HTTP raw URI traversal to boot.ini"
+  },
+  "7900111": {
+    "class": "signature",
+    "reason": "Novell eDirectory LDAP extended-request exploit bytes"
+  },
+  "7900112": {
+    "class": "signature",
+    "reason": "HTTP raw URI repeated %%n format string"
+  },
+  "7900113": {
+    "class": "signature",
+    "reason": "HTTP raw URI repeated %%s format string"
+  },
+  "7900114": {
+    "class": "signature",
+    "reason": "HTTP User-Agent containing PHP code '<? phpinfo() ?>'"
+  },
+  "7900115": {
+    "class": "signature",
+    "reason": "HTTP User-Agent XSS '<<ScrIPt' + 'alert'"
+  },
+  "7900116": {
+    "class": "signature",
+    "reason": "FTP PASS argument format-string probe %99999999"
+  },
+  "7900301": {
+    "class": "signature",
+    "reason": "HTTP URI remote file inclusion HPEinc=http://"
+  },
+  "7900302": {
+    "class": "signature",
+    "reason": "HTTP URI remote file inclusion libpath=http://"
+  },
+  "7900303": {
+    "class": "signature",
+    "reason": "HTTP URI remote file inclusion SITE_Path=http://"
+  },
+  "7900304": {
+    "class": "signature",
+    "reason": "ColdFusion l10n.cfm attributes.file=../../ traversal"
+  },
+  "7900305": {
+    "class": "signature",
+    "reason": "Oracle ProfileIconServlet fileName=../../ traversal"
+  },
+  "7900306": {
+    "class": "signature",
+    "reason": "HTTP raw URI traversal to autoexec.bat"
+  },
+  "7900307": {
+    "class": "signature",
+    "reason": "SMTP RCPT TO containing %n%n%n format string"
+  }
+}

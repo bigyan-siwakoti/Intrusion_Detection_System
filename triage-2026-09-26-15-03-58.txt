@@ -1,0 +1,2961 @@
+========================================================================
+IDS TRIAGE ENGINE — SESSION TRANSCRIPT
+========================================================================
+Run:      unsw-10-bare (0.7 MB)
+Model:    deepseek-v4-pro
+Started:  2026-09-26T15:03:58.529Z
+Ended:    2026-09-26T15:12:12.449Z
+Duration: 8m 13s
+Turns:    60
+Dataset:  unsw-bare   Status: completed   Tokens: 3,236,184 in / 42,159 out
+Source:   unattended batch run (src/batch_transcript.py)
+========================================================================
+
+[AGENT TEXT]
+I'll start by getting the big picture of the alerts in this eve.json.
+
+
+--- Turn 1 | 2,427 in / 92 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_alerts
+{
+  "eve_path": "logs/unsw-10-bare/eve.json"
+}
+[TOOL RESULT] count_alerts
+     80  SURICATA STREAM ESTABLISHED packet out of window [sid:2210020]
+     79  CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor) [sid:7600102]
+     66  CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon) [sid:7600103]
+     34  GPL FTP PASS overflow attempt [sid:2101972]
+     24  GPL TFTP Put [sid:2100518]
+     21  SURICATA STREAM ESTABLISHED invalid ack [sid:2210029]
+     21  SURICATA STREAM Packet with invalid ack [sid:2210045]
+     18  GPL NETBIOS SMB-DS IPC$ unicode share access [sid:2102466]
+     16  SURICATA SMB file overlap [sid:2225006]
+     16  GPL NETBIOS SMB IPC$ unicode share access [sid:2100538]
+     15  SURICATA HTTP URI terminated by non-compliant character [sid:2221029]
+     14  SURICATA Applayer Detect protocol only one direction [sid:2260002]
+     12  GPL RPC portmap admind request TCP [sid:2101262]
+      9  GPL RPC portmap yppasswd request TCP [sid:2101275]
+      9  GPL RPC portmap status request TCP [sid:2102016]
+      8  GPL RPC portmap RQUOTA request UDP [sid:2101961]
+      8  GPL RPC portmap NFS request TCP [sid:2101960]
+      8  SURICATA HTTP unable to match response to request [sid:2221010]
+      6  SURICATA HTTP request buffer too long [sid:2221018]
+      6  GPL RPC portmap ypserv request TCP [sid:2101276]
+      6  SURICATA HTTP Host header ambiguous [sid:2221015]
+      6  GPL EXPLOIT login buffer non-evasive overflow attempt [sid:2103274]
+      6  GPL RPC portmap admind request UDP [sid:2100575]
+      6  GPL RPC portmap pcnfsd request UDP [sid:2100581]
+      6  GPL FTP USER overflow attempt [sid:2101734]
+      6  GPL RPC portmap nisd request UDP [sid:2100580]
+      6  GPL RPC portmap mountd request UDP [sid:2100579]
+      6  GPL RPC portmap ttdbserv request UDP [sid:2100588]
+      6  GPL RPC portmap rwalld request TCP [sid:2101733]
+      6  SURICATA STREAM ESTABLISHED SYN resend with different seq [sid:2210027]
+      6  SURICATA STREAM ESTABLISHED SYNACK resend with different ACK [sid:2210023]
+      6  GPL RPC portmap sadmind request TCP [sid:2101272]
+      6  GPL RPC portmap nisd request TCP [sid:2101267]
+      6  GPL RPC portmap RQUOTA request TCP [sid:2101962]
+      6  ET HUNTING Suspicious Percentage Symbol Usage in FTP Username [sid:2011487]
+      5  GPL RPC portmap amountd request TCP [sid:2101263]
+      5  SURICATA STREAM FIN out of window [sid:2210038]
+      5  SURICATA STREAM FIN invalid ack [sid:2210030]
+      5  ET SHELLCODE Rothenburg Shellcode [sid:2009247]
+      5  GPL RPC portmap bootparam request TCP [sid:2101264]
+      4  SURICATA HTTP Host header invalid [sid:2221028]
+      4  GPL RPC portmap ypserv request UDP [sid:2100590]
+      4  SURICATA TLS handshake invalid length [sid:2230019]
+      4  GPL RPC portmap status request UDP [sid:2100587]
+      4  ET SCAN Suspicious inbound to mySQL port 3306 [sid:2010937]
+      4  GPL RPC portmap bootparam request UDP [sid:2100577]
+      4  GPL RPC portmap kcms_server
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+The count_alerts output was capped. Let me get the full signature list via count_by.
+
+
+--- Turn 2 | 7,512 in / 434 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | \"\\(.alert.signature) [sid:\\(.alert.signature_id)]\""
+}
+[TOOL RESULT] count_by
+     80  SURICATA STREAM ESTABLISHED packet out of window [sid:2210020]
+     79  CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor) [sid:7600102]
+     66  CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon) [sid:7600103]
+     34  GPL FTP PASS overflow attempt [sid:2101972]
+     24  GPL TFTP Put [sid:2100518]
+     21  SURICATA STREAM ESTABLISHED invalid ack [sid:2210029]
+     21  SURICATA STREAM Packet with invalid ack [sid:2210045]
+     18  GPL NETBIOS SMB-DS IPC$ unicode share access [sid:2102466]
+     16  SURICATA SMB file overlap [sid:2225006]
+     16  GPL NETBIOS SMB IPC$ unicode share access [sid:2100538]
+     15  SURICATA HTTP URI terminated by non-compliant character [sid:2221029]
+     14  SURICATA Applayer Detect protocol only one direction [sid:2260002]
+     12  GPL RPC portmap admind request TCP [sid:2101262]
+      9  GPL RPC portmap yppasswd request TCP [sid:2101275]
+      9  GPL RPC portmap status request TCP [sid:2102016]
+      8  GPL RPC portmap RQUOTA request UDP [sid:2101961]
+      8  GPL RPC portmap NFS request TCP [sid:2101960]
+      8  SURICATA HTTP unable to match response to request [sid:2221010]
+      6  SURICATA HTTP request buffer too long [sid:2221018]
+      6  GPL RPC portmap ypserv request TCP [sid:2101276]
+      6  SURICATA HTTP Host header ambiguous [sid:2221015]
+      6  GPL EXPLOIT login buffer non-evasive overflow attempt [sid:2103274]
+      6  GPL RPC portmap admind request UDP [sid:2100575]
+      6  GPL RPC portmap pcnfsd request UDP [sid:2100581]
+      6  GPL FTP USER overflow attempt [sid:2101734]
+      6  GPL RPC portmap nisd request UDP [sid:2100580]
+      6  GPL RPC portmap mountd request UDP [sid:2100579]
+      6  GPL RPC portmap ttdbserv request UDP [sid:2100588]
+      6  GPL RPC portmap rwalld request TCP [sid:2101733]
+      6  SURICATA STREAM ESTABLISHED SYN resend with different seq [sid:2210027]
+      6  SURICATA STREAM ESTABLISHED SYNACK resend with different ACK [sid:2210023]
+      6  GPL RPC portmap sadmind request TCP [sid:2101272]
+      6  GPL RPC portmap nisd request TCP [sid:2101267]
+      6  GPL RPC portmap RQUOTA request TCP [sid:2101962]
+      6  ET HUNTING Suspicious Percentage Symbol Usage in FTP Username [sid:2011487]
+      5  GPL RPC portmap amountd request TCP [sid:2101263]
+      5  SURICATA STREAM FIN out of window [sid:2210038]
+      5  SURICATA STREAM FIN invalid ack [sid:2210030]
+      5  ET SHELLCODE Rothenburg Shellcode [sid:2009247]
+      5  GPL RPC portmap bootparam request TCP [sid:2101264]
+      4  SURICATA HTTP Host header invalid [sid:2221028]
+      4  GPL RPC portmap ypserv request UDP [sid:2100590]
+      4  SURICATA TLS handshake invalid length [sid:2230019]
+      4  GPL RPC portmap status request UDP [sid:2100587]
+      4  ET SCAN Suspicious inbound to mySQL port 3306 [sid:2010937]
+      4  GPL RPC portmap bootparam request UDP [sid:2100577]
+      4  GPL RPC portmap kcms_server
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+The output is still truncated. Let me get the full picture via shorter lines — counting by signature ID only.
+
+
+--- Turn 3 | 15,505 in / 1,019 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | .alert.signature_id"
+}
+[TOOL RESULT] count_by
+     80  2210020
+     79  7600102
+     66  7600103
+     34  2101972
+     24  2100518
+     21  2210029
+     21  2210045
+     18  2102466
+     16  2225006
+     16  2100538
+     15  2221029
+     14  2260002
+     12  2101262
+      9  2101275
+      9  2102016
+      8  2101961
+      8  2101960
+      8  2221010
+      6  2221018
+      6  2101276
+      6  2221015
+      6  2103274
+      6  2100575
+      6  2100581
+      6  2101734
+      6  2100580
+      6  2100579
+      6  2100588
+      6  2101733
+      6  2210027
+      6  2210023
+      6  2101272
+      6  2101267
+      6  2101962
+      6  2011487
+      5  2101263
+      5  2210038
+      5  2210030
+      5  2009247
+      5  2101264
+      4  2221028
+      4  2100590
+      4  2230019
+      4  2100587
+      4  2010937
+      4  2100577
+      4  2102005
+      4  2221002
+      4  2010936
+      4  2102511
+      3  2010963
+      3  2009361
+      3  2100257
+      3  2101271
+      3  2200070
+      3  2221045
+      3  2100591
+      3  2101270
+      3  2100593
+      3  2100977
+      3  2220004
+      3  2101379
+      3  2101268
+      3  2101269
+      3  2101435
+      3  2011488
+      2  2100582
+      2  2011011
+      2  2233000
+      2  2260003
+      2  2100583
+      2  2101732
+      2  2011768
+      2  2229005
+      2  2221004
+      2  2200003
+      2  2200069
+      2  2230015
+      2  2102015
+      2  2101443
+      2  2017886
+      2  2100576
+      2  2240006
+      2  2059740
+      2  2100252
+      2  2101277
+      2  2100589
+      2  2233003
+      2  2221036
+      2  2100585
+      2  9500002
+      2  2062928
+      2  2220006
+      2  2102185
+      2  2100584
+      1  2010140
+      1  2061768
+      1  2049401
+      1  2009362
+      1  2103070
+      1  2053461
+      1  2260001
+      1  2225002
+      1  2225003
+      1  2221027
+      1  2019182
+      1  2019804
+      1  2038502
+      1  2100349
+      1  2101973
+      1  2017887
+      1  2010592
+      1  2017172
+      1  2101334
+      1  2061825
+      1  2033164
+      1  2005075
+      1  2005076
+      1  2014886
+      1  2221020
+      1  2221034
+      1  2101244
+      1  2101245
+      1  2053468
+      1  2220020
+      1  2103074
+      1  2102649
+      1  2100961
+      1  2004924
+      1  2004925
+      1  2009363
+      1  2002024
+      1  2017890
+      1  2100492
+      1  2009714
+      1  2016183
+      1  2101242
+      1  2102374
+      1  2210044
+      1  2001219
+      1  2100987
+      1  2067113
+      1  2200004
+      1  2200008
+      1  2009715
+      1  2061824
+      1  2221014
+      1  2103007
+      1  2016184
+      1  2008176
+      1  2016920
+      1  2016953
+      1  2016956
+      1  2033406
+      1  2103068
+      1  2221003
+      1  2101842
+      1  2018652
+      1  2033907
+      1  2103276
+      1  2102251
+      1  2004743
+      1  2100958
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+I now have all SIDs. The tail of the signature list was truncated, so let me map the remaining SIDs to names.
+
+
+--- Turn 4 | 25,235 in / 2,251 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | select(.alert.signature_id as $s | [2005076,2014886,2221020,2221034,2101244,2101245,2053468,2220020,2103074,2102649,2100961,2004924,2004925,2009363,2002024,2017890,2100492,2009714,2016183,2101242,2102374,2210044,2001219,2100987,2067113,2200004,2200008,2009715,2061824,2221014,2103007,2016184,2008176,2016920,2016953,2016956,2033406,2103068,2221003,2101842,2018652,2033907,2103276,2102251,2004743,2100958] | index($s)) | \"\\(.alert.signature_id) \\(.alert.signature)\""
+}
+[TOOL RESULT] count_by
+      1  2005076 ET WEB_SPECIFIC_APPS Fullaspsite Asp Hosting Sitesi SQL Injection Attempt -- windows.asp kategori_id UNION SELECT
+      1  2014886 ET WEB_SERVER IIS INDEX_ALLOCATION Auth Bypass Attempt
+      1  2221020 SURICATA HTTP response field missing colon
+      1  2221034 SURICATA HTTP Request unrecognized authorization method
+      1  2101244 GPL EXPLOIT ISAPI .idq attempt
+      1  2101245 GPL EXPLOIT ISAPI .idq access
+      1  2053468 ET WEB_SERVER Possible SQL Injection UNION SELECT in HTTP Request Body
+      1  2220020 SURICATA SMTP filename truncated
+      1  2103074 GPL IMAP subscribe overflow attempt
+      1  2102649 GPL SQL service_name buffer overflow attempt
+      1  2100961 GPL WEB_SERVER services.cnf access
+      1  2004924 ET WEB_SPECIFIC_APPS Philboard SQL Injection Attempt -- philboard_forum.asp forumid SELECT
+      1  2004925 ET WEB_SPECIFIC_APPS Philboard SQL Injection Attempt -- philboard_forum.asp forumid UNION SELECT
+      1  2009363 ET HUNTING Suspicious Chmod Usage in URI (Inbound)
+      1  2002024 ET CHAT IRC NICK command
+      1  2017890 ET HUNTING SUSPICIOUS SMTP EXE - RAR file with .scr filename inside
+      1  2100492 GPL TELNET TELNET login failed
+      1  2009714 ET WEB_SERVER Script tag in URI Possible Cross Site Scripting Attempt
+      1  2016183 ET WEB_SERVER ColdFusion adminapi access
+      1  2101242 GPL EXPLOIT ISAPI .ida access
+      1  2102374 GPL FTP NLST overflow attempt
+      1  2210044 SURICATA STREAM Packet with invalid timestamp
+      1  2001219 ET SCAN Potential SSH Scan
+      1  2100987 GPL EXPLOIT .htr access
+      1  2067113 ET HUNTING Large non-DNS Packet on Port 53
+      1  2200004 SURICATA IPv4 invalid option
+      1  2200008 SURICATA IPv4 option end of list required
+      1  2009715 ET WEB_SERVER Onmouseover= in URI - Likely Cross Site Scripting Attempt
+      1  2061824 ET EXPLOIT Sinapsi eSolar Light Photovoltaic System - Command Injection Attempt Inbound (CVE-2012-5863)
+      1  2221014 SURICATA HTTP missing Host header
+      1  2103007 GPL IMAP delete overflow attempt
+      1  2016184 ET WEB_SERVER ColdFusion administrator access
+      1  2008176 ET WEB_SERVER Possible SQL Injection (exec) in HTTP URI
+      1  2016920 ET WEB_SERVER Apache Struts Possible xwork Disable Method Execution
+      1  2016953 ET EXPLOIT Apache Struts Possible OGNL Java Exec In URI
+      1  2016956 ET EXPLOIT Apache Struts Possible OGNL AllowStaticMethodAccess in URI
+      1  2033406 ET HUNTING .exec in HTTP URI Inbound - Possible Exploit Activity
+      1  2103068 GPL IMAP examine overflow attempt
+      1  2221003 SURICATA HTTP invalid request chunk len
+      1  2101842 GPL IMAP login buffer overflow attempt
+      1  2018652 ET WEB_SPECIFIC_APPS Oracle Event Processing FileUploadServlet Arbitrary File Upload
+      1  2033907 ET EXPLOIT Cisco HyperFlex HX Data Platform Pre-Auth RCE Inbound (CVE-2021-1499)
+      1  2103276 GPL NETBIOS DCERPC IActivation little endian bind attempt
+      1  2102251 GPL NETBIOS DCERP
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+I now have the full signature inventory. Let me get the total event type counts and total alert count to scope the file.
+
+
+--- Turn 5 | 37,116 in / 2,481 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": ".event_type"
+}
+[TOOL RESULT] count_by
+    799  alert
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | length"
+}
+[TOOL RESULT] query_eve_json
+15
+20
+20
+16
+20
+20
+20
+16
+16
+14
+14
+14
+19
+20
+20
+15
+15
+19
+19
+20
+19
+19
+15
+16
+20
+20
+20
+16
+14
+14
+15
+18
+16
+20
+20
+16
+15
+15
+14
+14
+14
+16
+16
+17
+17
+16
+16
+15
+18
+18
+15
+15
+15
+15
+15
+11
+15
+14
+14
+16
+16
+14
+19
+18
+16
+15
+15
+20
+15
+15
+20
+20
+20
+20
+20
+20
+19
+16
+17
+17
+16
+15
+15
+15
+15
+16
+16
+16
+16
+16
+16
+16
+16
+16
+15
+15
+15
+15
+16
+16
+15
+15
+15
+15
+15
+15
+15
+15
+14
+14
+15
+15
+15
+15
+15
+15
+14
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+21
+20
+20
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+15
+16
+16
+16
+15
+
+[TRUNCATED: showing 150 of 799 results. Use count_by for aggregation, or add select() filters to narrow the query.]
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me examine the structure of an alert event to understand available fields.
+
+
+--- Turn 6 | 49,580 in / 4,551 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | . | keys"
+}
+[TOOL RESULT] query_eve_json
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","http","ip_v","metadata","pcap_cnt","pkt_src","proto","src_ip","src_port","tc_progress","timestamp","ts_progress","tx_id"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","http","ip_v","metadata","pcap_cnt","pkt_src","proto","src_ip","src_port","tc_progress","timestamp","ts_progress","tx_id"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","metadata","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","http","ip_v","metadata","pcap_cnt","pkt_src","proto","src_ip","src_port","tc_progress","timestamp","ts_progress","tx_id"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","http","ip_v","metadata","pcap_cnt","pkt_src","proto","src_ip","src_port","tc_progress","timestamp","ts_progress","tx_id"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","http","ip_v","metadata","pcap_cnt","pkt_src","proto","src_ip","src_port","tc_progress","timestamp","ts_progress","tx_id"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","metadata","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","metadata","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","files","flow","flow_id","ip_v","metadata","pcap_cnt","pkt_src","proto","smb","src_ip","src_port","timestamp","tx_id"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","http","ip_v","metadata","pcap_cnt","pkt_src","proto","src_ip","src_port","tc_progress","timestamp","ts_progress","tx_id"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","files","flow","flow_id","http","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","tc_progress","timestamp","ts_progress","tx_id"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","src_port","timestamp"]
+["alert","app_proto","dest_ip","dest_port","direction","event_type","flow","flow_id","ip_v","pcap_cnt","pkt_src","proto","src_ip","
+------------------------------------------------------------------------
+
+--- Turn 7 | 66,467 in / 4,776 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==7600102) | .[0:1]"
+}
+[TOOL RESULT] query_eve_json
+(no results)
+------------------------------------------------------------------------
+
+--- Turn 8 | 83,593 in / 5,011 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "logs/unsw-10-bare/eve.json"
+}
+[TOOL RESULT] read_file
+Error: this file cannot be read in this condition; only alert data is available.
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me get the category/severity for each signature to help categorise them.
+
+
+--- Turn 9 | 100,982 in / 5,486 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | \"\\(.alert.signature_id) | \\(.alert.category) | \\(.alert.severity)\""
+}
+[TOOL RESULT] count_by
+     80  2210020 | Generic Protocol Command Decode | 3
+     79  7600102 | Attempted Information Leak | 2
+     66  7600103 | Attempted Information Leak | 2
+     34  2101972 | Attempted Administrator Privilege Gain | 1
+     24  2100518 | Potentially Bad Traffic | 2
+     21  2210029 | Generic Protocol Command Decode | 3
+     21  2210045 | Generic Protocol Command Decode | 3
+     18  2102466 | Generic Protocol Command Decode | 3
+     16  2225006 | Generic Protocol Command Decode | 3
+     16  2100538 | Generic Protocol Command Decode | 3
+     15  2221029 | Generic Protocol Command Decode | 3
+     14  2260002 | Generic Protocol Command Decode | 3
+     12  2101262 | Decode of an RPC Query | 2
+      9  2101275 | Decode of an RPC Query | 2
+      9  2102016 | Decode of an RPC Query | 2
+      8  2101961 | Decode of an RPC Query | 2
+      8  2101960 | Decode of an RPC Query | 2
+      8  2221010 | Generic Protocol Command Decode | 3
+      6  2221018 | Generic Protocol Command Decode | 3
+      6  2101276 | Decode of an RPC Query | 2
+      6  2221015 | Generic Protocol Command Decode | 3
+      6  2103274 | Attempted Administrator Privilege Gain | 1
+      6  2100575 | Decode of an RPC Query | 2
+      6  2100581 | Decode of an RPC Query | 2
+      6  2101734 | Attempted Administrator Privilege Gain | 1
+      6  2100580 | Decode of an RPC Query | 2
+      6  2100579 | Decode of an RPC Query | 2
+      6  2100588 | Decode of an RPC Query | 2
+      6  2101733 | Decode of an RPC Query | 2
+      6  2210027 | Generic Protocol Command Decode | 3
+      6  2210023 | Generic Protocol Command Decode | 3
+      6  2101272 | Decode of an RPC Query | 2
+      6  2101267 | Decode of an RPC Query | 2
+      6  2101962 | Decode of an RPC Query | 2
+      6  2011487 | Potentially Bad Traffic | 2
+      5  2101263 | Decode of an RPC Query | 2
+      5  2210038 | Generic Protocol Command Decode | 3
+      5  2210030 | Generic Protocol Command Decode | 3
+      5  2009247 | Executable code was detected | 1
+      5  2101264 | Decode of an RPC Query | 2
+      4  2221028 | Generic Protocol Command Decode | 3
+      4  2100590 | Decode of an RPC Query | 2
+      4  2230019 | Generic Protocol Command Decode | 3
+      4  2100587 | Decode of an RPC Query | 2
+      4  2010937 | Potentially Bad Traffic | 2
+      4  2100577 | Decode of an RPC Query | 2
+      4  2102005 | Decode of an RPC Query | 2
+      4  2221002 | Generic Protocol Command Decode | 3
+      4  2010936 | Potentially Bad Traffic | 2
+      4  2102511 | Attempted Administrator Privilege Gain | 1
+      3  2010963 | Web Application Attack | 1
+      3  2009361 | Attempted Information Leak | 2
+      3  2100257 | Attempted Information Leak | 2
+      3  2101271 | Decode of an RPC Query | 2
+      3  2200070 | Generic Protocol Command Decode | 3
+      3  2221045 | Generic Protocol Command Decode | 3
+      3  2100591 | Decode of an RPC Query | 2
+      3  2101270 | Decode of an RPC Query | 2
+      3  2100593 | Decode of an RPC Query | 2
+      3  2100977
+------------------------------------------------------------------------
+
+--- Turn 10 | 121,403 in / 5,735 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | select(.alert.signature_id as $s | [2101842,2018652,2033907,2103276,2102251,2004743,2100958] | index($s)) | \"\\(.alert.signature_id) | \\(.alert.category) | \\(.alert.severity)\""
+}
+[TOOL RESULT] count_by
+      1  2101842 | Attempted User Privilege Gain | 1
+      1  2018652 | Web Application Attack | 1
+      1  2033907 | Attempted Administrator Privilege Gain | 1
+      1  2103276 | Generic Protocol Command Decode | 3
+      1  2102251 | Attempted Administrator Privilege Gain | 1
+      1  2004743 | Web Application Attack | 1
+      1  2100958 | access to a potentially vulnerable web application | 2
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Now let me understand the hosts involved. I'll count source and destination IPs across all alerts.
+
+
+--- Turn 11 | 142,197 in / 5,996 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | .src_ip"
+}
+[TOOL RESULT] count_by
+    299  175.45.176.0
+    113  175.45.176.2
+    109  175.45.176.3
+     91  175.45.176.1
+     22  59.166.0.2
+     20  149.171.126.2
+     14  149.171.126.4
+     11  149.171.126.1
+     11  149.171.126.8
+      9  59.166.0.9
+      9  149.171.126.3
+      9  149.171.126.6
+      8  59.166.0.1
+      8  149.171.126.7
+      8  149.171.126.5
+      8  59.166.0.8
+      7  149.171.126.13
+      7  149.171.126.12
+      4  149.171.126.11
+      4  149.171.126.15
+      4  149.171.126.14
+      3  149.171.126.19
+      3  149.171.126.9
+      3  149.171.126.17
+      3  149.171.126.0
+      2  59.166.0.3
+      2  59.166.0.0
+      2  149.171.126.18
+      2  null
+      2  149.171.126.16
+      1  149.171.126.10
+      1  59.166.0.4
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | .dest_ip"
+}
+[TOOL RESULT] count_by
+    182  149.171.126.10
+     76  149.171.126.13
+     61  149.171.126.19
+     61  149.171.126.15
+     53  149.171.126.16
+     43  149.171.126.14
+     38  149.171.126.17
+     34  149.171.126.12
+     33  149.171.126.11
+     31  149.171.126.18
+     22  149.171.126.2
+     18  59.166.0.2
+     16  175.45.176.0
+     14  59.166.0.4
+     13  59.166.0.9
+     11  59.166.0.7
+     10  59.166.0.8
+      8  149.171.126.4
+      8  59.166.0.3
+      8  175.45.176.2
+      7  175.45.176.1
+      7  149.171.126.8
+      6  175.45.176.3
+      6  59.166.0.1
+      6  59.166.0.0
+      5  59.166.0.6
+      5  59.166.0.5
+      4  149.171.126.3
+      4  149.171.126.9
+      2  149.171.126.0
+      2  149.171.126.1
+      2  null
+      2  149.171.126.6
+      1  149.171.126.7
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+The attack activity is heavily concentrated in the 175.45.176.0/24 range. Let me drill into the highest-count custom rules first.
+
+
+--- Turn 12 | 163,984 in / 6,619 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==7600102) | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port) \\(.proto)/\\(.app_proto) \\(.direction)\""
+}
+[TOOL RESULT] count_by
+     66  175.45.176.0 -> 149.171.126.10:7002 TCP/tls to_server
+      7  175.45.176.2 -> 149.171.126.19:443 TCP/tls to_server
+      1  175.45.176.2 -> 149.171.126.12:443 TCP/tls to_server
+      1  175.45.176.0 -> 149.171.126.15:443 TCP/tls to_server
+      1  175.45.176.0 -> 149.171.126.10:443 TCP/tls to_server
+      1  175.45.176.0 -> 149.171.126.11:443 TCP/tls to_server
+      1  175.45.176.2 -> 149.171.126.16:443 TCP/tls to_server
+      1  175.45.176.2 -> 149.171.126.13:443 TCP/tls to_server
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==7600103) | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port) \\(.proto)/\\(.app_proto) \\(.direction)\""
+}
+[TOOL RESULT] count_by
+     66  175.45.176.0 -> 149.171.126.10:7002 TCP/tls to_server
+------------------------------------------------------------------------
+
+--- Turn 13 | 186,657 in / 6,981 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==7600102) | {timestamp, src_ip, dest_ip, dest_port, direction, signature: .alert.signature}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:17:41.323821+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":443,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:17:42.560278+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":443,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:17:43.612595+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":443,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:17:44.092945+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":443,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:17:44.381606+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":443,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:17:44.383378+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":443,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:17:44.693530+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":443,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:19:01.800868+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:19:02.322200+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:19:02.862240+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:19:03.070053+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:19:03.489715+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"}
+{"timestamp":"2015-02-18T14:19:
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==7600103) | {timestamp, src_ip, dest_ip, dest_port, direction, signature: .alert.signature}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:19:01.800868+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"}
+{"timestamp":"2015-02-18T14:19:02.322200+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"}
+{"timestamp":"2015-02-18T14:19:02.862240+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"}
+{"timestamp":"2015-02-18T14:19:03.070053+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"}
+{"timestamp":"2015-02-18T14:19:03.489715+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"}
+{"timestamp":"2015-02-18T14:19:03.710232+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"}
+{"timestamp":"2015-02-18T14:19:04.057048+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"}
+{"timestamp":"2015-02-18T14:19:04.319575+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"}
+{"timestamp":"2015-02-18T14:19:04.676406+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"}
+{"timestamp":"2015-02-18T14:19:05.040419+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"}
+{"timestamp":"2015-02-18T14:19:05.815676+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","signature":"CUSTOM TLS service on non-standard port handshaked from external host (possible vulnerable-service recon)"}
+{"timestamp":"2015-02-18T14:19:06.260287+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.10","dest_port":7002,"direction":"to_server","
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me summarise the overall time window and activity by minute.
+
+
+--- Turn 14 | 214,840 in / 7,659 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | .timestamp[0:16]"
+}
+[TOOL RESULT] count_by
+    166  2015-02-18T14:19
+     44  2015-02-18T14:21
+     43  2015-02-18T14:38
+     36  2015-02-18T14:25
+     34  2015-02-18T14:17
+     34  2015-02-18T14:24
+     33  2015-02-18T14:20
+     31  2015-02-18T14:16
+     30  2015-02-18T14:22
+     29  2015-02-18T14:28
+     27  2015-02-18T14:37
+     25  2015-02-18T14:26
+     24  2015-02-18T14:23
+     24  2015-02-18T14:27
+     24  2015-02-18T14:36
+     23  2015-02-18T14:42
+     22  2015-02-18T14:40
+     21  2015-02-18T14:30
+     20  2015-02-18T14:18
+     19  2015-02-18T14:39
+     17  2015-02-18T14:31
+     17  2015-02-18T14:32
+     15  2015-02-18T14:33
+     13  2015-02-18T14:29
+     12  2015-02-18T14:41
+      8  2015-02-18T14:34
+      8  2015-02-18T14:35
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me read the generated rules to understand what the custom SIDs detect.
+
+
+--- Turn 15 | 244,090 in / 7,885 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "rules/generated/unsw_bare.rules"
+}
+[TOOL RESULT] read_file
+# rules/generated/unsw_bare.rules
+# Detection rules authored by the AI triage engine for UNSW-NB15 under the bare-alert condition (Experiment 1).
+#
+# Triage of logs/unsw-3-bare/eve.json (893 alerts, 2015-02-18 11:01:36-11:29:10 +0930).
+# HOME_NET = 149.171.126.0/24 (servers) + 59.166.0.0/24 (clients).
+# EXTERNAL_NET includes known attacker range 175.45.176.0/24.
+#
+# Coverage gaps addressed:
+#   1. GPL 2102466 fires once per SMB IPC$ share access, producing a wall of
+#      identical per-connection alerts (124 from 175.45.176.1 -> 149.171.126.15
+#      in ~50s). No stock rule articulates the brute-force campaign itself.
+#   2. The RPC portmap sweep (176 GPL "RPC portmap ... request" alerts across
+#      12 HOME_NET servers, TCP+UDP/111, from all four attacker IPs) is reported
+#      only as individual RPC program queries. No stock rule flags the
+#      source-level sweep.
+
+# --- 1. SMB IPC$ share-access brute force (external -> HOME_NET SMB) ---------
+# One external host repeatedly attempting the IPC$ share on 445 is credential
+# brute-forcing / share enumeration. Thresholds aggregate the per-connection
+# stock GPL alerts into one campaign-level alert.
+alert smb $EXTERNAL_NET any -> $HOME_NET 445 ( \
+    msg:"CUSTOM SMB IPC$ share-access brute force from external host"; \
+    flow:to_server,established; \
+    smb.share; content:"IPC$"; nocase; \
+    threshold:type threshold, track by_src, count 20, seconds 60; \
+    classtype:attempted-user; \
+    sid:7700001; rev:1;)
+
+# --- 2. RPC portmap sweep (external -> HOME_NET portmapper) -----------------
+# A single external host generating many TCP/UDP packets to port 111 across
+# HOME_NET is running a portmapper/RPC program enumeration sweep. The stock
+# GPL portmap rules fire per RPC program; this rule collapses the source-level
+# sweep into one alert.
+alert ip $EXTERNAL_NET any -> $HOME_NET 111 ( \
+    msg:"CUSTOM RPC portmap sweep - external host hammering portmapper 111"; \
+    threshold:type threshold, track by_src, count 30, seconds 120; \
+    classtype:attempted-recon; \
+    sid:7700002; rev:1;)
+
+# --- Additional rules from triage of logs/unsw-1-bare/eve.json (997 alerts) ---
+# Confirmed attack patterns not already covered by rules 7700001/7700002:
+#   1. Heartbleed (CVE-2014-0160): attacker 175.45.176.2 -> 149.171.126.11:443
+#      triggered a large heartbeat response from the server (ET 2018382 +
+#      SURICATA 2230012). Recon bursts preceded/followed it (7600102/7600103
+#      fired 133 times in this capture).
+#   2. FTP PASS overflow/brute-force: 175.45.176.3 -> 149.171.126.18:21 made
+#      17 overflowing PASS attempts in ~2 minutes (34 stock GPL 2101972 alerts).
+#   3. TFTP abuse: attacker hosts issued TFTP GET passwd (2101443) and repeated
+#      TFTP Put uploads (2100518) to internal servers on UDP/69.
+
+# --- 3. Heartbleed overflow heartbeat exploit attempt ----------------------
+alert tls $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM Heartbleed overflow heartbeat exploit attempt
+------------------------------------------------------------------------
+
+--- Turn 16 | 275,001 in / 8,321 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] list_directory
+{
+  "dir_path": "rules/generated"
+}
+[TOOL RESULT] list_directory
+  bruteforce_campaigns.rules  (6.1 KB)
+  canary_load_check.rules  (693 B)
+  diag_fakeverb.rules  (98 B)
+  friday_botnet_ares.rules  (2.9 KB)
+  friday_botnet_c2.rules  (4.9 KB)
+  friday_ddos.rules  (2.6 KB)
+  friday_ddos_portscan.rules  (3.9 KB)
+  friday_new_rules_validation_report.md  (10.7 KB)
+  friday_raw_triage_report.md  (14.3 KB)
+  friday_triage_report.md  (6.6 KB)
+  thursday_raw_synsweep.rules  (1.2 KB)
+  thursday_webattacks_infiltration.rules  (6.5 KB)
+  tuesday_bruteforce.rules  (5.1 KB)
+  unsw_bare.rules  (4.7 KB)
+  unsw_triage.rules  (12.8 KB)
+  wednesday_heartbleed.rules  (3.7 KB)
+  wednesday_slowloris.rules  (2.5 KB)
+  wednesday_triage_report.md  (6.9 KB)
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] list_directory
+{
+  "dir_path": "logs/unsw-10-bare"
+}
+[TOOL RESULT] list_directory
+  eve.json  (679.9 KB)
+  fast.log  (169.0 KB)
+------------------------------------------------------------------------
+
+--- Turn 17 | 306,665 in / 8,820 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "rules/generated/unsw_triage.rules"
+}
+[TOOL RESULT] read_file
+Error: access to this path is not permitted.
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "rules/generated/wednesday_heartbleed.rules"
+}
+[TOOL RESULT] read_file
+# rules/generated/wednesday_heartbleed.rules
+# Generated detection for the Wednesday 2017 Heartbleed (CVE-2014-0160) exploitation.
+#
+# CONFIRMED THREAT — true positive.
+# Attacker 172.16.0.1 (known CIC-IDS2017 external attacker) exploited a vulnerable
+# OpenSSL TLS service on victim 192.168.10.51:444.
+#
+# Evidence (logs/wednesday-raw/eve.json):
+#   - 2017-07-06 03:42:20, flow 172.16.0.1:45022 -> 192.168.10.51:444
+#     flow.bytes_toserver = 1,963,593   (1.9 MB of crafted heartbeat requests)
+#     flow.bytes_toclient = 81,482,031  (81.5 MB returned to the attacker)
+#   - A normal TLS handshake on the same service is ~350-850 B up / ~0.4-1.6 KB down.
+#     The 81.5 MB response is the out-of-bounds memory disclosure: repeated crafted
+#     Heartbeat requests leaking ~64 KB of server process memory each.
+#   - ET 2018377 "Possible OpenSSL HeartBleed Large HeartBeat Response" fired ONCE
+#     (192.168.10.51:444 -> 172.16.0.1:45022); SURICATA 2230014 "invalid encrypted
+#     heartbeat" fired twice. The stock heartbeat-payload rules are unreliable
+#     because the heartbeat record is encrypted, so most of the exploitation is
+#     invisible to the stock ruleset.
+#   - Immediately before the exploit there were repeated short TLS handshakes to
+#     :444 (03:22:55, 03:23:13, 03:29:47, 03:39:50, 03:39:54, 03:40:02, 03:40:08,
+#     03:42:15) — the attacker was fingerprinting the vulnerable service (identical
+#     JA3 7c657f99ee40e9602437b4c56bcc4c16).
+#
+# NOTE: cumulative flow volume (the decisive 81.5 MB leak) cannot be matched by a
+# single packet rule. These rules anchor on the app-layer heartbeat anomaly plus
+# the recon burst that preceded exploitation.
+
+# --- 1. Heartbleed heartbeat anomaly, direction-scoped to the leak -----------
+# Suricata's TLS parser saw an invalid/encrypted heartbeat. Scoped to_server
+# (external client -> HOME_NET service) so the offending direction is explicit,
+# complementing stock 2230014 which alerts in both directions.
+alert tls $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM TLS Heartbleed exploitation attempt - invalid encrypted heartbeat to HOME_NET TLS service (CVE-2014-0160)"; \
+    flow:to_server,established; \
+    app-layer-event:tls.invalid_encrypted_heartbeat; \
+    classtype:attempted-user; reference:cve,2014-0160; reference:url,heartbleed.com; \
+    sid:7600101; rev:2;)
+
+# --- 2. Sustained TLS handshake burst from one external host -----------------
+# The attacker opened repeated short TLS handshakes to the SAME HOME_NET TLS
+# service before the big leak. In this capture the final 5-minute window
+# (03:39:50-03:44:50) contains 5 handshakes, so count 5 / 300s catches it.
+alert tls $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM TLS heartbeat/handshake burst to HOME_NET service (Heartbleed recon/exploit precursor)"; \
+    flow:to_server,established; \
+    threshold:type threshold, track by_src, count 5, seconds 300; \
+    classtype:attempted-recon; reference:cve,2014-0160; \
+    sid:7600102; rev:2;
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Now let me investigate the FTP overflow and TFTP activity, which look like real attacks.
+
+
+--- Turn 18 | 339,948 in / 9,673 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2101972) | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port) \\(.proto)/\\(.app_proto) \\(.direction)\""
+}
+[TOOL RESULT] count_by
+     34  175.45.176.0 -> 149.171.126.15:21 TCP/ftp to_server
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2100518) | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port) \\(.proto)/\\(.app_proto) \\(.direction)\""
+}
+[TOOL RESULT] count_by
+     16  175.45.176.1 -> 149.171.126.13:69 UDP/tftp to_server
+      2  175.45.176.1 -> 149.171.126.19:69 UDP/tftp to_server
+      2  175.45.176.0 -> 149.171.126.14:69 UDP/tftp to_server
+      2  175.45.176.0 -> 149.171.126.16:69 UDP/tftp to_server
+      2  175.45.176.3 -> 149.171.126.18:69 UDP/tftp to_server
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2009247) | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port) \\(.proto)/\\(.app_proto) \\(.direction)\""
+}
+[TOOL RESULT] count_by
+      1  149.171.126.15 -> 175.45.176.3:57948 TCP/http to_client
+      1  149.171.126.12 -> 175.45.176.1:18684 TCP/http to_client
+      1  149.171.126.11 -> 175.45.176.0:12731 TCP/rfb to_client
+      1  149.171.126.16 -> 175.45.176.3:9560 TCP/http to_client
+      1  149.171.126.11 -> 175.45.176.2:26835 TCP/http to_client
+------------------------------------------------------------------------
+
+--- Turn 19 | 374,407 in / 10,134 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .app_proto==\"ftp\") | \"\\(.alert.signature_id) | \\(.alert.signature) | \\(.src_ip) -> \\(.dest_ip):\\(.dest_port) | \\(.direction)\""
+}
+[TOOL RESULT] count_by
+     34  2101972 | GPL FTP PASS overflow attempt | 175.45.176.0 -> 149.171.126.15:21 | to_server
+      3  2011487 | ET HUNTING Suspicious Percentage Symbol Usage in FTP Username | 175.45.176.2 -> 149.171.126.10:21 | to_server
+      3  2011487 | ET HUNTING Suspicious Percentage Symbol Usage in FTP Username | 175.45.176.2 -> 149.171.126.14:21 | to_server
+      3  2011488 | ET HUNTING Suspicious Quotation Mark Usage in FTP Username | 175.45.176.2 -> 149.171.126.14:21 | to_server
+      2  2101734 | GPL FTP USER overflow attempt | 175.45.176.1 -> 149.171.126.19:21 | to_server
+      2  2101734 | GPL FTP USER overflow attempt | 175.45.176.2 -> 149.171.126.10:21 | to_server
+      2  2101734 | GPL FTP USER overflow attempt | 175.45.176.2 -> 149.171.126.14:21 | to_server
+      1  2100349 | GPL FTP MKD overflow | 175.45.176.3 -> 149.171.126.13:21 | to_server
+      1  2101973 | GPL FTP MKD overflow attempt | 175.45.176.3 -> 149.171.126.13:21 | to_server
+      1  2260002 | SURICATA Applayer Detect protocol only one direction | 149.171.126.17 -> 175.45.176.0:13320 | to_client
+      1  2260002 | SURICATA Applayer Detect protocol only one direction | 175.45.176.3 -> 149.171.126.16:50000 | to_server
+      1  2002024 | ET CHAT IRC NICK command | 175.45.176.3 -> 149.171.126.18:6667 | to_server
+      1  2260002 | SURICATA Applayer Detect protocol only one direction | 175.45.176.3 -> 149.171.126.18:6667 | to_server
+      1  2102374 | GPL FTP NLST overflow attempt | 175.45.176.0 -> 149.171.126.18:21 | to_server
+      1  2101379 | GPL FTP STAT overflow attempt | 175.45.176.1 -> 149.171.126.19:21 | to_server
+------------------------------------------------------------------------
+
+--- Turn 20 | 409,935 in / 10,576 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id as $s | [2101972,2101734,2101379,2100349,2101973,2102374,2011487,2011488] | index($s))) | \"\\(.alert.signature_id) | \\(.src_ip) -> \\(.dest_ip):\\(.dest_port) | \\(.direction)\""
+}
+[TOOL RESULT] count_by
+     34  2101972 | 175.45.176.0 -> 149.171.126.15:21 | to_server
+      3  2011487 | 175.45.176.2 -> 149.171.126.10:21 | to_server
+      3  2011487 | 175.45.176.2 -> 149.171.126.14:21 | to_server
+      3  2011488 | 175.45.176.2 -> 149.171.126.14:21 | to_server
+      2  2101734 | 175.45.176.1 -> 149.171.126.19:21 | to_server
+      2  2101379 | 175.45.176.3 -> 149.171.126.14:21 | to_server
+      2  2101734 | 175.45.176.2 -> 149.171.126.10:21 | to_server
+      2  2101734 | 175.45.176.2 -> 149.171.126.14:21 | to_server
+      1  2100349 | 175.45.176.3 -> 149.171.126.13:21 | to_server
+      1  2101973 | 175.45.176.3 -> 149.171.126.13:21 | to_server
+      1  2102374 | 175.45.176.0 -> 149.171.126.18:21 | to_server
+      1  2101379 | 175.45.176.1 -> 149.171.126.19:21 | to_server
+------------------------------------------------------------------------
+
+--- Turn 21 | 446,276 in / 10,832 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2101972) | {timestamp, src_ip, dest_ip, dest_port, direction}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:20:55.706291+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:20:55.706292+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:11.806881+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:11.806882+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:13.862292+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:13.862302+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:15.682903+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:15.682908+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:18.433124+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:18.433134+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:33.463395+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:33.463403+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:37.039924+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:37.039927+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:42.184482+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:42.184486+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:46.304627+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:21:46.304632+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:22:06.125391+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:22:06.125399+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:22:09.879182+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","dest_port":21,"direction":"to_server"}
+{"timestamp":"2015-02-18T14:22:09.879192+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.15","des
+------------------------------------------------------------------------
+
+--- Turn 22 | 484,721 in / 11,111 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==2100518 or .alert.signature_id==2101443)) | {timestamp, src_ip, dest_ip, dest_port, proto, app_proto, signature: .alert.signature, direction}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:19:14.160801+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.19","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:19:14.160805+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.19","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:22:42.185138+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.17","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP GET passwd","direction":"to_server"}
+{"timestamp":"2015-02-18T14:22:42.185141+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.17","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP GET passwd","direction":"to_server"}
+{"timestamp":"2015-02-18T14:25:06.026868+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.13","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:25:06.026878+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.13","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:25:48.985050+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.13","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:25:48.985056+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.13","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:25:50.808655+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.13","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:25:50.808663+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.13","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:26:35.623548+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.13","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:26:35.623566+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.13","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:26:36.783246+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.13","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:26:36.783255+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.13","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"2015-02-18T14:27:18.272401+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.13","dest_port":69,"proto":"UDP","app_proto":"tftp","signature":"GPL TFTP Put","direction":"to_server"}
+{"timestamp":"20
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Now let me investigate the SMB/RPC-related alerts.
+
+
+--- Turn 23 | 525,411 in / 11,601 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id as $s | [2102466,2100538,2225006,2102511,2225002,2225003,2103276,2102251] | index($s))) | \"\\(.alert.signature_id) | \\(.src_ip) -> \\(.dest_ip):\\(.dest_port) | \\(.proto)/\\(.app_proto) | \\(.direction)\""
+}
+[TOOL RESULT] count_by
+      4  2102466 | 175.45.176.3 -> 149.171.126.19:445 | TCP/smb | to_server
+      4  2102511 | 175.45.176.2 -> 149.171.126.19:139 | TCP/smb | to_server
+      2  2102466 | 175.45.176.0 -> 149.171.126.11:445 | TCP/smb | to_server
+      2  2102466 | 175.45.176.2 -> 149.171.126.10:445 | TCP/smb | to_server
+      2  2102466 | 175.45.176.2 -> 149.171.126.12:445 | TCP/smb | to_server
+      2  2102466 | 175.45.176.3 -> 149.171.126.16:445 | TCP/smb | to_server
+      2  2100538 | 175.45.176.2 -> 149.171.126.17:139 | TCP/smb | to_server
+      2  2102466 | 175.45.176.2 -> 149.171.126.19:445 | TCP/smb | to_server
+      2  2102466 | 175.45.176.0 -> 149.171.126.16:445 | TCP/smb | to_server
+      2  2100538 | 175.45.176.2 -> 149.171.126.18:139 | TCP/smb | to_server
+      2  2100538 | 175.45.176.0 -> 149.171.126.14:139 | TCP/smb | to_server
+      2  2100538 | 175.45.176.3 -> 149.171.126.15:139 | TCP/null | to_server
+      2  2100538 | 175.45.176.1 -> 149.171.126.17:139 | TCP/null | to_server
+      2  2102466 | 175.45.176.3 -> 149.171.126.10:445 | TCP/smb | to_server
+      2  2100538 | 175.45.176.3 -> 149.171.126.15:139 | TCP/smb | to_server
+      2  2100538 | 175.45.176.2 -> 149.171.126.12:139 | TCP/smb | to_server
+      2  2100538 | 175.45.176.2 -> 149.171.126.19:139 | TCP/smb | to_server
+      1  2225006 | 149.171.126.19 -> 175.45.176.3:37141 | TCP/smb | to_client
+      1  2225002 | 175.45.176.0 -> 149.171.126.11:445 | TCP/smb | to_server
+      1  2225003 | 149.171.126.11 -> 175.45.176.0:54775 | TCP/smb | to_client
+      1  2225006 | 149.171.126.10 -> 175.45.176.2:47568 | TCP/smb | to_client
+      1  2225006 | 175.45.176.2 -> 149.171.126.10:445 | TCP/smb | to_server
+      1  2225006 | 149.171.126.17 -> 175.45.176.2:27670 | TCP/smb | to_client
+      1  2225006 | 175.45.176.2 -> 149.171.126.17:139 | TCP/smb | to_server
+      1  2225006 | 175.45.176.0 -> 149.171.126.16:445 | TCP/smb | to_server
+      1  2225006 | 149.171.126.16 -> 175.45.176.0:14790 | TCP/smb | to_client
+      1  2225006 | 149.171.126.14 -> 175.45.176.0:33975 | TCP/smb | to_client
+      1  2225006 | 175.45.176.0 -> 149.171.126.14:139 | TCP/smb | to_server
+      1  2225006 | 175.45.176.3 -> 149.171.126.19:445 | TCP/smb | to_server
+      1  2225006 | 149.171.126.15 -> 175.45.176.3:9122 | TCP/smb | to_client
+      1  2225006 | 175.45.176.3 -> 149.171.126.15:139 | TCP/smb | to_server
+      1  2225006 | 149.171.126.12 -> 175.45.176.2:35706 | TCP/smb | to_client
+      1  2225006 | 175.45.176.2 -> 149.171.126.12:139 | TCP/smb | to_server
+      1  2103276 | 175.45.176.3 -> 149.171.126.19:135 | TCP/dcerpc | to_server
+      1  2102251 | 175.45.176.3 -> 149.171.126.19:135 | TCP/dcerpc | to_server
+      1  2225006 | 149.171.126.19 -> 175.45.176.2:30736 | TCP/smb | to_client
+      1  2225006 | 175.45.176.2 -> 149.171.126.19:139 | TCP/smb | to_server
+------------------------------------------------------------------------
+
+--- Turn 24 | 567,869 in / 11,884 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==2102466 or .alert.signature_id==2100538)) | \"\\(.src_ip) -> \\(.dest_ip) \\(.timestamp[11:16])\""
+}
+[TOOL RESULT] count_by
+      2  175.45.176.3 -> 149.171.126.19 14:16
+      2  175.45.176.0 -> 149.171.126.11 14:17
+      2  175.45.176.2 -> 149.171.126.10 14:17
+      2  175.45.176.2 -> 149.171.126.12 14:20
+      2  175.45.176.3 -> 149.171.126.16 14:21
+      2  175.45.176.2 -> 149.171.126.17 14:23
+      2  175.45.176.2 -> 149.171.126.19 14:24
+      2  175.45.176.0 -> 149.171.126.16 14:24
+      2  175.45.176.2 -> 149.171.126.18 14:27
+      2  175.45.176.3 -> 149.171.126.19 14:30
+      2  175.45.176.0 -> 149.171.126.14 14:32
+      2  175.45.176.3 -> 149.171.126.15 14:32
+      2  175.45.176.1 -> 149.171.126.17 14:34
+      2  175.45.176.3 -> 149.171.126.10 14:36
+      2  175.45.176.3 -> 149.171.126.15 14:37
+      2  175.45.176.2 -> 149.171.126.12 14:38
+      2  175.45.176.2 -> 149.171.126.19 14:42
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Now let me examine the RPC portmap sweep, which accounts for many alerts.
+
+
+--- Turn 25 | 611,029 in / 12,149 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature | contains(\"RPC portmap\"))) | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port) \\(.proto)\""
+}
+[TOOL RESULT] count_by
+      9  175.45.176.1 -> 149.171.126.10:111 TCP
+      9  175.45.176.0 -> 149.171.126.13:111 TCP
+      8  175.45.176.0 -> 149.171.126.10:111 TCP
+      8  175.45.176.3 -> 149.171.126.15:111 UDP
+      6  175.45.176.0 -> 149.171.126.17:111 TCP
+      6  175.45.176.3 -> 149.171.126.17:111 UDP
+      6  175.45.176.0 -> 149.171.126.18:111 TCP
+      5  175.45.176.2 -> 149.171.126.16:111 TCP
+      5  175.45.176.1 -> 149.171.126.12:111 TCP
+      4  175.45.176.3 -> 149.171.126.19:111 UDP
+      4  175.45.176.2 -> 149.171.126.14:111 UDP
+      4  175.45.176.1 -> 149.171.126.10:111 UDP
+      4  175.45.176.0 -> 149.171.126.10:111 UDP
+      4  175.45.176.2 -> 149.171.126.17:111 UDP
+      4  175.45.176.0 -> 149.171.126.11:111 UDP
+      4  175.45.176.3 -> 149.171.126.16:111 UDP
+      4  175.45.176.3 -> 149.171.126.13:111 UDP
+      3  175.45.176.1 -> 149.171.126.15:111 TCP
+      3  175.45.176.3 -> 149.171.126.13:111 TCP
+      3  175.45.176.1 -> 149.171.126.17:111 TCP
+      3  175.45.176.3 -> 149.171.126.17:111 TCP
+      3  175.45.176.3 -> 149.171.126.10:111 TCP
+      3  175.45.176.1 -> 149.171.126.16:111 TCP
+      3  175.45.176.0 -> 149.171.126.19:111 TCP
+      3  175.45.176.3 -> 149.171.126.18:111 TCP
+      3  175.45.176.2 -> 149.171.126.11:111 TCP
+      3  175.45.176.0 -> 149.171.126.14:111 TCP
+      3  175.45.176.3 -> 149.171.126.16:111 TCP
+      3  175.45.176.1 -> 149.171.126.11:111 TCP
+      3  175.45.176.2 -> 149.171.126.12:111 TCP
+      3  175.45.176.2 -> 149.171.126.15:111 TCP
+      3  175.45.176.0 -> 149.171.126.16:111 TCP
+      3  175.45.176.3 -> 149.171.126.14:111 TCP
+      2  175.45.176.0 -> 149.171.126.16:111 UDP
+      2  175.45.176.1 -> 149.171.126.12:111 UDP
+      2  175.45.176.2 -> 149.171.126.19:111 UDP
+      2  175.45.176.1 -> 149.171.126.18:111 UDP
+      2  175.45.176.1 -> 149.171.126.17:111 UDP
+      2  175.45.176.0 -> 149.171.126.19:111 UDP
+      2  175.45.176.0 -> 149.171.126.15:111 UDP
+      2  175.45.176.3 -> 149.171.126.11:111 UDP
+      2  175.45.176.1 -> 149.171.126.11:111 UDP
+      2  175.45.176.0 -> 149.171.126.18:111 UDP
+      2  175.45.176.0 -> 149.171.126.13:111 UDP
+      2  175.45.176.2 -> 149.171.126.10:111 UDP
+      2  175.45.176.0 -> 149.171.126.14:111 UDP
+------------------------------------------------------------------------
+
+--- Turn 26 | 655,523 in / 12,494 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature | contains(\"RPC portmap\"))) | \"total\""
+}
+[TOOL RESULT] count_by
+    168  total
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.category==\"Decode of an RPC Query\")) | \"total\""
+}
+[TOOL RESULT] count_by
+    168  total
+------------------------------------------------------------------------
+
+--- Turn 27 | 700,390 in / 12,781 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==9500002 or .alert.signature_id==2001219)) | \"\\(.alert.signature_id) | \\(.src_ip) -> \\(.dest_ip):\\(.dest_port) | \\(.proto)/\\(.app_proto) | \\(.direction)\""
+}
+[TOOL RESULT] count_by
+      2  9500002 | 175.45.176.0 -> 149.171.126.13:22 | TCP/null | to_server
+      1  2001219 | 175.45.176.0 -> 149.171.126.13:22 | TCP/null | to_server
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==9500002 or .alert.signature_id==2001219)) | {timestamp, src_ip, dest_ip, dest_port, signature: .alert.signature, direction}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:31:50.093227+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.13","dest_port":22,"signature":"ET SCAN Potential SSH Scan","direction":"to_server"}
+{"timestamp":"2015-02-18T14:31:49.861349+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.13","dest_port":22,"signature":"CUSTOM SSH Brute-Force Campaign Confirmed - sustained connection attempts over time","direction":"to_server"}
+{"timestamp":"2015-02-18T14:31:50.811149+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.13","dest_port":22,"signature":"CUSTOM SSH Brute-Force Campaign Confirmed - sustained connection attempts over time","direction":"to_server"}
+------------------------------------------------------------------------
+
+--- Turn 28 | 745,841 in / 13,110 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==2010937 or .alert.signature_id==2010936)) | \"\\(.alert.signature_id) | \\(.src_ip) -> \\(.dest_ip):\\(.dest_port) | \\(.proto) | \\(.direction)\""
+}
+[TOOL RESULT] count_by
+      2  2010937 | 175.45.176.3 -> 149.171.126.19:3306 | TCP | to_server
+      2  2010936 | 175.45.176.2 -> 149.171.126.16:1521 | TCP | to_server
+      2  2010937 | 175.45.176.3 -> 149.171.126.11:3306 | TCP | to_server
+      2  2010936 | 175.45.176.1 -> 149.171.126.19:1521 | TCP | to_server
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==2010937 or .alert.signature_id==2010936)) | {timestamp, src_ip, dest_ip, dest_port, signature: .alert.signature, direction}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:23:10.036831+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.19","dest_port":3306,"signature":"ET SCAN Suspicious inbound to mySQL port 3306","direction":"to_server"}
+{"timestamp":"2015-02-18T14:23:10.036838+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.19","dest_port":3306,"signature":"ET SCAN Suspicious inbound to mySQL port 3306","direction":"to_server"}
+{"timestamp":"2015-02-18T14:27:37.715379+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.16","dest_port":1521,"signature":"ET SCAN Suspicious inbound to Oracle SQL port 1521","direction":"to_server"}
+{"timestamp":"2015-02-18T14:27:37.715385+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.16","dest_port":1521,"signature":"ET SCAN Suspicious inbound to Oracle SQL port 1521","direction":"to_server"}
+{"timestamp":"2015-02-18T14:33:50.117485+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.11","dest_port":3306,"signature":"ET SCAN Suspicious inbound to mySQL port 3306","direction":"to_server"}
+{"timestamp":"2015-02-18T14:33:50.117488+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.11","dest_port":3306,"signature":"ET SCAN Suspicious inbound to mySQL port 3306","direction":"to_server"}
+{"timestamp":"2015-02-18T14:39:51.303402+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.19","dest_port":1521,"signature":"ET SCAN Suspicious inbound to Oracle SQL port 1521","direction":"to_server"}
+{"timestamp":"2015-02-18T14:39:51.303432+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.19","dest_port":1521,"signature":"ET SCAN Suspicious inbound to Oracle SQL port 1521","direction":"to_server"}
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me aggregate all web application attack alerts by source/destination and signature.
+
+
+--- Turn 29 | 792,348 in / 13,330 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.category==\"Web Application Attack\") | \"\\(.alert.signature_id) | \\(.alert.signature) | \\(.src_ip) -> \\(.dest_ip):\\(.dest_port) | \\(.direction)\""
+}
+[TOOL RESULT] count_by
+      1  2061768 | ET EXPLOIT Sophos Web Appliance RCE Attempt Inbound (CVE-2013-4983) | 175.45.176.2 -> 149.171.126.16:80 | to_server
+      1  2010963 | ET WEB_SERVER SELECT USER SQL Injection Attempt in URI | 175.45.176.2 -> 149.171.126.19:80 | to_server
+      1  2011768 | ET WEB_SERVER PHP tags in HTTP POST | 175.45.176.3 -> 149.171.126.12:80 | to_server
+      1  2010592 | ET WEB_SERVER Possible Microsoft Internet Information Services (IIS) .asp Filename Extension Parsing File Upload Security Bypass Attempt (asp) | 175.45.176.0 -> 149.171.126.11:80 | to_server
+      1  2101334 | GPL EXPLOIT echo command attempt | 175.45.176.3 -> 149.171.126.16:80 | to_server
+      1  2061825 | ET EXPLOIT HP SiteScope SOAP Call RCE Attempt Inbound (CVE-2012-3259) | 175.45.176.0 -> 149.171.126.12:80 | to_server
+      1  2005075 | ET WEB_SPECIFIC_APPS Fullaspsite Asp Hosting Sitesi SQL Injection Attempt -- windows.asp kategori_id SELECT | 175.45.176.2 -> 149.171.126.11:80 | to_server
+      1  2005076 | ET WEB_SPECIFIC_APPS Fullaspsite Asp Hosting Sitesi SQL Injection Attempt -- windows.asp kategori_id UNION SELECT | 175.45.176.2 -> 149.171.126.11:80 | to_server
+      1  2010963 | ET WEB_SERVER SELECT USER SQL Injection Attempt in URI | 175.45.176.2 -> 149.171.126.11:80 | to_server
+      1  2101244 | GPL EXPLOIT ISAPI .idq attempt | 175.45.176.1 -> 149.171.126.17:80 | to_server
+      1  2004924 | ET WEB_SPECIFIC_APPS Philboard SQL Injection Attempt -- philboard_forum.asp forumid SELECT | 175.45.176.3 -> 149.171.126.11:80 | to_server
+      1  2004925 | ET WEB_SPECIFIC_APPS Philboard SQL Injection Attempt -- philboard_forum.asp forumid UNION SELECT | 175.45.176.3 -> 149.171.126.11:80 | to_server
+      1  2010963 | ET WEB_SERVER SELECT USER SQL Injection Attempt in URI | 175.45.176.3 -> 149.171.126.11:80 | to_server
+      1  2009714 | ET WEB_SERVER Script tag in URI Possible Cross Site Scripting Attempt | 175.45.176.0 -> 149.171.126.15:80 | to_server
+      1  2016183 | ET WEB_SERVER ColdFusion adminapi access | 175.45.176.0 -> 149.171.126.10:80 | to_server
+      1  2009715 | ET WEB_SERVER Onmouseover= in URI - Likely Cross Site Scripting Attempt | 175.45.176.3 -> 149.171.126.19:80 | to_server
+      1  2061824 | ET EXPLOIT Sinapsi eSolar Light Photovoltaic System - Command Injection Attempt Inbound (CVE-2012-5863) | 175.45.176.3 -> 149.171.126.16:80 | to_server
+      1  2016184 | ET WEB_SERVER ColdFusion administrator access | 175.45.176.2 -> 149.171.126.16:80 | to_server
+      1  2018652 | ET WEB_SPECIFIC_APPS Oracle Event Processing FileUploadServlet Arbitrary File Upload | 175.45.176.2 -> 149.171.126.16:9002 | to_server
+      1  2011768 | ET WEB_SERVER PHP tags in HTTP POST | 175.45.176.0 -> 149.171.126.17:80 | to_server
+      1  2004743 | ET WEB_SPECIFIC_APPS Nabopoll SQL Injection Attempt -- result.php surv UNION SELECT | 175.45.176.1 -> 149.171.126.14:80 | to_server
+------------------------------------------------------------------------
+
+--- Turn 30 | 840,103 in / 13,626 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .app_proto==\"http\") | \"\\(.alert.signature_id) | \\(.alert.signature) | \\(.src_ip) -> \\(.dest_ip):\\(.dest_port) | \\(.direction)\""
+}
+[TOOL RESULT] count_by
+      9  2210029 | SURICATA STREAM ESTABLISHED invalid ack | 59.166.0.2 -> 149.171.126.2:80 | to_server
+      9  2210045 | SURICATA STREAM Packet with invalid ack | 59.166.0.2 -> 149.171.126.2:80 | to_server
+      3  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.1 -> 149.171.126.3:80 | to_server
+      3  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.2 -> 59.166.0.2:57618 | to_client
+      3  2210030 | SURICATA STREAM FIN invalid ack | 59.166.0.2 -> 149.171.126.2:80 | to_server
+      3  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.4 -> 59.166.0.8:55117 | to_client
+      3  2210029 | SURICATA STREAM ESTABLISHED invalid ack | 59.166.0.8 -> 149.171.126.4:80 | to_server
+      3  2210045 | SURICATA STREAM Packet with invalid ack | 59.166.0.8 -> 149.171.126.4:80 | to_server
+      3  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.2 -> 59.166.0.2:33672 | to_client
+      3  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.8 -> 59.166.0.9:42299 | to_client
+      3  2210029 | SURICATA STREAM ESTABLISHED invalid ack | 59.166.0.9 -> 149.171.126.8:80 | to_server
+      3  2210045 | SURICATA STREAM Packet with invalid ack | 59.166.0.9 -> 149.171.126.8:80 | to_server
+      3  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.2 -> 59.166.0.2:49588 | to_client
+      2  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.1 -> 149.171.126.9:80 | to_server
+      2  2221018 | SURICATA HTTP request buffer too long | 175.45.176.2 -> 149.171.126.10:80 | to_server
+      2  2009361 | ET WEB_SERVER cmd.exe In URI - Possible Command Execution Attempt | 175.45.176.1 -> 149.171.126.15:80 | to_server
+      2  2221015 | SURICATA HTTP Host header ambiguous | 175.45.176.1 -> 149.171.126.13:8082 | to_server
+      1  2221028 | SURICATA HTTP Host header invalid | 175.45.176.2 -> 149.171.126.11:80 | to_server
+      1  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.1 -> 149.171.126.4:80 | to_server
+      1  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.1 -> 59.166.0.3:63968 | to_client
+      1  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.2 -> 149.171.126.0:80 | to_server
+      1  2221018 | SURICATA HTTP request buffer too long | 175.45.176.1 -> 149.171.126.14:80 | to_server
+      1  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.9 -> 149.171.126.1:80 | to_server
+      1  2061768 | ET EXPLOIT Sophos Web Appliance RCE Attempt Inbound (CVE-2013-4983) | 175.45.176.2 -> 149.171.126.16:80 | to_server
+      1  2049401 | ET WEB_SERVER /etc/hosts Detected in URI | 175.45.176.2 -> 149.171.126.19:80 | to_server
+      1  2010963 | ET WEB_SERVER SELECT USER SQL Injection Attempt in URI | 175.45.176.2 -> 149.171.126.19:80 | to_server
+      1  2221029 | SURICATA HTTP URI terminated by non-compliant chara
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me look closely at the Rothenburg shellcode alerts — they're unusual (server→attacker direction).
+
+
+--- Turn 31 | 891,199 in / 13,881 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2009247) | {timestamp, src_ip, dest_ip, src_port, dest_port, app_proto, proto, direction, http, alert}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:30:11.587481+0930","src_ip":"149.171.126.15","dest_ip":"175.45.176.3","src_port":80,"dest_port":57948,"app_proto":"http","proto":"TCP","direction":"to_client","http":null,"alert":{"action":"allowed","gid":1,"signature_id":2009247,"rev":3,"signature":"ET SHELLCODE Rothenburg Shellcode","category":"Executable code was detected","severity":1,"metadata":{"confidence":["High"],"created_at":["2010_07_30"],"signature_severity":["Major"],"tag":["Description_Generated_By_Proofpoint_Nexus"],"updated_at":["2019_07_26"]}}}
+{"timestamp":"2015-02-18T14:31:47.010879+0930","src_ip":"149.171.126.12","dest_ip":"175.45.176.1","src_port":80,"dest_port":18684,"app_proto":"http","proto":"TCP","direction":"to_client","http":null,"alert":{"action":"allowed","gid":1,"signature_id":2009247,"rev":3,"signature":"ET SHELLCODE Rothenburg Shellcode","category":"Executable code was detected","severity":1,"metadata":{"confidence":["High"],"created_at":["2010_07_30"],"signature_severity":["Major"],"tag":["Description_Generated_By_Proofpoint_Nexus"],"updated_at":["2019_07_26"]}}}
+{"timestamp":"2015-02-18T14:38:28.921031+0930","src_ip":"149.171.126.11","dest_ip":"175.45.176.0","src_port":5900,"dest_port":12731,"app_proto":"rfb","proto":"TCP","direction":"to_client","http":null,"alert":{"action":"allowed","gid":1,"signature_id":2009247,"rev":3,"signature":"ET SHELLCODE Rothenburg Shellcode","category":"Executable code was detected","severity":1,"metadata":{"confidence":["High"],"created_at":["2010_07_30"],"signature_severity":["Major"],"tag":["Description_Generated_By_Proofpoint_Nexus"],"updated_at":["2019_07_26"]}}}
+{"timestamp":"2015-02-18T14:38:52.390229+0930","src_ip":"149.171.126.16","dest_ip":"175.45.176.3","src_port":80,"dest_port":9560,"app_proto":"http","proto":"TCP","direction":"to_client","http":null,"alert":{"action":"allowed","gid":1,"signature_id":2009247,"rev":3,"signature":"ET SHELLCODE Rothenburg Shellcode","category":"Executable code was detected","severity":1,"metadata":{"confidence":["High"],"created_at":["2010_07_30"],"signature_severity":["Major"],"tag":["Description_Generated_By_Proofpoint_Nexus"],"updated_at":["2019_07_26"]}}}
+{"timestamp":"2015-02-18T14:40:18.536427+0930","src_ip":"149.171.126.11","dest_ip":"175.45.176.2","src_port":80,"dest_port":26835,"app_proto":"http","proto":"TCP","direction":"to_client","http":null,"alert":{"action":"allowed","gid":1,"signature_id":2009247,"rev":3,"signature":"ET SHELLCODE Rothenburg Shellcode","category":"Executable code was detected","severity":1,"metadata":{"confidence":["High"],"created_at":["2010_07_30"],"signature_severity":["Major"],"tag":["Description_Generated_By_Proofpoint_Nexus"],"updated_at":["2019_07_26"]}}}
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me see the full attacker activity by source IP and rule class.
+
+
+--- Turn 32 | 943,473 in / 14,563 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | select(.src_ip | startswith(\"175.45.176.\")) | \"\\(.src_ip) | \\(.alert.signature_id) | \\(.alert.category)\""
+}
+[TOOL RESULT] count_by
+     69  175.45.176.0 | 7600102 | Attempted Information Leak
+     66  175.45.176.0 | 7600103 | Attempted Information Leak
+     34  175.45.176.0 | 2101972 | Attempted Administrator Privilege Gain
+     18  175.45.176.1 | 2100518 | Potentially Bad Traffic
+     10  175.45.176.2 | 7600102 | Attempted Information Leak
+      9  175.45.176.3 | 2102016 | Decode of an RPC Query
+      9  175.45.176.0 | 2101262 | Decode of an RPC Query
+      8  175.45.176.3 | 2102466 | Generic Protocol Command Decode
+      8  175.45.176.0 | 2101960 | Decode of an RPC Query
+      8  175.45.176.2 | 2100538 | Generic Protocol Command Decode
+      7  175.45.176.2 | 2260002 | Generic Protocol Command Decode
+      6  175.45.176.2 | 2102466 | Generic Protocol Command Decode
+      6  175.45.176.1 | 2101275 | Decode of an RPC Query
+      6  175.45.176.3 | 2100581 | Decode of an RPC Query
+      6  175.45.176.1 | 2101733 | Decode of an RPC Query
+      6  175.45.176.0 | 2210027 | Generic Protocol Command Decode
+      6  175.45.176.0 | 2210029 | Generic Protocol Command Decode
+      6  175.45.176.0 | 2210045 | Generic Protocol Command Decode
+      6  175.45.176.2 | 2011487 | Potentially Bad Traffic
+      4  175.45.176.0 | 2102466 | Generic Protocol Command Decode
+      4  175.45.176.2 | 2225006 | Generic Protocol Command Decode
+      4  175.45.176.0 | 2100575 | Decode of an RPC Query
+      4  175.45.176.2 | 2101961 | Decode of an RPC Query
+      4  175.45.176.3 | 2010937 | Potentially Bad Traffic
+      4  175.45.176.3 | 2100577 | Decode of an RPC Query
+      4  175.45.176.3 | 2260002 | Generic Protocol Command Decode
+      4  175.45.176.0 | 2100518 | Potentially Bad Traffic
+      4  175.45.176.3 | 2100538 | Generic Protocol Command Decode
+      4  175.45.176.2 | 2101734 | Attempted Administrator Privilege Gain
+      4  175.45.176.2 | 2102511 | Attempted Administrator Privilege Gain
+      3  175.45.176.2 | 2221028 | Generic Protocol Command Decode
+      3  175.45.176.1 | 2221018 | Generic Protocol Command Decode
+      3  175.45.176.1 | 2101263 | Decode of an RPC Query
+      3  175.45.176.3 | 2100257 | Attempted Information Leak
+      3  175.45.176.0 | 2101271 | Decode of an RPC Query
+      3  175.45.176.3 | 2101276 | Decode of an RPC Query
+      3  175.45.176.2 | 2221018 | Generic Protocol Command Decode
+      3  175.45.176.3 | 2100591 | Decode of an RPC Query
+      3  175.45.176.1 | 2221015 | Generic Protocol Command Decode
+      3  175.45.176.0 | 2101270 | Decode of an RPC Query
+      3  175.45.176.0 | 2100593 | Decode of an RPC Query
+      3  175.45.176.0 | 2101272 | Decode of an RPC Query
+      3  175.45.176.2 | 2101264 | Decode of an RPC Query
+      3  175.45.176.0 | 2101268 | Decode of an RPC Query
+      3  175.45.176.2 | 2101262 | Decode of an RPC Query
+      3  175.45.176.0 | 2101267 | Decode of an RPC Query
+      3  175.45.176.3 | 2101275 | Decode of an RPC Query
+      3  175.45.176.1 | 2101276 | Decode of an RPC Query
+      3  175.45.176.0 | 2101269 | Decode of an RPC Query
+    
+------------------------------------------------------------------------
+
+--- Turn 33 | 999,440 in / 14,818 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | select(.src_ip | startswith(\"175.45.176.\") | not) | \"\\(.alert.signature_id) | \\(.alert.signature) | \\(.src_ip) -> \\(.dest_ip):\\(.dest_port) | \\(.direction)\""
+}
+[TOOL RESULT] count_by
+      9  2210029 | SURICATA STREAM ESTABLISHED invalid ack | 59.166.0.2 -> 149.171.126.2:80 | to_server
+      9  2210045 | SURICATA STREAM Packet with invalid ack | 59.166.0.2 -> 149.171.126.2:80 | to_server
+      3  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.1 -> 149.171.126.3:80 | to_server
+      3  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.2 -> 59.166.0.2:57618 | to_client
+      3  2210030 | SURICATA STREAM FIN invalid ack | 59.166.0.2 -> 149.171.126.2:80 | to_server
+      3  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.4 -> 59.166.0.8:55117 | to_client
+      3  2210029 | SURICATA STREAM ESTABLISHED invalid ack | 59.166.0.8 -> 149.171.126.4:80 | to_server
+      3  2210045 | SURICATA STREAM Packet with invalid ack | 59.166.0.8 -> 149.171.126.4:80 | to_server
+      3  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.2 -> 59.166.0.2:33672 | to_client
+      3  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.8 -> 59.166.0.9:42299 | to_client
+      3  2210029 | SURICATA STREAM ESTABLISHED invalid ack | 59.166.0.9 -> 149.171.126.8:80 | to_server
+      3  2210045 | SURICATA STREAM Packet with invalid ack | 59.166.0.9 -> 149.171.126.8:80 | to_server
+      3  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.2 -> 59.166.0.2:49588 | to_client
+      2  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.1 -> 149.171.126.9:80 | to_server
+      1  2010140 | ET P2P Vuze BT UDP Connection | 149.171.126.11 -> 175.45.176.0:20108 | to_server
+      1  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.1 -> 149.171.126.4:80 | to_server
+      1  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.1 -> 59.166.0.3:63968 | to_client
+      1  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.2 -> 149.171.126.0:80 | to_server
+      1  2225006 | SURICATA SMB file overlap | 149.171.126.19 -> 175.45.176.3:37141 | to_client
+      1  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.9 -> 149.171.126.1:80 | to_server
+      1  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.3 -> 149.171.126.3:80 | to_server
+      1  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.7 -> 59.166.0.4:51829 | to_client
+      1  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.0 -> 149.171.126.1:80 | to_server
+      1  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.5 -> 59.166.0.7:55407 | to_client
+      1  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126.4 -> 59.166.0.4:4645 | to_client
+      1  2221029 | SURICATA HTTP URI terminated by non-compliant character | 59.166.0.9 -> 149.171.126.0:80 | to_server
+      1  2210020 | SURICATA STREAM ESTABLISHED packet out of window | 149.171.126
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me inspect the HTTP details available on web attack alerts from the attacker range.
+
+
+--- Turn 34 | 1,058,764 in / 15,267 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==2010963 or .alert.signature_id==2009361 or .alert.signature_id==2061768)) | {timestamp, src_ip, dest_ip, dest_port, signature: .alert.signature, http}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:16:31.559649+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.16","dest_port":80,"signature":"ET EXPLOIT Sophos Web Appliance RCE Attempt Inbound (CVE-2013-4983)","http":{"hostname":"xgbjopotthpo","url":"/end-user/index.php?c=blocked&action=continue\"","http_user_agent":"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)","http_method":"POST","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:16:35.946245+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":80,"signature":"ET WEB_SERVER SELECT USER SQL Injection Attempt in URI","http":{"hostname":"qkexbdbfzccmktbatqrbbvmregzmdh","url":"/bb427/showthread.php?ForumID=9%20uNiON%20sELecT%20USERNAME,pASSWORd,NULl,nuLl%20FrOM%20PREfpErsoNAl","http_user_agent":"Mozilla/4.0 (compatible; MSIE 4.01; Windows CE; PPC; 240x320)","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:16:37.025882+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.14","dest_port":80,"signature":"ET WEB_SERVER cmd.exe In URI - Possible Command Execution Attempt","http":{"hostname":"lgvppgmrqtjcuqewlpduncyrdcw","url":"/scripts/..%c0%2f..%c0%2f..%c0%2f..%c0%2f../winnt/system32/cmd.exe?/c%20dir","http_user_agent":"Mozilla/5.0 (Windows NT 6.1; rv:12.0) Gecko/20120403211507 Firefox/12.0","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:19:11.187369+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.15","dest_port":80,"signature":"ET WEB_SERVER cmd.exe In URI - Possible Command Execution Attempt","http":{"hostname":"hmqtllfhfqzwshji","url":"/4OWQGrT/cmd.exe","http_user_agent":"Microsoft-WebDAV-MiniRedir/5.1.2600","http_method":"PROPFIND","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:19:11.372847+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.15","dest_port":80,"signature":"ET WEB_SERVER cmd.exe In URI - Possible Command Execution Attempt","http":{"hostname":"hmqtllfhfqzwshji","url":"/4OWQGrT/cmd.exe","http_user_agent":"Microsoft-WebDAV-MiniRedir/5.1.2600","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:24:01.539198+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.11","dest_port":80,"signature":"ET WEB_SERVER SELECT USER SQL Injection Attempt in URI","http":{"hostname":"oyfcvvzcmptfpxyaugurqmg","url":"/cgi-bin/windows.asp?kategori_id=-7197%20union%2ball%2bselect%2b7658,7520,8103,0292,8627,1470,6623,7742,9660,7706,0761,username,8546,0392,0456,password,1791,1405,5849,3615,7247,0162,0144,1006,4682,7797,9634,5996,8972,5642,7643,4789%2bfrom%2badmin","http_user_agent":"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:28:37.318630+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.11","dest_port":80,"signature":"ET WEB_SERVER SELECT USER SQL Injection Attempt in URI","http":{"hostname":"ncrxdotkmpsdfghjlmeeyktpvtn","url":"/philboard_forum.asp?forumid=-1%20uNIoN%20SElECt%2
+------------------------------------------------------------------------
+
+--- Turn 35 | 1,119,837 in / 15,534 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.src_ip | startswith(\"175.45.176.\")) and .app_proto==\"http\") | select(.alert.category != \"Generic Protocol Command Decode\" and .alert.category != \"Decode of an RPC Query\") | {timestamp, src_ip, dest_ip, dest_port, sid: .alert.signature_id, signature: .alert.signature, http: (.http // {})}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:16:31.559649+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.16","dest_port":80,"sid":2061768,"signature":"ET EXPLOIT Sophos Web Appliance RCE Attempt Inbound (CVE-2013-4983)","http":{"hostname":"xgbjopotthpo","url":"/end-user/index.php?c=blocked&action=continue\"","http_user_agent":"Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1)","http_method":"POST","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:16:34.045465+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":80,"sid":2049401,"signature":"ET WEB_SERVER /etc/hosts Detected in URI","http":{"hostname":"wacejwlhbxzejcfbnakjzmpbiuofqamr","url":"/cgi-bin/activecalendar/data/showcode.php?page=../../../..//etc/hosts%00","http_user_agent":"Mozilla/5.0 (Windows; U; Windows NT 5.1; de-DE; rv:1.7.12) Gecko/20050919 Firefox/1.0.7","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:16:35.946245+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":80,"sid":2010963,"signature":"ET WEB_SERVER SELECT USER SQL Injection Attempt in URI","http":{"hostname":"qkexbdbfzccmktbatqrbbvmregzmdh","url":"/bb427/showthread.php?ForumID=9%20uNiON%20sELecT%20USERNAME,pASSWORd,NULl,nuLl%20FrOM%20PREfpErsoNAl","http_user_agent":"Mozilla/4.0 (compatible; MSIE 4.01; Windows CE; PPC; 240x320)","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:16:37.025882+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.14","dest_port":80,"sid":2009361,"signature":"ET WEB_SERVER cmd.exe In URI - Possible Command Execution Attempt","http":{"hostname":"lgvppgmrqtjcuqewlpduncyrdcw","url":"/scripts/..%c0%2f..%c0%2f..%c0%2f..%c0%2f../winnt/system32/cmd.exe?/c%20dir","http_user_agent":"Mozilla/5.0 (Windows NT 6.1; rv:12.0) Gecko/20120403211507 Firefox/12.0","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:16:37.025882+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.14","dest_port":80,"sid":2009362,"signature":"ET WEB_SERVER /system32/ in Uri - Possible Protected Directory Access Attempt","http":{"hostname":"lgvppgmrqtjcuqewlpduncyrdcw","url":"/scripts/..%c0%2f..%c0%2f..%c0%2f..%c0%2f../winnt/system32/cmd.exe?/c%20dir","http_user_agent":"Mozilla/5.0 (Windows NT 6.1; rv:12.0) Gecko/20120403211507 Firefox/12.0","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:16:45.194103+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.12","dest_port":80,"sid":2053461,"signature":"ET WEB_SERVER Possible SQL Injection (exec) in HTTP Request Body","http":{"hostname":"btdhygowpr","url":"/landesk/managementsuite/core/core.anonymous/ServerSetup.asmx","http_user_agent":"Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1; livebot-searchsense/0.1; +http://search.msn.com/msnbot.htm)","http_method":"POST","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:18:30.249264+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.12","dest_port":80,"sid":
+------------------------------------------------------------------------
+
+--- Turn 36 | 1,184,264 in / 16,009 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.src_ip | startswith(\"175.45.176.\")) and .app_proto==\"http\" and .timestamp > \"2015-02-18T14:24:00\") | select(.alert.category != \"Generic Protocol Command Decode\" and .alert.category != \"Decode of an RPC Query\") | {timestamp, src_ip, dest_ip, dest_port, sid: .alert.signature_id, signature: .alert.signature, http: (.http // {})}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:24:01.539198+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.11","dest_port":80,"sid":2005075,"signature":"ET WEB_SPECIFIC_APPS Fullaspsite Asp Hosting Sitesi SQL Injection Attempt -- windows.asp kategori_id SELECT","http":{"hostname":"oyfcvvzcmptfpxyaugurqmg","url":"/cgi-bin/windows.asp?kategori_id=-7197%20union%2ball%2bselect%2b7658,7520,8103,0292,8627,1470,6623,7742,9660,7706,0761,username,8546,0392,0456,password,1791,1405,5849,3615,7247,0162,0144,1006,4682,7797,9634,5996,8972,5642,7643,4789%2bfrom%2badmin","http_user_agent":"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:24:01.539198+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.11","dest_port":80,"sid":2005076,"signature":"ET WEB_SPECIFIC_APPS Fullaspsite Asp Hosting Sitesi SQL Injection Attempt -- windows.asp kategori_id UNION SELECT","http":{"hostname":"oyfcvvzcmptfpxyaugurqmg","url":"/cgi-bin/windows.asp?kategori_id=-7197%20union%2ball%2bselect%2b7658,7520,8103,0292,8627,1470,6623,7742,9660,7706,0761,username,8546,0392,0456,password,1791,1405,5849,3615,7247,0162,0144,1006,4682,7797,9634,5996,8972,5642,7643,4789%2bfrom%2badmin","http_user_agent":"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:24:01.539198+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.11","dest_port":80,"sid":2010963,"signature":"ET WEB_SERVER SELECT USER SQL Injection Attempt in URI","http":{"hostname":"oyfcvvzcmptfpxyaugurqmg","url":"/cgi-bin/windows.asp?kategori_id=-7197%20union%2ball%2bselect%2b7658,7520,8103,0292,8627,1470,6623,7742,9660,7706,0761,username,8546,0392,0456,password,1791,1405,5849,3615,7247,0162,0144,1006,4682,7797,9634,5996,8972,5642,7643,4789%2bfrom%2badmin","http_user_agent":"Mozilla/4.0 (compatible; MSIE 8.0; Windows NT 6.1)","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:24:13.066321+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.19","dest_port":80,"sid":2014886,"signature":"ET WEB_SERVER IIS INDEX_ALLOCATION Auth Bypass Attempt","http":{"hostname":"xdqof","url":"/t2qT:$i30:$index_allocation/","http_user_agent":"Mozilla/5.0 (compatible; Konqueror/4.2; Linux) KHTML/4.2.4 (like Gecko) Slackware/13.0","http_method":"GET","protocol":"HTTP/1.1","length":0}}
+{"timestamp":"2015-02-18T14:25:10.481899+0930","src_ip":"175.45.176.1","dest_ip":"149.171.126.17","dest_port":80,"sid":2101244,"signature":"GPL EXPLOIT ISAPI .idq attempt","http":{"url":"/4vdH.idq?9JCfPi7pq6JXG82qwQtopkN4GatBo79gAsV4ndYy9vGXELoqB9ukzqL6thR774wtbIlPzonmqbcCC0UEtgji2NhtBSPVoMGDcto0D16brvStd3YCmf8uQyyvMTozduw65dkwoyvNxypvKyKoHlqX7LCDIrlO3CpTxxl30WmceOCNU6xVHqseaVMyinQ6RARtSTjsdk6xRwiqjXOOu9MrNjYjX85hZ01QzWpxmX%u0abf%u00b6%u0abf%u00b6%u0abf%u00b6%u0abf%u00b6=O","http_method":"GET","protocol":"HTTP/1.0","length":0}}
+{"timestamp":"2015-02-18T14:25:10.481899+0930","src_ip":"175.45.1
+------------------------------------------------------------------------
+
+--- Turn 37 | 1,252,541 in / 16,334 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2103274) | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port) \\(.proto)/\\(.app_proto) \\(.direction)\""
+}
+[TOOL RESULT] count_by
+      2  175.45.176.0 -> 149.171.126.14:23 TCP/telnet to_server
+      1  175.45.176.3 -> 149.171.126.14:23 TCP/telnet to_server
+      1  175.45.176.2 -> 149.171.126.19:23 TCP/telnet to_server
+      1  175.45.176.2 -> 149.171.126.18:23 TCP/telnet to_server
+      1  175.45.176.3 -> 149.171.126.16:23 TCP/telnet to_server
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2103274) | {timestamp, src_ip, dest_ip, dest_port, app_proto, direction}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:18:44.412029+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.14","dest_port":23,"app_proto":"telnet","direction":"to_server"}
+{"timestamp":"2015-02-18T14:23:30.030832+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.14","dest_port":23,"app_proto":"telnet","direction":"to_server"}
+{"timestamp":"2015-02-18T14:27:59.213356+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":23,"app_proto":"telnet","direction":"to_server"}
+{"timestamp":"2015-02-18T14:30:24.511180+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.18","dest_port":23,"app_proto":"telnet","direction":"to_server"}
+{"timestamp":"2015-02-18T14:32:11.720925+0930","src_ip":"175.45.176.0","dest_ip":"149.171.126.14","dest_port":23,"app_proto":"telnet","direction":"to_server"}
+{"timestamp":"2015-02-18T14:39:17.639488+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.16","dest_port":23,"app_proto":"telnet","direction":"to_server"}
+------------------------------------------------------------------------
+
+--- Turn 38 | 1,321,668 in / 16,990 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id as $s | [2011011,2102185,2102649,2103070,2103074,2103068,2101842,2100257,2101435,2100252,2102251,2103276,2102511,2100492,2002024,2010140,2067113,2017886,2017887,2017890] | index($s))) | \"\\(.alert.signature_id) | \\(.src_ip) -> \\(.dest_ip):\\(.dest_port) | \\(.proto)/\\(.app_proto) | \\(.direction)\""
+}
+[TOOL RESULT] count_by
+      4  2102511 | 175.45.176.2 -> 149.171.126.19:139 | TCP/smb | to_server
+      2  2100257 | 175.45.176.3 -> 149.171.126.13:53 | TCP/null | to_server
+      2  2011011 | 175.45.176.0 -> 149.171.126.19:161 | UDP/snmp | to_server
+      2  2017886 | 175.45.176.0 -> 149.171.126.19:25 | TCP/smtp | to_server
+      2  2100252 | 175.45.176.1 -> 149.171.126.16:53 | UDP/failed | to_server
+      2  2102185 | 175.45.176.2 -> 149.171.126.10:1234 | UDP/failed | to_server
+      2  2101435 | 175.45.176.2 -> 149.171.126.18:53 | TCP/null | to_server
+      1  2010140 | 149.171.126.11 -> 175.45.176.0:20108 | UDP/failed | to_server
+      1  2103070 | 175.45.176.3 -> 149.171.126.16:143 | TCP/imap | to_server
+      1  2100257 | 175.45.176.3 -> 149.171.126.13:53 | TCP/dns | to_server
+      1  2017887 | 175.45.176.0 -> 149.171.126.18:25 | TCP/smtp | to_server
+      1  2103074 | 175.45.176.0 -> 149.171.126.13:143 | TCP/imap | to_server
+      1  2102649 | 175.45.176.2 -> 149.171.126.16:1521 | TCP/null | to_server
+      1  2002024 | 175.45.176.3 -> 149.171.126.18:6667 | TCP/ftp | to_server
+      1  2017890 | 175.45.176.0 -> 149.171.126.14:25 | TCP/smtp | to_server
+      1  2100492 | 149.171.126.14 -> 175.45.176.0:58811 | TCP/telnet | to_client
+      1  2067113 | 149.171.126.17 -> 175.45.176.1:53 | UDP/dns | to_client
+      1  2103068 | 175.45.176.0 -> 149.171.126.10:143 | TCP/imap | to_server
+      1  2101842 | 175.45.176.2 -> 149.171.126.18:143 | TCP/imap | to_server
+      1  2101435 | 175.45.176.2 -> 149.171.126.18:53 | TCP/dns | to_server
+      1  2103276 | 175.45.176.3 -> 149.171.126.19:135 | TCP/dcerpc | to_server
+      1  2102251 | 175.45.176.3 -> 149.171.126.19:135 | TCP/dcerpc | to_server
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me get the temporal distribution of the main campaigns.
+
+
+--- Turn 39 | 1,392,219 in / 17,670 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature | contains(\"RPC portmap\"))) | .timestamp[0:16]"
+}
+[TOOL RESULT] count_by
+     16  2015-02-18T14:21
+     14  2015-02-18T14:37
+     12  2015-02-18T14:38
+     11  2015-02-18T14:24
+     11  2015-02-18T14:39
+     10  2015-02-18T14:36
+      8  2015-02-18T14:20
+      8  2015-02-18T14:22
+      8  2015-02-18T14:26
+      7  2015-02-18T14:19
+      7  2015-02-18T14:30
+      7  2015-02-18T14:31
+      6  2015-02-18T14:17
+      6  2015-02-18T14:18
+      5  2015-02-18T14:16
+      5  2015-02-18T14:25
+      5  2015-02-18T14:40
+      4  2015-02-18T14:27
+      4  2015-02-18T14:29
+      4  2015-02-18T14:42
+      2  2015-02-18T14:23
+      2  2015-02-18T14:28
+      2  2015-02-18T14:32
+      2  2015-02-18T14:33
+      2  2015-02-18T14:35
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==2101972 or .alert.signature_id==2100518 or .alert.signature_id==2101443 or .alert.signature_id==9500002 or .alert.signature_id==2001219)) | \"\\(.alert.signature_id) \\(.timestamp[0:16])\""
+}
+[TOOL RESULT] count_by
+     16  2101972 2015-02-18T14:21
+     16  2101972 2015-02-18T14:22
+      6  2100518 2015-02-18T14:25
+      6  2100518 2015-02-18T14:27
+      4  2100518 2015-02-18T14:26
+      4  2100518 2015-02-18T14:38
+      2  2100518 2015-02-18T14:19
+      2  2101972 2015-02-18T14:20
+      2  2101443 2015-02-18T14:22
+      2  2100518 2015-02-18T14:28
+      2  9500002 2015-02-18T14:31
+      1  2001219 2015-02-18T14:31
+------------------------------------------------------------------------
+
+--- Turn 40 | 1,464,034 in / 18,031 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==7600102 or .alert.signature_id==7600103 or .alert.signature_id==2230019 or .alert.signature_id==2230015)) | \"\\(.alert.signature_id) \\(.timestamp[0:16])\""
+}
+[TOOL RESULT] count_by
+     66  7600102 2015-02-18T14:19
+     66  7600103 2015-02-18T14:19
+      7  7600102 2015-02-18T14:17
+      2  2230015 2015-02-18T14:21
+      2  2230019 2015-02-18T14:21
+      2  2230019 2015-02-18T14:38
+      1  7600102 2015-02-18T14:21
+      1  7600102 2015-02-18T14:25
+      1  7600102 2015-02-18T14:28
+      1  7600102 2015-02-18T14:29
+      1  7600102 2015-02-18T14:37
+      1  7600102 2015-02-18T14:38
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==7600102 or .alert.signature_id==7600103)) | \"\\(.alert.signature_id) | \\(.src_ip) -> \\(.dest_ip):\\(.dest_port)\""
+}
+[TOOL RESULT] count_by
+     66  7600102 | 175.45.176.0 -> 149.171.126.10:7002
+     66  7600103 | 175.45.176.0 -> 149.171.126.10:7002
+      7  7600102 | 175.45.176.2 -> 149.171.126.19:443
+      1  7600102 | 175.45.176.2 -> 149.171.126.12:443
+      1  7600102 | 175.45.176.0 -> 149.171.126.15:443
+      1  7600102 | 175.45.176.0 -> 149.171.126.10:443
+      1  7600102 | 175.45.176.0 -> 149.171.126.11:443
+      1  7600102 | 175.45.176.2 -> 149.171.126.16:443
+      1  7600102 | 175.45.176.2 -> 149.171.126.13:443
+------------------------------------------------------------------------
+
+--- Turn 41 | 1,536,689 in / 18,284 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "rules/generated/bruteforce_campaigns.rules"
+}
+[TOOL RESULT] read_file
+# =============================================================================
+# Custom aggregate/confirmation rules for brute-force campaigns
+# Written after triage of logs/tuesday-threshold-v2/eve.json
+#
+# Context: ET SCAN sigs 2002383 (FTP Brute-Force attempt response) and
+# 2001219 (Potential SSH Scan) fired thousands of times against victim
+# 192.168.10.50 from known attacker 172.16.0.1 (confirmed true positives —
+# FTP-Patator / SSH-Patator style brute force). The ET rules already alert
+# per-attempt, which is correct but noisy (2,373 FTP alerts). These rules
+# add a higher-fidelity "campaign confirmed" alert that fires once a volume
+# threshold is crossed, to help prioritize triage without replacing the
+# underlying per-attempt detections.
+# =============================================================================
+
+# FTP brute-force campaign confirmed: many "Login incorrect" responses sent
+# from a HOME_NET FTP server to the same remote host in a short window.
+# Tuned from observed traffic: attacker received failure responses at
+# ~30/minute for over an hour (2,373 total responses across 1,928 flows).
+alert tcp $HOME_NET 21 -> $EXTERNAL_NET any (msg:"CUSTOM FTP Brute-Force Campaign Confirmed - sustained login failures to single remote host"; flow:established,to_client; content:"Login incorrect"; nocase; threshold: type threshold, track by_dst, count 20, seconds 120; classtype:attempted-recon; sid:9500001; rev:1;)
+
+# SSH brute-force campaign confirmed: sustained low-and-slow SSH connection
+# attempts from a single external host against a HOME_NET SSH server.
+# Tuned from observed traffic: attacker made 31 distinct connection
+# attempts to port 22 spaced ~2 minutes apart over ~62 minutes (evasive,
+# below typical fast-scan thresholds but clearly a sustained campaign).
+alert tcp $EXTERNAL_NET any -> $HOME_NET 22 (msg:"CUSTOM SSH Brute-Force Campaign Confirmed - sustained connection attempts over time"; flow:to_server; flags:S; threshold: type threshold, track by_src, count 10, seconds 3600; classtype:attempted-recon; sid:9500002; rev:1;)
+
+# =============================================================================
+# Friday Working-Hours campaign rules — deployed via THIS file on purpose.
+# Triage of logs/friday-raw/eve.json (2017-07-07/08), attacker 172.16.0.1
+# -> victim 192.168.10.50.
+#
+# suricata.yaml is read-only and its rule-files list does NOT include
+# friday_ddos_portscan.rules, so the equivalent rules there (sid 9600001/
+# 9600002) did NOT fire in the Friday raw run. These rules use unique SIDs
+# and live in this ALREADY-LOADED file so they take effect on the next run.
+# If friday_ddos_portscan.rules is later added to rule-files, remove these
+# two rules to avoid duplicate alerts for the same campaign.
+#
+# Confirmed in this capture:
+#   - 158,928 SYN-only flows (tcp_flags_ts=02) to ~1,000+ distinct destination
+#     ports, full 1-65535 sweep, concentrated in hour 03. Stock ET SCAN only
+#     fires for its known-port list (176
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me check the UNSW bare config to confirm which rule files are loaded.
+
+
+--- Turn 42 | 1,611,261 in / 19,946 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "config/suricata-unsw-bare.yaml"
+}
+[TOOL RESULT] read_file
+%YAML 1.1
+---
+
+# Suricata configuration file. In addition to the comments describing all
+# options in this file, full documentation can be found at:
+# https://docs.suricata.io/en/latest/configuration/suricata-yaml.html
+
+# This configuration file was generated by Suricata 8.0.6.
+suricata-version: "8.0"
+
+##
+## Step 1: Inform Suricata about your network
+##
+
+vars:
+  # more specific is better for alert accuracy and performance
+  address-groups:
+    HOME_NET: "[149.171.126.0/24,59.166.0.0/24]"  # UNSW-NB15: victim servers + normal clients; attackers 175.45.176.0/24
+    #HOME_NET: "[192.168.0.0/16]"
+    #HOME_NET: "[10.0.0.0/8]"
+    #HOME_NET: "[172.16.0.0/12]"
+    #HOME_NET: "any"
+
+    EXTERNAL_NET: "!$HOME_NET"
+    #EXTERNAL_NET: "any"
+
+    HTTP_SERVERS: "$HOME_NET"
+    SMTP_SERVERS: "$HOME_NET"
+    SQL_SERVERS: "$HOME_NET"
+    DNS_SERVERS: "$HOME_NET"
+    TELNET_SERVERS: "$HOME_NET"
+    AIM_SERVERS: "$EXTERNAL_NET"
+    DC_SERVERS: "$HOME_NET"
+    DNP3_SERVER: "$HOME_NET"
+    DNP3_CLIENT: "$HOME_NET"
+    MODBUS_CLIENT: "$HOME_NET"
+    MODBUS_SERVER: "$HOME_NET"
+    ENIP_CLIENT: "$HOME_NET"
+    ENIP_SERVER: "$HOME_NET"
+
+  port-groups:
+    HTTP_PORTS: "80"
+    SHELLCODE_PORTS: "!80"
+    ORACLE_PORTS: 1521
+    SSH_PORTS: 22
+    DNP3_PORTS: 20000
+    MODBUS_PORTS: 502
+    FILE_DATA_PORTS: "[$HTTP_PORTS,110,143]"
+    FTP_PORTS: 21
+    GENEVE_PORTS: 6081
+    VXLAN_PORTS: 4789
+    TEREDO_PORTS: 3544
+    SIP_PORTS: "[5060, 5061]"
+
+##
+## Step 2: Select outputs to enable
+##
+
+# The default logging directory.  Any log or output file will be
+# placed here if it's not specified with a full path name. This can be
+# overridden with the -l command line parameter.
+default-log-dir: /var/log/suricata/
+
+# Global stats configuration
+stats:
+  enabled: yes
+  # The interval field (in seconds) controls the interval at
+  # which stats are updated in the log.
+  interval: 8
+  # Add decode events to stats.
+  #decoder-events: true
+  # Decoder event prefix in stats. Has been 'decoder' before, but that leads
+  # to missing events in the eve.stats records. See issue #2225.
+  #decoder-events-prefix: "decoder.event"
+  # Add stream events as stats.
+  #stream-events: false
+  exception-policy:
+    #per-app-proto-errors: false  # default: false. True will log errors for
+                                  # each app-proto. Warning: VERY verbose
+
+# Plugins -- Experimental -- specify the filename for each plugin shared object
+plugins:
+  #- /usr/lib/suricata/pfring.so
+  #- /usr/lib/suricata/napatech.so
+  #- /usr/lib/suricata/ndpi.so
+# - /path/to/plugin.so
+
+# Configure the type of alert (and other) logging you would like.
+outputs:
+  # a line based alerts log similar to Snort's fast.log
+  - fast:
+      enabled: yes
+      filename: fast.log
+      append: yes
+      #filetype: regular # 'regular', 'unix_stream' or 'unix_dgram'
+
+  # Extensible Event Format (nicknamed EVE) event log in JSON format
+  - eve-log:
+      enabled: yes
+      filetype: regular #regular|syslog|unix_dgram|unix_stream|redis
+     
+------------------------------------------------------------------------
+
+--- Turn 43 | 1,689,165 in / 20,204 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] list_directory
+{
+  "dir_path": "config"
+}
+[TOOL RESULT] list_directory
+  classification.config  (3.2 KB)
+  suricata-cic-all.yaml  (94.5 KB)
+  suricata-unsw-bare.yaml  (94.5 KB)
+  suricata-unsw.yaml  (94.5 KB)
+  suricata.yaml  (94.1 KB)
+  threshold-unsw.config  (100 B)
+  threshold.config  (9.7 KB)
+------------------------------------------------------------------------
+
+--- Turn 44 | 1,767,425 in / 20,305 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "config/threshold.config"
+}
+[TOOL RESULT] read_file
+# threshold.config — baseline tuning for CIC-IDS2017 Monday benign traffic
+# Each suppress carries a reason: why this is normal for this capture.
+# We do not edit suricata.rules — all tuning lives here.
+# Run03 baseline: 1,887,228 alerts across 76 signatures on 11.7M benign packets.
+
+# =============================================================================
+# CATEGORY 1: Capture artifacts — not real network issues
+# =============================================================================
+
+# TCPv4 invalid checksum — NIC checksum offloading, pcap captured pre-checksum (1,860,625)
+suppress gen_id 1, sig_id 2200074
+
+# UDPv6 invalid checksum — same cause as above (86)
+suppress gen_id 1, sig_id 2200078
+
+# Ethertype unknown — non-standard ethernet frames in the 2017 capture (7,454)
+suppress gen_id 1, sig_id 2200121
+
+# IPv4 fragmentation overlap — reassembly edge case from capture (5)
+suppress gen_id 1, sig_id 2200070
+
+# =============================================================================
+# CATEGORY 2: TCP stream engine noise — pcap starts/ends mid-connection
+# =============================================================================
+
+# STREAM CLOSEWAIT FIN out of window (1,280)
+suppress gen_id 1, sig_id 2210016
+
+# STREAM FIN out of window (814)
+suppress gen_id 1, sig_id 2210038
+
+# STREAM excessive retransmissions (103)
+suppress gen_id 1, sig_id 2210054
+
+# STREAM reassembly overlap with different data (50)
+suppress gen_id 1, sig_id 2210050
+
+# STREAM 3way handshake wrong seq wrong ack (33)
+suppress gen_id 1, sig_id 2210010
+
+# STREAM Packet with invalid ack (16)
+suppress gen_id 1, sig_id 2210045
+
+# STREAM ESTABLISHED packet out of window (16)
+suppress gen_id 1, sig_id 2210020
+
+# STREAM ESTABLISHED invalid ack (14)
+suppress gen_id 1, sig_id 2210029
+
+# STREAM FIN invalid ack (3)
+suppress gen_id 1, sig_id 2210030
+
+# STREAM bad window update (2)
+suppress gen_id 1, sig_id 2210056
+
+# STREAM TIMEWAIT ACK with wrong seq (2)
+suppress gen_id 1, sig_id 2210042
+
+# STREAM ESTABLISHED SYNACK resend (2)
+suppress gen_id 1, sig_id 2210022
+
+# STREAM FIN2 FIN with wrong seq (1)
+suppress gen_id 1, sig_id 2210035
+
+# =============================================================================
+# CATEGORY 3: HTTP parser events — benign server quirks in 2017 traffic
+# =============================================================================
+
+# HTTP Response excessive header repetition (7,172)
+suppress gen_id 1, sig_id 2221036
+
+# HTTP unable to match response to request (219)
+suppress gen_id 1, sig_id 2221010
+
+# QUIC error on data (241)
+suppress gen_id 1, sig_id 2231001
+
+# HTTP invalid response chunk len (4)
+suppress gen_id 1, sig_id 2221004
+
+# HTTP invalid Range header value (2)
+suppress gen_id 1, sig_id 2221051
+
+# HTTP Request abnormal Content-Encoding header (2)
+suppress gen_id 1, sig_id 2221033
+
+# =============================================================================
+# CATEGORY 4: App-layer detection noise
+# ===================================
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "config/threshold-unsw.config"
+}
+[TOOL RESULT] read_file
+# UNSW-NB15 runs are raw: no suppressions. Proposed suppressions go here only after human approval.
+
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me check whether the noisy stream events involve attacker IPs or are purely internal noise.
+
+
+--- Turn 45 | 1,847,190 in / 21,782 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2210020) | \"\\(.src_ip) -> \\(.dest_ip) \\(.src_ip | startswith(\\\"175.45.176.\\\") | not)\""
+}
+[TOOL RESULT] count_by
+jq error: jq: error: syntax error, unexpected INVALID_CHARACTER (Unix shell quoting issues?) at <top-level>, line 1:
+select(.event_type=="alert") | (select(.event_type=="alert" and .alert.signature_id==2210020) | "\(.src_ip) -> \(.dest_ip) \(.src_ip | startswith(\"175.45.176.\") | not)")                                                                                                                                                  
+jq: 1 compile error
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==2210029 or .alert.signature_id==2210045)) | \"\\(.alert.signature_id) \\(.src_ip) -> \\(.dest_ip)\""
+}
+[TOOL RESULT] count_by
+      9  2210029 59.166.0.2 -> 149.171.126.2
+      9  2210045 59.166.0.2 -> 149.171.126.2
+      6  2210029 175.45.176.0 -> 149.171.126.13
+      6  2210045 175.45.176.0 -> 149.171.126.13
+      3  2210029 59.166.0.8 -> 149.171.126.4
+      3  2210045 59.166.0.8 -> 149.171.126.4
+      3  2210029 59.166.0.9 -> 149.171.126.8
+      3  2210045 59.166.0.9 -> 149.171.126.8
+------------------------------------------------------------------------
+
+--- Turn 46 | 1,928,746 in / 21,903 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2210020) | \"\\(.src_ip) -> \\(.dest_ip)\""
+}
+[TOOL RESULT] count_by
+      9  149.171.126.2 -> 59.166.0.2
+      4  149.171.126.1 -> 59.166.0.3
+      4  149.171.126.4 -> 59.166.0.8
+      3  149.171.126.7 -> 59.166.0.7
+      3  149.171.126.2 -> 59.166.0.4
+      3  149.171.126.8 -> 59.166.0.9
+      2  149.171.126.7 -> 59.166.0.4
+      2  149.171.126.5 -> 59.166.0.7
+      2  149.171.126.4 -> 59.166.0.4
+      2  149.171.126.8 -> 59.166.0.4
+      2  149.171.126.3 -> 59.166.0.9
+      2  149.171.126.1 -> 59.166.0.4
+      2  149.171.126.4 -> 59.166.0.2
+      2  149.171.126.4 -> 59.166.0.7
+      2  149.171.126.8 -> 59.166.0.6
+      2  149.171.126.5 -> 59.166.0.9
+      2  149.171.126.3 -> 59.166.0.3
+      1  149.171.126.1 -> 59.166.0.9
+      1  149.171.126.6 -> 59.166.0.1
+      1  149.171.126.7 -> 59.166.0.6
+      1  149.171.126.9 -> 59.166.0.9
+      1  149.171.126.7 -> 59.166.0.0
+      1  149.171.126.6 -> 59.166.0.5
+      1  149.171.126.1 -> 59.166.0.2
+      1  149.171.126.6 -> 59.166.0.2
+      1  149.171.126.3 -> 59.166.0.6
+      1  149.171.126.7 -> 59.166.0.1
+      1  149.171.126.8 -> 59.166.0.1
+      1  149.171.126.2 -> 59.166.0.5
+      1  149.171.126.0 -> 59.166.0.1
+      1  149.171.126.4 -> 59.166.0.5
+      1  149.171.126.5 -> 59.166.0.4
+      1  149.171.126.8 -> 59.166.0.5
+      1  149.171.126.5 -> 59.166.0.6
+      1  149.171.126.6 -> 59.166.0.4
+      1  149.171.126.8 -> 59.166.0.0
+      1  149.171.126.4 -> 59.166.0.0
+      1  149.171.126.6 -> 59.166.0.8
+      1  149.171.126.0 -> 59.166.0.2
+      1  149.171.126.3 -> 59.166.0.4
+      1  149.171.126.3 -> 59.166.0.2
+      1  149.171.126.5 -> 59.166.0.0
+      1  149.171.126.2 -> 59.166.0.7
+      1  149.171.126.0 -> 59.166.0.0
+      1  149.171.126.2 -> 59.166.0.9
+      1  149.171.126.6 -> 59.166.0.7
+      1  149.171.126.6 -> 59.166.0.9
+      1  149.171.126.3 -> 59.166.0.8
+      1  149.171.126.1 -> 59.166.0.5
+------------------------------------------------------------------------
+
+--- Turn 47 | 2,011,414 in / 22,251 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2221029) | \"\\(.src_ip) -> \\(.dest_ip)\""
+}
+[TOOL RESULT] count_by
+      3  59.166.0.1 -> 149.171.126.3
+      2  59.166.0.1 -> 149.171.126.9
+      1  59.166.0.1 -> 149.171.126.4
+      1  59.166.0.2 -> 149.171.126.0
+      1  59.166.0.9 -> 149.171.126.1
+      1  59.166.0.3 -> 149.171.126.3
+      1  59.166.0.0 -> 149.171.126.1
+      1  59.166.0.9 -> 149.171.126.0
+      1  59.166.0.4 -> 149.171.126.7
+      1  59.166.0.1 -> 149.171.126.2
+      1  59.166.0.3 -> 149.171.126.9
+      1  175.45.176.0 -> 149.171.126.12
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2260002) | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port) \\(.app_proto)\""
+}
+[TOOL RESULT] count_by
+      1  175.45.176.2 -> 149.171.126.17:139 smb
+      1  149.171.126.17 -> 175.45.176.0:13320 ftp
+      1  175.45.176.3 -> 149.171.126.16:50000 ftp
+      1  175.45.176.2 -> 149.171.126.18:139 smb
+      1  175.45.176.3 -> 149.171.126.18:6667 ftp
+      1  175.45.176.3 -> 149.171.126.13:110 pop3
+      1  175.45.176.0 -> 149.171.126.14:139 smb
+      1  175.45.176.2 -> 149.171.126.16:443 tls
+      1  175.45.176.3 -> 149.171.126.15:139 smb
+      1  149.171.126.15 -> 175.45.176.0:33426 smtp
+      1  175.45.176.2 -> 149.171.126.13:443 tls
+      1  175.45.176.2 -> 149.171.126.19:554 http
+      1  175.45.176.2 -> 149.171.126.12:139 smb
+      1  175.45.176.2 -> 149.171.126.19:139 smb
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me check whether the existing generated campaign thresholds would have fired for the portmap and SMB activity.
+
+
+--- Turn 48 | 2,095,027 in / 24,330 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature | contains(\"RPC portmap\"))) | \"\\(.src_ip) \\(.timestamp[0:16])\""
+}
+[TOOL RESULT] count_by
+      8  175.45.176.0 2015-02-18T14:24
+      6  175.45.176.0 2015-02-18T14:21
+      6  175.45.176.3 2015-02-18T14:26
+      6  175.45.176.0 2015-02-18T14:37
+      6  175.45.176.2 2015-02-18T14:38
+      5  175.45.176.1 2015-02-18T14:19
+      5  175.45.176.3 2015-02-18T14:20
+      5  175.45.176.1 2015-02-18T14:21
+      5  175.45.176.0 2015-02-18T14:36
+      5  175.45.176.2 2015-02-18T14:36
+      5  175.45.176.3 2015-02-18T14:37
+      5  175.45.176.0 2015-02-18T14:39
+      5  175.45.176.1 2015-02-18T14:40
+      4  175.45.176.0 2015-02-18T14:22
+      4  175.45.176.3 2015-02-18T14:27
+      3  175.45.176.1 2015-02-18T14:16
+      3  175.45.176.0 2015-02-18T14:17
+      3  175.45.176.3 2015-02-18T14:17
+      3  175.45.176.0 2015-02-18T14:20
+      3  175.45.176.3 2015-02-18T14:21
+      3  175.45.176.1 2015-02-18T14:24
+      3  175.45.176.0 2015-02-18T14:25
+      3  175.45.176.3 2015-02-18T14:30
+      3  175.45.176.2 2015-02-18T14:31
+      3  175.45.176.1 2015-02-18T14:37
+      3  175.45.176.0 2015-02-18T14:38
+      3  175.45.176.1 2015-02-18T14:38
+      3  175.45.176.1 2015-02-18T14:39
+      3  175.45.176.3 2015-02-18T14:39
+      2  175.45.176.0 2015-02-18T14:16
+      2  175.45.176.3 2015-02-18T14:18
+      2  175.45.176.2 2015-02-18T14:18
+      2  175.45.176.1 2015-02-18T14:18
+      2  175.45.176.0 2015-02-18T14:19
+      2  175.45.176.2 2015-02-18T14:21
+      2  175.45.176.2 2015-02-18T14:22
+      2  175.45.176.1 2015-02-18T14:22
+      2  175.45.176.3 2015-02-18T14:23
+      2  175.45.176.3 2015-02-18T14:25
+      2  175.45.176.0 2015-02-18T14:26
+      2  175.45.176.3 2015-02-18T14:28
+      2  175.45.176.1 2015-02-18T14:29
+      2  175.45.176.3 2015-02-18T14:29
+      2  175.45.176.0 2015-02-18T14:30
+      2  175.45.176.2 2015-02-18T14:30
+      2  175.45.176.0 2015-02-18T14:31
+      2  175.45.176.3 2015-02-18T14:31
+      2  175.45.176.2 2015-02-18T14:32
+      2  175.45.176.1 2015-02-18T14:33
+      2  175.45.176.0 2015-02-18T14:35
+      2  175.45.176.2 2015-02-18T14:42
+      2  175.45.176.3 2015-02-18T14:42
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==2102466 or .alert.signature_id==2100538)) | \"\\(.src_ip) \\(.timestamp[0:16])\""
+}
+[TOOL RESULT] count_by
+      2  175.45.176.3 2015-02-18T14:16
+      2  175.45.176.0 2015-02-18T14:17
+      2  175.45.176.2 2015-02-18T14:17
+      2  175.45.176.2 2015-02-18T14:20
+      2  175.45.176.3 2015-02-18T14:21
+      2  175.45.176.2 2015-02-18T14:23
+      2  175.45.176.2 2015-02-18T14:24
+      2  175.45.176.0 2015-02-18T14:24
+      2  175.45.176.2 2015-02-18T14:27
+      2  175.45.176.3 2015-02-18T14:30
+      2  175.45.176.0 2015-02-18T14:32
+      2  175.45.176.3 2015-02-18T14:32
+      2  175.45.176.1 2015-02-18T14:34
+      2  175.45.176.3 2015-02-18T14:36
+      2  175.45.176.3 2015-02-18T14:37
+      2  175.45.176.2 2015-02-18T14:38
+      2  175.45.176.2 2015-02-18T14:42
+------------------------------------------------------------------------
+
+--- Turn 49 | 2,182,255 in / 24,651 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature | contains(\"RPC portmap\"))) | .src_ip"
+}
+[TOOL RESULT] count_by
+     58  175.45.176.0
+     46  175.45.176.3
+     38  175.45.176.1
+     26  175.45.176.2
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==2102466 or .alert.signature_id==2100538)) | .src_ip"
+}
+[TOOL RESULT] count_by
+     14  175.45.176.2
+     12  175.45.176.3
+      6  175.45.176.0
+      2  175.45.176.1
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me confirm the SMB LSASS/DCERPC exploit attempts and their timing.
+
+
+--- Turn 50 | 2,269,910 in / 27,350 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==2102511 or .alert.signature_id==2103276 or .alert.signature_id==2102251)) | {timestamp, src_ip, dest_ip, dest_port, app_proto, signature: .alert.signature, direction}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:40:21.499525+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.19","dest_port":135,"app_proto":"dcerpc","signature":"GPL NETBIOS DCERPC IActivation little endian bind attempt","direction":"to_server"}
+{"timestamp":"2015-02-18T14:40:21.499525+0930","src_ip":"175.45.176.3","dest_ip":"149.171.126.19","dest_port":135,"app_proto":"dcerpc","signature":"GPL NETBIOS DCERPC Remote Activation bind attempt","direction":"to_server"}
+{"timestamp":"2015-02-18T14:42:09.229132+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":139,"app_proto":"smb","signature":"GPL NETBIOS SMB DCERPC LSASS DsRolerUpgradeDownlevelServer exploit attempt","direction":"to_server"}
+{"timestamp":"2015-02-18T14:42:09.229143+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":139,"app_proto":"smb","signature":"GPL NETBIOS SMB DCERPC LSASS DsRolerUpgradeDownlevelServer exploit attempt","direction":"to_server"}
+{"timestamp":"2015-02-18T14:42:09.557125+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":139,"app_proto":"smb","signature":"GPL NETBIOS SMB DCERPC LSASS DsRolerUpgradeDownlevelServer exploit attempt","direction":"to_server"}
+{"timestamp":"2015-02-18T14:42:09.721079+0930","src_ip":"175.45.176.2","dest_ip":"149.171.126.19","dest_port":139,"app_proto":"smb","signature":"GPL NETBIOS SMB DCERPC LSASS DsRolerUpgradeDownlevelServer exploit attempt","direction":"to_server"}
+------------------------------------------------------------------------
+
+--- Turn 51 | 2,360,788 in / 27,658 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | if (.src_ip | startswith(\"175.45.176.\")) then \"attacker-source\" else \"internal-source\" end"
+}
+[TOOL RESULT] count_by
+    612  attacker-source
+    185  internal-source
+------------------------------------------------------------------------
+
+--- Turn 52 | 2,451,997 in / 28,030 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] query_eve_json
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .src_ip==null) | {timestamp, src_ip, dest_ip, src_port, dest_port, proto, app_proto, direction, signature: .alert.signature, sid: .alert.signature_id}"
+}
+[TOOL RESULT] query_eve_json
+{"timestamp":"2015-02-18T14:19:50.370888+0930","src_ip":null,"dest_ip":null,"src_port":null,"dest_port":null,"proto":null,"app_proto":null,"direction":null,"signature":"SURICATA IPv4 truncated packet","sid":2200003}
+{"timestamp":"2015-02-18T14:26:37.551473+0930","src_ip":null,"dest_ip":null,"src_port":null,"dest_port":null,"proto":null,"app_proto":null,"direction":null,"signature":"SURICATA IPv4 truncated packet","sid":2200003}
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+I have a clear picture now. Before taking action, let me confirm the exact SMB port split to tune a slow-sweep rule.
+
+
+--- Turn 53 | 2,543,737 in / 31,458 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and (.alert.signature_id==2102466 or .alert.signature_id==2100538)) | \"\\(.src_ip) -> \\(.dest_ip):\\(.dest_port)\""
+}
+[TOOL RESULT] count_by
+      4  175.45.176.3 -> 149.171.126.19:445
+      4  175.45.176.3 -> 149.171.126.15:139
+      2  175.45.176.0 -> 149.171.126.11:445
+      2  175.45.176.2 -> 149.171.126.10:445
+      2  175.45.176.2 -> 149.171.126.12:445
+      2  175.45.176.3 -> 149.171.126.16:445
+      2  175.45.176.2 -> 149.171.126.17:139
+      2  175.45.176.2 -> 149.171.126.19:445
+      2  175.45.176.0 -> 149.171.126.16:445
+      2  175.45.176.2 -> 149.171.126.18:139
+      2  175.45.176.0 -> 149.171.126.14:139
+      2  175.45.176.1 -> 149.171.126.17:139
+      2  175.45.176.3 -> 149.171.126.10:445
+      2  175.45.176.2 -> 149.171.126.12:139
+      2  175.45.176.2 -> 149.171.126.19:139
+------------------------------------------------------------------------
+
+--- Turn 54 | 2,639,246 in / 32,030 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2221010) | \"\\(.src_ip) -> \\(.dest_ip)\""
+}
+[TOOL RESULT] count_by
+      1  149.171.126.1 -> 59.166.0.7
+      1  149.171.126.5 -> 59.166.0.3
+      1  149.171.126.4 -> 59.166.0.7
+      1  149.171.126.9 -> 59.166.0.1
+      1  149.171.126.2 -> 59.166.0.8
+      1  149.171.126.3 -> 59.166.0.8
+      1  149.171.126.18 -> 175.45.176.3
+      1  149.171.126.2 -> 59.166.0.9
+------------------------------------------------------------------------
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\" and .alert.signature_id==2221018) | \"\\(.src_ip) -> \\(.dest_ip)\""
+}
+[TOOL RESULT] count_by
+      2  175.45.176.1 -> 149.171.126.14
+      2  175.45.176.2 -> 149.171.126.10
+      1  175.45.176.2 -> 149.171.126.13
+      1  175.45.176.1 -> 149.171.126.12
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+I've confirmed the picture. Now I'll append the new detection rules for the confirmed slow-sweep attacks not covered at campaign level in the loaded generated file.
+
+
+--- Turn 55 | 2,735,585 in / 33,059 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] append_to_file
+{
+  "file_path": "rules/generated/unsw_bare.rules",
+  "content": "\n# --- Additional rules from triage of logs/unsw-10-bare/eve.json (799 alerts) ---\n# Confirmed attack patterns not already covered by rules 7700001-7700007:\n#   1. Slow RPC portmap sweep: the 168 stock GPL \"RPC portmap ... request\"\n#      alerts were spread across ~26 minutes, peaking at only 8 queries/min\n#      per source. The existing 7700002 threshold (30/120s) does NOT fire on\n#      this low-and-slow sweep, so the campaign went uncollapsed.\n#   2. Slow SMB IPC$ share-access sweep: 34 stock SMB share-access alerts\n#      from four attacker IPs, but max 2 per source per minute. Existing\n#      7700001 (20/60s) misses it; a longer-window threshold collapses it.\n#   3. SSH brute-force campaign: 9500002 fired in the run (from\n#      bruteforce_campaigns.rules), but unsw_bare.rules is the only generated\n#      file loaded for UNSW validation and had no SSH campaign rule.\n\n# --- 8. Slow RPC portmap sweep (external -> HOME_NET portmapper) -------------\n# One external host querying RPC program numbers on port 111 at low volume\n# over a long window. Per-source totals observed: 58/46/38/26 queries in\n# ~26 minutes. Count 20/1800s collapses each source's sweep into one alert.\nalert ip $EXTERNAL_NET any -> $HOME_NET 111 ( \\\n    msg:\"CUSTOM Slow RPC portmap sweep - low-and-slow portmapper enumeration from external host\"; \\\n    threshold:type threshold, track by_src, count 20, seconds 1800; \\\n    classtype:attempted-recon; \\\n    sid:7700008; rev:1;)\n\n# --- 9. Slow SMB IPC$ share-access sweep (external -> HOME_NET SMB) ----------\n# One external host attempting the IPC$ share on 139/445 at low volume over\n# a long window. Per-source totals observed: 14/12/6/2 attempts in ~26 min.\n# Count 5/1800s collapses three of the four observed sources into one alert\n# each; the fourth (2 attempts) stays below threshold.\nalert smb $EXTERNAL_NET any -> $HOME_NET [139,445] ( \\\n    msg:\"CUSTOM Slow SMB IPC$ share-access sweep from external host\"; \\\n    flow:to_server,established; \\\n    smb.share; content:\"IPC$\"; nocase; \\\n    threshold:type threshold, track by_src, count 5, seconds 1800; \\\n    classtype:attempted-user; \\\n    sid:7700009; rev:1;)\n\n# --- 10. SSH brute-force campaign (external -> HOME_NET SSH) ------------------\n# Sustained low-and-slow SSH connection attempts from one external host.\n# Mirrors the confirmed 9500002 campaign alert so the pattern is present in\n# the only generated file loaded for UNSW validation runs.\nalert tcp $EXTERNAL_NET any -> $HOME_NET 22 ( \\\n    msg:\"CUSTOM SSH Brute-Force Campaign - sustained connection attempts to HOME_NET SSH\"; \\\n    flow:to_server; \\\n    flags:S; \\\n    threshold:type threshold, track by_src, count 10, seconds 3600; \\\n    classtype:attempted-recon; \\\n    sid:7700010; rev:1;)\n"
+}
+[TOOL RESULT] append_to_file
+Successfully appended 2753 bytes to rules/generated/unsw_bare.rules
+------------------------------------------------------------------------
+
+--- Turn 56 | 2,832,982 in / 33,131 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] read_file
+{
+  "file_path": "rules/generated/unsw_bare.rules"
+}
+[TOOL RESULT] read_file
+# rules/generated/unsw_bare.rules
+# Detection rules authored by the AI triage engine for UNSW-NB15 under the bare-alert condition (Experiment 1).
+#
+# Triage of logs/unsw-3-bare/eve.json (893 alerts, 2015-02-18 11:01:36-11:29:10 +0930).
+# HOME_NET = 149.171.126.0/24 (servers) + 59.166.0.0/24 (clients).
+# EXTERNAL_NET includes known attacker range 175.45.176.0/24.
+#
+# Coverage gaps addressed:
+#   1. GPL 2102466 fires once per SMB IPC$ share access, producing a wall of
+#      identical per-connection alerts (124 from 175.45.176.1 -> 149.171.126.15
+#      in ~50s). No stock rule articulates the brute-force campaign itself.
+#   2. The RPC portmap sweep (176 GPL "RPC portmap ... request" alerts across
+#      12 HOME_NET servers, TCP+UDP/111, from all four attacker IPs) is reported
+#      only as individual RPC program queries. No stock rule flags the
+#      source-level sweep.
+
+# --- 1. SMB IPC$ share-access brute force (external -> HOME_NET SMB) ---------
+# One external host repeatedly attempting the IPC$ share on 445 is credential
+# brute-forcing / share enumeration. Thresholds aggregate the per-connection
+# stock GPL alerts into one campaign-level alert.
+alert smb $EXTERNAL_NET any -> $HOME_NET 445 ( \
+    msg:"CUSTOM SMB IPC$ share-access brute force from external host"; \
+    flow:to_server,established; \
+    smb.share; content:"IPC$"; nocase; \
+    threshold:type threshold, track by_src, count 20, seconds 60; \
+    classtype:attempted-user; \
+    sid:7700001; rev:1;)
+
+# --- 2. RPC portmap sweep (external -> HOME_NET portmapper) -----------------
+# A single external host generating many TCP/UDP packets to port 111 across
+# HOME_NET is running a portmapper/RPC program enumeration sweep. The stock
+# GPL portmap rules fire per RPC program; this rule collapses the source-level
+# sweep into one alert.
+alert ip $EXTERNAL_NET any -> $HOME_NET 111 ( \
+    msg:"CUSTOM RPC portmap sweep - external host hammering portmapper 111"; \
+    threshold:type threshold, track by_src, count 30, seconds 120; \
+    classtype:attempted-recon; \
+    sid:7700002; rev:1;)
+
+# --- Additional rules from triage of logs/unsw-1-bare/eve.json (997 alerts) ---
+# Confirmed attack patterns not already covered by rules 7700001/7700002:
+#   1. Heartbleed (CVE-2014-0160): attacker 175.45.176.2 -> 149.171.126.11:443
+#      triggered a large heartbeat response from the server (ET 2018382 +
+#      SURICATA 2230012). Recon bursts preceded/followed it (7600102/7600103
+#      fired 133 times in this capture).
+#   2. FTP PASS overflow/brute-force: 175.45.176.3 -> 149.171.126.18:21 made
+#      17 overflowing PASS attempts in ~2 minutes (34 stock GPL 2101972 alerts).
+#   3. TFTP abuse: attacker hosts issued TFTP GET passwd (2101443) and repeated
+#      TFTP Put uploads (2100518) to internal servers on UDP/69.
+
+# --- 3. Heartbleed overflow heartbeat exploit attempt ----------------------
+alert tls $EXTERNAL_NET any -> $HOME_NET any ( \
+    msg:"CUSTOM Heartbleed overflow heartbeat exploit attempt
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me check whether the source pcap for this run is available, so I could optionally validate the new rules.
+
+
+--- Turn 57 | 2,932,672 in / 33,312 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] list_directory
+{
+  "dir_path": "data/pcaps/unsw"
+}
+[TOOL RESULT] list_directory
+  1.pcap  (2000.0 MB)
+  10.pcap  (2000.0 MB)
+  14.pcap  (2000.0 MB)
+  27.pcap  (596.1 MB)
+  3.pcap  (2000.0 MB)
+  4.pcap  (2000.0 MB)
+  5.pcap  (2000.0 MB)
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+Let me aggregate the alerts into broad categories for the report.
+
+
+--- Turn 58 | 3,032,637 in / 34,682 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | if (.alert.signature_id >= 2200000 and .alert.signature_id < 2300000) then \"suricata-engine\" elif (.alert.signature | contains(\"RPC portmap\")) then \"rpc-portmap\" elif (.alert.signature | contains(\"TFTP\")) then \"tftp\" elif (.alert.signature | contains(\"FTP\")) then \"ftp\" elif (.alert.signature | contains(\"SMB\") or .alert.signature | contains(\"NETBIOS\")) then \"smb-netbios\" elif (.alert.category==\"Web Application Attack\" or .alert.category==\"A Network Trojan was detected\" or .alert.category==\"Executable code was detected\") then \"web/trojan/shellcode\" elif (.alert.category==\"Attempted Administrator Privilege Gain\" or .alert.category==\"Attempted User Privilege Gain\" or .alert.category==\"Successful Administrator Privilege Gain\") then \"exploit-privesc\" elif (.alert.category==\"Potentially Bad Traffic\" or .alert.category==\"Misc Attack\" or .alert.category==\"Misc activity\" or .alert.category==\"Attempted Information Leak\" or .alert.category==\"Not Suspicious Traffic\" or .alert.category==\"Potential Corporate Privacy Violation\") then \"hunting/scan/info\" else \"other\" end"
+}
+[TOOL RESULT] count_by
+    264  suricata-engine
+    168  rpc-portmap
+     55  ftp
+     26  tftp
+------------------------------------------------------------------------
+
+--- Turn 59 | 3,134,011 in / 35,398 out ---
+
+------------------------------------------------------------------------
+[TOOL CALL] count_by
+{
+  "eve_path": "logs/unsw-10-bare/eve.json",
+  "jq_filter": "select(.event_type==\"alert\") | (.alert.signature_id | tostring) as $s | if ($s | startswith(\"22\")) then \"suricata-engine\" elif ($s | startswith(\"210\")) then \"gpl-210\" elif ($s | startswith(\"200\")) then \"et-200\" elif ($s | startswith(\"201\")) then \"et-201\" elif ($s | startswith(\"202\")) then \"et-202\" elif ($s | startswith(\"203\")) then \"et-203\" elif ($s | startswith(\"204\")) then \"et-204\" elif ($s | startswith(\"205\")) then \"et-205\" elif ($s | startswith(\"206\")) then \"et-206\" elif ($s | startswith(\"76\")) then \"custom-76\" elif ($s | startswith(\"95\")) then \"custom-95\" else \"other\" end"
+}
+[TOOL RESULT] count_by
+    313  gpl-210
+    264  suricata-engine
+    145  custom-76
+     40  et-201
+     20  et-200
+      6  et-206
+      4  et-205
+      4  et-203
+      2  custom-95
+      1  et-204
+------------------------------------------------------------------------
+
+[AGENT TEXT]
+# Triage Report: logs/unsw-10-bare/eve.json
+
+## 1. Big picture
+
+| Metric | Value |
+|---|---|
+| Total alert events | **799** |
+| Unique signatures | **163** |
+| Time window | **2015-02-18 14:16 – 14:42 +0930** (~26 min) |
+| Alert sources | **612** from known attacker range `175.45.176.0/24`; **185** from HOME_NET; **2** decoder events with null IP |
+
+Attacker source breakdown (filter: `select(.event_type=="alert") | .src_ip`):
+
+- `175.45.176.0` — 299 alerts
+- `175.45.176.2` — 113
+- `175.45.176.3` — 109
+- `175.45.176.1` — 91
+
+Destinations are overwhelmingly HOME_NET servers (`149.171.126.0/24`), with a small amount of internal-client ↔ internal-server traffic (`59.166.0.0/24`).
+
+---
+
+## 2. Signature categorisation
+
+Broad counts (filter: SID prefix):
+
+| Group | Count | Disposition |
+|---|---|---|
+| Suricata engine (SID `22xxxxx`) | 264 | Parser/stream/decoder noise; a few overlap attacker traffic |
+| GPL (SID `210xxxx`) | 313 | 168 RPC portmap queries + 145 FTP/TFTP/SMB/telnet/IMAP/DNS/SNMP exploit-recon rules — mostly real attack activity |
+| Custom `76xxxxx` | 145 | TLS/Heartbleed recon rules (true attack activity) |
+| Custom `95xxxxx` | 2 | SSH brute-force campaign (true attack activity) |
+| ET `20xxxxx` | 75 | Web attacks, shellcode, scans, hunting rules — mostly true attack activity |
+
+### Engine noise (264 alerts)
+Top offenders: `2210020` packet out of window (80), `2210029`/`2210045` invalid ack (21 each), `2225006` SMB file overlap (16), `2221029` HTTP URI non-compliant char (15), `2260002` app-layer one-direction (14). I treated these as non-actionable noise unless they directly involved attacker flows.
+
+### Real attack categories
+- **RPC portmap sweep** — 168 alerts (all external → HOME_NET:111)
+- **TLS/Heartbleed recon** — 145 alerts
+- **FTP overflow/brute-force** — 55 alerts
+- **TFTP abuse** — 26 alerts
+- **SMB/NetBIOS share access + DCERPC exploits** — 34 + 7 exploit/bind alerts
+- **Web application attacks** — ~40 individual exploit/SQLi/RCE/XSS/file-upload attempts
+- **Service-specific exploits/recon** — telnet, IMAP, DNS, SMTP, SNMP, Oracle, SSH, SQL port scans
+- **Shellcode in server responses** — 5 alerts
+
+---
+
+## 3. Confirmed attacks (with scoped evidence)
+
+### 3.1 TLS Heartbleed recon/exploit precursor — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and (.alert.signature_id==7600102 or .alert.signature_id==7600103))`
+
+- 66 × `7600103` and 66 × `7600102` are all `175.45.176.0 -> 149.171.126.10:7002/TCP/TLS`, concentrated at 14:19. A non-standard TLS service was hit with a sustained handshake/heartbeat burst.
+- 7 × `7600102` from `175.45.176.2 -> 149.171.126.19:443` at 14:17, plus single bursts to other 443 services at 14:21–14:38.
+
+This is consistent with Heartbleed (CVE-2014-0160) reconnaissance/exploitation. **Success is not confirmed from alerts alone** — no `tls.overflow_heartbeat` or stock large-heartbeat-response alert fired in this capture.
+
+### 3.2 FTP PASS overflow / credential brute force — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and .alert.signature_id==2101972)`
+
+- 34 alerts, **all** `175.45.176.0 -> 149.171.126.15:21/TCP/FTP`, 14:20:55–14:22:36 (~100 s, 17 distinct attempts).
+- Additional FTP overflows from the same attacker range: `2101734` USER overflow (6), `2101379` STAT overflow (3), `2100349`/`2101973` MKD overflow (2), `2102374` NLST overflow (1), plus 6 ET HUNTING suspicious-FTP-username alerts. Total FTP-related = 55.
+
+### 3.3 TFTP write attempts and /etc/passwd retrieval — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and (.alert.signature_id==2100518 or .alert.signature_id==2101443))`
+
+- 24 × `GPL TFTP Put` from attacker IPs to HOME_NET UDP/69: `175.45.176.1 -> .13` (16 attempts, 14:25–14:27), plus uploads to `.19`, `.14`, `.16`, `.18`.
+- 2 × `GPL TFTP GET passwd` from `175.45.176.0 -> 149.171.126.17:69` at 14:22:42 — attempted `/etc/passwd` exfiltration.
+
+### 3.4 SSH brute-force campaign — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and (.alert.signature_id==9500002 or .alert.signature_id==2001219))`
+
+- 2 × custom `9500002` + 1 × ET SCAN `2001219`, all `175.45.176.0 -> 149.171.126.13:22/TCP` at 14:31:49–14:31:50.
+
+### 3.5 SMB IPC$ share-access sweep + DCERPC/LSASS exploits — TRUE POSITIVE
+Filter: SIDs `2102466,2100538,2102511,2103276,2102251`
+
+- 34 IPC$ share-access alerts (`2102466` on 445, `2100538` on 139) from **all four** attacker IPs to 10 HOME_NET hosts, spread across the whole capture.
+- 4 × `2102511` LSASS `DsRolerUpgradeDownlevelServer` exploit attempts: `175.45.176.2 -> 149.171.126.19:139` at 14:42:09.
+- 2 × DCERPC bind attempts (`2103276` IActivation, `2102251` Remote Activation): `175.45.176.3 -> 149.171.126.19:135` at 14:40:21.
+
+### 3.6 RPC portmap sweep — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and (.alert.signature | contains("RPC portmap")))`
+
+- 168 alerts, all external attacker IPs → HOME_NET:111 (TCP and UDP), across `.0`=58, `.3`=46, `.1`=38, `.2`=26, over the full 26 min. Classic portmapper/RPC program enumeration.
+
+### 3.7 Web application attack spray — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and .app_proto=="http")` and attacker source.
+
+The HTTP URIs contain explicit exploitation payloads:
+
+- SQL injection: `SELECT USER`, `UNION SELECT username,password FROM admin/users`, Fullaspsite, Philboard, Nabopoll.
+- Command execution: `/winnt/system32/cmd.exe?/c dir`, `chmod +x listen; ./listen`, Zavio IP camera, Sinapsi eSolar, Sophos Web Appliance RCE, HP SiteScope SOAP RCE, Cisco HyperFlex RCE.
+- Apache Struts OGNL: `ProcessBuilder`, `AllowStaticMethodAccess`, xwork disable-method.
+- PHP injection: `php://input`, `eval(base64_decode)`, PHP tags in POST.
+- File traversal / sensitive files: `/etc/hosts`, `/system32/`, `services.cnf`, `.cnf`, `_vti_pvt`.
+- IIS auth bypass (`INDEX_ALLOCATION`), ISAPI `.idq/.ida/.htr`, ColdFusion admin access, XSS.
+
+These are all attacker → HOME_NET:80 (and a few 8081/8082/34444/9002).
+
+### 3.8 Service-specific exploits/recon — TRUE POSITIVE
+- Telnet login-buffer overflow `2103274` (6) from attacker IPs to internal `:23`.
+- IMAP overflows `2103070/2103074/2103068/2101842` (4) to internal `:143`.
+- DNS `named` version/authors/iquery attempts `2100257/2101435/2100252` (8) to internal `:53`.
+- SMTP EXE attachments `2017886/2017887/2017890` (4) from `175.45.176.0` to internal `:25`.
+- SNMP Cisco hidden community `2011011` (2) `175.45.176.0 -> .19:161`.
+- Oracle `service_name` buffer overflow `2102649` (1) to `:1521`.
+- SQL port scans: `2010937` MySQL 3306 (4), `2010936` Oracle 1521 (4).
+
+### 3.9 Shellcode in server → attacker responses — SUSPICIOUS, flag for packet-level review
+Filter: `select(.event_type=="alert" and .alert.signature_id==2009247)`
+
+- 5 × `ET SHELLCODE Rothenburg Shellcode`, all `to_client` from HOME_NET servers (4 HTTP :80, 1 RFB :5900) to attacker IPs. This may indicate a server returned shellcode (possible exploit success), but without payload access I cannot confirm it was not a content false positive. Worth deeper packet inspection.
+
+---
+
+## 4. Actions taken
+
+### New detection rules written to `rules/generated/unsw_bare.rules`
+Appended three campaign-level rules:
+
+| SID | Rule | Rationale |
+|---|---|---|
+| `7700008` | Slow RPC portmap sweep, count 20/1800s by_src | Stock GPL only fires per RPC program. Existing `7700002` (30/120s) is too high for this low-and-slow sweep (peak 8 queries/min per source). |
+| `7700009` | Slow SMB IPC$ share-access sweep, count 5/1800s by_src on `[139,445]` | Stock fires per connection. Existing `7700001` (20/60s) misses this 2-per-minute distributed sweep. |
+| `7700010` | SSH brute-force campaign, count 10/3600s by_src | `9500002` caught it in this run, but that rule lives in another generated file; `unsw_bare.rules` is the only generated file loaded for UNSW validation. |
+
+### Proposed suppression (NOT applied — requires engineer approval)
+```
+# logs/unsw-10-bare/eve.json: all 80 instances are HOME_NET server -> HOME_NET client
+# (149.171.126.x -> 59.166.0.x) TCP stream events from normal internal HTTP
+# responses; mid-capture/segment artifact, not attacker traffic.
+suppress gen_id 1, sig_id 2210020
+```
+
+I deliberately did **not** propose suppressing the other noisy stream events (`2210029`, `2210045`, `2221029`, `2221010`) because they also contain attacker-sourced instances, and a global suppress would hide potentially relevant attack traffic.
+
+---
+
+## 5. Coverage gaps identified
+
+1. **Low-and-slow distributed sweeps** — the stock ruleset reports RPC portmap and SMB IPC$ activity only as per-program/per-connection alerts. No source-level campaign alert existed for the observed rates. Addressed with `7700008`/`7700009`.
+2. **SSH campaign rule absent from `unsw_bare.rules`** — the campaign was detected here only because another generated file was present in this run. Addressed with `7700010`.
+3. **Heartbleed overflow confirmation** — only the recon-precursor rules fired; the actual out-of-bounds heartbeat leak was not confirmed by any alert. `unsw_bare.rules` already has `7700003` (`tls.overflow_heartbeat`), but stock/ET heartbeat-payload coverage is unreliable for encrypted heartbeats. If the pcap is re-run, `7700003` should be the success indicator.
+4. **Web attack spray correlation** — dozens of distinct web exploit signatures fire one-per-attempt, but nothing correlates them into a single "attacker spraying exploits at HOME_NET web servers" picture. A future high-fidelity rule could threshold distinct attacker→HOME_NET HTTP exploit traffic, but care is needed to avoid false positives from legitimate external web traffic.
+
+
+--- Turn 60 | 3,236,184 in / 42,159 out ---
+
+========================================================================
+[FINAL REPORT]
+========================================================================
+# Triage Report: logs/unsw-10-bare/eve.json
+
+## 1. Big picture
+
+| Metric | Value |
+|---|---|
+| Total alert events | **799** |
+| Unique signatures | **163** |
+| Time window | **2015-02-18 14:16 – 14:42 +0930** (~26 min) |
+| Alert sources | **612** from known attacker range `175.45.176.0/24`; **185** from HOME_NET; **2** decoder events with null IP |
+
+Attacker source breakdown (filter: `select(.event_type=="alert") | .src_ip`):
+
+- `175.45.176.0` — 299 alerts
+- `175.45.176.2` — 113
+- `175.45.176.3` — 109
+- `175.45.176.1` — 91
+
+Destinations are overwhelmingly HOME_NET servers (`149.171.126.0/24`), with a small amount of internal-client ↔ internal-server traffic (`59.166.0.0/24`).
+
+---
+
+## 2. Signature categorisation
+
+Broad counts (filter: SID prefix):
+
+| Group | Count | Disposition |
+|---|---|---|
+| Suricata engine (SID `22xxxxx`) | 264 | Parser/stream/decoder noise; a few overlap attacker traffic |
+| GPL (SID `210xxxx`) | 313 | 168 RPC portmap queries + 145 FTP/TFTP/SMB/telnet/IMAP/DNS/SNMP exploit-recon rules — mostly real attack activity |
+| Custom `76xxxxx` | 145 | TLS/Heartbleed recon rules (true attack activity) |
+| Custom `95xxxxx` | 2 | SSH brute-force campaign (true attack activity) |
+| ET `20xxxxx` | 75 | Web attacks, shellcode, scans, hunting rules — mostly true attack activity |
+
+### Engine noise (264 alerts)
+Top offenders: `2210020` packet out of window (80), `2210029`/`2210045` invalid ack (21 each), `2225006` SMB file overlap (16), `2221029` HTTP URI non-compliant char (15), `2260002` app-layer one-direction (14). I treated these as non-actionable noise unless they directly involved attacker flows.
+
+### Real attack categories
+- **RPC portmap sweep** — 168 alerts (all external → HOME_NET:111)
+- **TLS/Heartbleed recon** — 145 alerts
+- **FTP overflow/brute-force** — 55 alerts
+- **TFTP abuse** — 26 alerts
+- **SMB/NetBIOS share access + DCERPC exploits** — 34 + 7 exploit/bind alerts
+- **Web application attacks** — ~40 individual exploit/SQLi/RCE/XSS/file-upload attempts
+- **Service-specific exploits/recon** — telnet, IMAP, DNS, SMTP, SNMP, Oracle, SSH, SQL port scans
+- **Shellcode in server responses** — 5 alerts
+
+---
+
+## 3. Confirmed attacks (with scoped evidence)
+
+### 3.1 TLS Heartbleed recon/exploit precursor — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and (.alert.signature_id==7600102 or .alert.signature_id==7600103))`
+
+- 66 × `7600103` and 66 × `7600102` are all `175.45.176.0 -> 149.171.126.10:7002/TCP/TLS`, concentrated at 14:19. A non-standard TLS service was hit with a sustained handshake/heartbeat burst.
+- 7 × `7600102` from `175.45.176.2 -> 149.171.126.19:443` at 14:17, plus single bursts to other 443 services at 14:21–14:38.
+
+This is consistent with Heartbleed (CVE-2014-0160) reconnaissance/exploitation. **Success is not confirmed from alerts alone** — no `tls.overflow_heartbeat` or stock large-heartbeat-response alert fired in this capture.
+
+### 3.2 FTP PASS overflow / credential brute force — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and .alert.signature_id==2101972)`
+
+- 34 alerts, **all** `175.45.176.0 -> 149.171.126.15:21/TCP/FTP`, 14:20:55–14:22:36 (~100 s, 17 distinct attempts).
+- Additional FTP overflows from the same attacker range: `2101734` USER overflow (6), `2101379` STAT overflow (3), `2100349`/`2101973` MKD overflow (2), `2102374` NLST overflow (1), plus 6 ET HUNTING suspicious-FTP-username alerts. Total FTP-related = 55.
+
+### 3.3 TFTP write attempts and /etc/passwd retrieval — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and (.alert.signature_id==2100518 or .alert.signature_id==2101443))`
+
+- 24 × `GPL TFTP Put` from attacker IPs to HOME_NET UDP/69: `175.45.176.1 -> .13` (16 attempts, 14:25–14:27), plus uploads to `.19`, `.14`, `.16`, `.18`.
+- 2 × `GPL TFTP GET passwd` from `175.45.176.0 -> 149.171.126.17:69` at 14:22:42 — attempted `/etc/passwd` exfiltration.
+
+### 3.4 SSH brute-force campaign — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and (.alert.signature_id==9500002 or .alert.signature_id==2001219))`
+
+- 2 × custom `9500002` + 1 × ET SCAN `2001219`, all `175.45.176.0 -> 149.171.126.13:22/TCP` at 14:31:49–14:31:50.
+
+### 3.5 SMB IPC$ share-access sweep + DCERPC/LSASS exploits — TRUE POSITIVE
+Filter: SIDs `2102466,2100538,2102511,2103276,2102251`
+
+- 34 IPC$ share-access alerts (`2102466` on 445, `2100538` on 139) from **all four** attacker IPs to 10 HOME_NET hosts, spread across the whole capture.
+- 4 × `2102511` LSASS `DsRolerUpgradeDownlevelServer` exploit attempts: `175.45.176.2 -> 149.171.126.19:139` at 14:42:09.
+- 2 × DCERPC bind attempts (`2103276` IActivation, `2102251` Remote Activation): `175.45.176.3 -> 149.171.126.19:135` at 14:40:21.
+
+### 3.6 RPC portmap sweep — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and (.alert.signature | contains("RPC portmap")))`
+
+- 168 alerts, all external attacker IPs → HOME_NET:111 (TCP and UDP), across `.0`=58, `.3`=46, `.1`=38, `.2`=26, over the full 26 min. Classic portmapper/RPC program enumeration.
+
+### 3.7 Web application attack spray — TRUE POSITIVE
+Filter: `select(.event_type=="alert" and .app_proto=="http")` and attacker source.
+
+The HTTP URIs contain explicit exploitation payloads:
+
+- SQL injection: `SELECT USER`, `UNION SELECT username,password FROM admin/users`, Fullaspsite, Philboard, Nabopoll.
+- Command execution: `/winnt/system32/cmd.exe?/c dir`, `chmod +x listen; ./listen`, Zavio IP camera, Sinapsi eSolar, Sophos Web Appliance RCE, HP SiteScope SOAP RCE, Cisco HyperFlex RCE.
+- Apache Struts OGNL: `ProcessBuilder`, `AllowStaticMethodAccess`, xwork disable-method.
+- PHP injection: `php://input`, `eval(base64_decode)`, PHP tags in POST.
+- File traversal / sensitive files: `/etc/hosts`, `/system32/`, `services.cnf`, `.cnf`, `_vti_pvt`.
+- IIS auth bypass (`INDEX_ALLOCATION`), ISAPI `.idq/.ida/.htr`, ColdFusion admin access, XSS.
+
+These are all attacker → HOME_NET:80 (and a few 8081/8082/34444/9002).
+
+### 3.8 Service-specific exploits/recon — TRUE POSITIVE
+- Telnet login-buffer overflow `2103274` (6) from attacker IPs to internal `:23`.
+- IMAP overflows `2103070/2103074/2103068/2101842` (4) to internal `:143`.
+- DNS `named` version/authors/iquery attempts `2100257/2101435/2100252` (8) to internal `:53`.
+- SMTP EXE attachments `2017886/2017887/2017890` (4) from `175.45.176.0` to internal `:25`.
+- SNMP Cisco hidden community `2011011` (2) `175.45.176.0 -> .19:161`.
+- Oracle `service_name` buffer overflow `2102649` (1) to `:1521`.
+- SQL port scans: `2010937` MySQL 3306 (4), `2010936` Oracle 1521 (4).
+
+### 3.9 Shellcode in server → attacker responses — SUSPICIOUS, flag for packet-level review
+Filter: `select(.event_type=="alert" and .alert.signature_id==2009247)`
+
+- 5 × `ET SHELLCODE Rothenburg Shellcode`, all `to_client` from HOME_NET servers (4 HTTP :80, 1 RFB :5900) to attacker IPs. This may indicate a server returned shellcode (possible exploit success), but without payload access I cannot confirm it was not a content false positive. Worth deeper packet inspection.
+
+---
+
+## 4. Actions taken
+
+### New detection rules written to `rules/generated/unsw_bare.rules`
+Appended three campaign-level rules:
+
+| SID | Rule | Rationale |
+|---|---|---|
+| `7700008` | Slow RPC portmap sweep, count 20/1800s by_src | Stock GPL only fires per RPC program. Existing `7700002` (30/120s) is too high for this low-and-slow sweep (peak 8 queries/min per source). |
+| `7700009` | Slow SMB IPC$ share-access sweep, count 5/1800s by_src on `[139,445]` | Stock fires per connection. Existing `7700001` (20/60s) misses this 2-per-minute distributed sweep. |
+| `7700010` | SSH brute-force campaign, count 10/3600s by_src | `9500002` caught it in this run, but that rule lives in another generated file; `unsw_bare.rules` is the only generated file loaded for UNSW validation. |
+
+### Proposed suppression (NOT applied — requires engineer approval)
+```
+# logs/unsw-10-bare/eve.json: all 80 instances are HOME_NET server -> HOME_NET client
+# (149.171.126.x -> 59.166.0.x) TCP stream events from normal internal HTTP
+# responses; mid-capture/segment artifact, not attacker traffic.
+suppress gen_id 1, sig_id 2210020
+```
+
+I deliberately did **not** propose suppressing the other noisy stream events (`2210029`, `2210045`, `2221029`, `2221010`) because they also contain attacker-sourced instances, and a global suppress would hide potentially relevant attack traffic.
+
+---
+
+## 5. Coverage gaps identified
+
+1. **Low-and-slow distributed sweeps** — the stock ruleset reports RPC portmap and SMB IPC$ activity only as per-program/per-connection alerts. No source-level campaign alert existed for the observed rates. Addressed with `7700008`/`7700009`.
+2. **SSH campaign rule absent from `unsw_bare.rules`** — the campaign was detected here only because another generated file was present in this run. Addressed with `7700010`.
+3. **Heartbleed overflow confirmation** — only the recon-precursor rules fired; the actual out-of-bounds heartbeat leak was not confirmed by any alert. `unsw_bare.rules` already has `7700003` (`tls.overflow_heartbeat`), but stock/ET heartbeat-payload coverage is unreliable for encrypted heartbeats. If the pcap is re-run, `7700003` should be the success indicator.
+4. **Web attack spray correlation** — dozens of distinct web exploit signatures fire one-per-attempt, but nothing correlates them into a single "attacker spraying exploits at HOME_NET web servers" picture. A future high-fidelity rule could threshold distinct attacker→HOME_NET HTTP exploit traffic, but care is needed to avoid false positives from legitimate external web traffic.

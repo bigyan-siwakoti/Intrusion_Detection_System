@@ -93,6 +93,9 @@ Tue–Fri detection is traced to a Monday-suppressed SID.
 
 **The old `rules/normal.rules` is kept in the repo for history but is not loaded.**
 
+This section describes the CIC-IDS2017 set-up, which is **frozen** (`config/suricata.yaml`,
+`config/threshold.config`). UNSW-NB15 has its own, separate set-up — see §3.7.
+
 ### 3.3 Context bundle, not a bare packet
 
 When an alert fires, assemble a bundle and send *that* to the model:
@@ -141,9 +144,83 @@ Run `suricata -r <file>.pcap`. No live interface, no inline mode, no TLS termina
 detects), and it sidesteps the sensor-placement and HTTPS questions that stalled us in
 meeting 3. Sensor placement is a later problem, not a week-5 one.
 
+Use `scripts/run_suricata.sh <cic|unsw> <profile> <pcap> <run-name>` for replays: it names the
+config used and writes a fresh `logs/<run-name>/` (Suricata appends to an existing eve.json —
+reusing a folder silently doubled the Friday tuned input once).
+
+### 3.7 Separate set-up per dataset; UNSW-NB15 baseline v2
+
+CIC-IDS2017 and UNSW-NB15 never share configs or AI rule files (supervisor's suggestion), so
+work on one cannot break the other:
+
+- CIC: `config/suricata.yaml` (frozen) and experiment profiles in `config/cic/`; AI rules in
+  `rules/generated/cic/`.
+- UNSW: profiles in `config/unsw/`; AI rules in `rules/generated/unsw/`.
+  `config/unsw/baseline.yaml` is the **frozen UNSW baseline v2**: ET Open + Snort Community +
+  Stamus lateral + PT Open + disabled ET/Snort rule families re-enabled by attack type
+  (`rules/extra/`). No Nmap ruleset (it wrecked CIC precision for no UNSW gain).
+
+**Why the family selection:** families were chosen from the eve.json traffic profile (services
+under attack), never from the labels. Control result: enabling *all* disabled rules gave 31%
+detection but 47x more alerts on non-attacker hosts; the selection gave 25.7% with almost no
+extra noise. UNSW has no benign-only day, so UNSW runs are always raw (no suppressions).
+
+### 3.8 Evaluation integrity — do not break these
+
+- The model must never see ground truth. Tools only open `logs/`, `config/`, `rules/`,
+  `data/pcaps/` (allowlist in `src/tools.py`); labels, notes, docs, transcripts and results are
+  refused. Earlier CIC runs leaked via the label folder and PROJECT_STATE — documented in the report.
+- Never choose rules, rule families or SIDs by checking which ones match ground-truth events.
+- Never give the model anything derived from labels (category names, "undetected" lists).
+- `lookup_vulnerability` uses only the local NVD copy (`data/kb/`, rebuild with
+  `python -m src.kb.build_nvd`) and refuses dataset/generator terms; any live web lookup must
+  use a domain allowlist, not a blocklist.
+- Six UNSW captures (17 Feb day) are the development set. Final claims need the untouched
+  hold-out captures from the 22 Jan day (`data/pcaps/unsw/day1/`). Hold-out = 22 Jan captures 1, 3, 6 (inside
+  the GT attack window, 11:00-14:00 UTC) for detection, plus 25 and 50 (no labelled attacks) as an
+  unseen-normal-traffic false-positive check. Baseline v2 there: 29.5–29.6% (across replays).
+- **Normal-host test (decided 4 Oct 2026).** The hunt profile's `test_rule` tool treats traffic
+  between HOME_NET hosts (59.166.0.0/24 clients → 149.171.126.0/24 servers) as known-good. Source:
+  the dataset's published testbed description (Moustafa & Slay 2015; summarised by FKIE COMIDDS:
+  "Server 1 and 3 generate normal traffic, while server 2 generates malicious traffic").
+  It is documented topology, not per-event ground truth. The tool reports counts by host role only.
+  It cannot test POP3/SIP/SMB rules — no internal traffic uses those protocols in UNSW.
+- **Hunt profile has no attacker range in its prompt** (a real engineer would not know it). This
+  makes hunt differ from plain/research in two ways (procedure + context); state it in the report.
+
+### 3.9 Experiment profiles
+
+Every agent run uses a named profile (`src/profiles.py`): dataset, Suricata config, writable rule
+file, tool set, prompt, blocked files. The UI, CLI and batch runner all select by profile name.
+A profile used in a scored run is **frozen** — change means a new profile, because transcripts and
+`docs/results/` reference profiles by name.
+
+### 3.10 Scoring and final-evaluation decisions (team, 4 Oct 2026)
+
+- **Round gains are attributed by the AI rules' own alerts**, not full-replay minus baseline log.
+  Replays are not deterministic (thresholds); the old metric counted that variance as gain
+  (hunt R1: +82 by the old metric, 6 attributable). All conditions are re-scored this way, and
+  the corrected figures replace earlier headlines (e.g. plain R2 36.3%).
+- **Hold-out rule set, fixed before the hold-out is seen:** non-topology AI rules only (signature +
+  behavioural, by the rule-class audit), reported per condition and combined.
+- **Remaining runs:** deepseek-v4-pro for every condition. Finish hunt R1 (captures 1, 10).
+  `unsw-v2-hunt2` (technique-level rules) only if done by ~8 Oct. Plain/research round 3 dropped.
+
 ---
 
 ## 4. Experiments — this is what makes it research
+
+**Status (4 Oct 2026, final):** Exp 1, 2, 3 done. Exp 3 = AI rounds on UNSW baseline v2, conditions plain,
+research, hunt, hunt2 (`src/eval/rounds.py`, within-replay attribution, §3.10). Genuine gain dev / hold-out:
+plain +0.08 / +0.11, research +0.33 / +0.28, hunt +1.21 / +1.53, hunt2 (hunt + keyword tool) +0.91 / +1.06;
+0 AI alerts on benign hold-out captures; all four combined ≈ +2.2 pts on hold-out. Hunt gain coincides with the
+4 Oct provider fix (DeepSeek reasoning_content was dropped); hunt vs hunt2 differ within run-to-run variation.
+~77% of attack events carry data (content-detectable), baseline catches ~24% of those: the gap is unwritten
+signatures (`src/eval/detectable.py`). Report (81 pp) and deck (27 slides) rebuilt with all of it.
+**Submission versions (8 Oct 2026):** HIT401 caps the final report at 4,000–5,000 words, so the submitted report is
+`docs/Final_Report_Group13.docx` (built by `docs/build_report_v2.py`, ~4,250 words of prose, 19 figures, appendices
+A–D; `docs/update_fields.py` fills the lists and exports the PDF). The 81-page draft is kept as the detailed record.
+The video deck (5–10 min allowed; 13 slides, ~8 min) is `docs/Group13_Video_Presentation.pptx` (`docs/build_video_deck.js`, script in `docs/video_script.md`).
 
 ### Experiment 1 — does context matter? **(the spine)**
 
@@ -204,24 +281,30 @@ difference between ten experiments a day and two.
 ├── CLAUDE.md
 ├── PROJECT_STATE.txt           # detailed project state for session continuity
 ├── data/
-│   ├── pcaps/                  # gitignored — multi-GB
-│   ├── slices/                 # small cuts for fast iteration
-│   └── labels/                 # ground-truth CSVs (TrafficLabelling/)
+│   ├── pcaps/                  # gitignored — CIC *.pcap; unsw/ (dev); unsw/day1/ (hold-out)
+│   ├── labels/                 # ground truth — TrafficLabelling/ (CIC), "source trouth unsw"/ (UNSW)
+│   └── kb/                     # gitignored — local NVD knowledge base for lookup_vulnerability
 ├── rules/
 │   ├── suricata.rules          # ET Open ruleset — NEVER edit directly
-│   ├── normal.rules            # old approach, superseded, kept for history
-│   └── generated/              # rules authored by the LLM
+│   ├── extra/                  # other open rulesets + re-enabled families (UNSW baseline v2)
+│   ├── generated/cic/          # AI rules written on CIC-IDS2017 (+ triage reports)
+│   ├── generated/unsw/         # AI rules written on UNSW-NB15 (v1, bare, rounds_plain/research)
+│   ├── snapshots/              # rule-file state after each run (not loaded)
+│   └── normal.rules            # old approach, superseded, kept for history
 ├── config/
-│   ├── suricata.yaml           # project-local config (HOME_NET, checksums, paths)
-│   ├── threshold.config        # all suppress/threshold tuning lives here
-│   ├── classification.config   # copied from ET Open
-│   └── assets.txt              # hand-maintained destination context
+│   ├── suricata.yaml           # CIC triage config — FROZEN
+│   ├── threshold.config        # CIC suppressions (Monday baseline) — FROZEN
+│   ├── cic/  unsw/             # per-dataset Suricata profiles (unsw/baseline.yaml = UNSW v2)
+│   └── classification.config
+├── scripts/run_suricata.sh     # replay a pcap with a named profile into logs/<run>/
 ├── logs/                       # per-run subdirectories, gitignored
-├── src/
-│   ├── bundle/                 # builds the context bundle from eve.json
-│   ├── llm/                    # API calls, prompts
-│   └── eval/                   # scoring against ground truth
-└── docs/                       # minutes, charter, findings log
+├── triage-*.txt                # session transcripts (evidence; never edit)
+├── src/                        # engine, tools, prompts (DATASETS profiles), providers, CLI/server,
+│   ├── batch_transcript.py     #   unattended runs → transcript
+│   ├── kb/                     #   NVD knowledge-base builder
+│   └── eval/                   #   ground-truth scoring, rule audit, figures, experiments
+└── docs/                       # report draft + build_final_report.py, deck + build_deck.js,
+                                #   results/ (JSON/CSV), figures/, meeting minutes
 ```
 
 **`.gitignore` the pcaps and logs from the first commit.** Multi-GB files in git are
@@ -240,6 +323,14 @@ painful to undo.
 - Take the **PCAPs**, not the ML CSVs (pre-extracted flow features, unusable by Suricata).
 - Take the labelled flows separately as ground truth for Experiment 1.
 - Verify each download: `md5sum -c <file>.md5`.
+
+**UNSW-NB15**, UNSW Canberra (Moustafa & Slay 2015) — second dataset, added at the
+supervisor's request (Week 9). <https://research.unsw.edu.au/projects/unsw-nb15-dataset>
+
+- Ground truth: `NUSW-NB15_GT.csv` (one row per attack event, 9 categories).
+- Layout: attackers 175.45.176.0/24 → servers 149.171.126.0/24; normal clients 59.166.0.0/24.
+- Dev set: 17 Feb captures 1, 3, 4, 5, 10, 14 (file 27 was truncated). Hold-out: 22 Jan captures.
+- No benign-only day → no baseline tuning; headline recall on TCP/UDP events only.
 
 ---
 
@@ -260,16 +351,19 @@ painful to undo.
 
 Do not invent answers to these. Flag them.
 
-1. **Human-in-the-loop.** §3.4 proposes approve-normality / auto-deploy-detection. The
-   team has not formally adopted it. Raised with the supervisor in meeting 3 and left
-   unresolved.
-2. **Narrow or wider claim.** Narrow = "automates rule authoring given a decision".
-   Wider = "automates triage with sensor-available context". Experiment 1's framing
-   depends on this.
-3. **Label join.** CIC-IDS2017 ground truth is per-flow; our alerts come from `eve.json`.
-   How cleanly these join is unknown until inspected, and Experiment 1's strength depends
-   on it.
-4. **Network-based vs host-based IDS.** Asked in meeting 3, not settled by the supervisor.
+1. ~~**Human-in-the-loop.**~~ Decided by the team 4 Oct 2026: §3.4 adopted as designed —
+   detection rules auto-deploy, suppressions need human approval (already enforced in the engine).
+   Confirm with the supervisor.
+2. ~~**Narrow or wider claim.**~~ Decided 4 Oct 2026: **split claim**, because that is what the
+   evidence shows. Yes for triage with sensor-available context (CIC 13/14, UNSW 8/9 categories
+   identified; context adds outcome evidence, Exp 1). Partial for raising detection over a strong
+   human-tuned baseline: triage-driven conditions add a fraction of a point; the hunt workflow (with
+   reasoning carried) adds +1.2 pts dev / +1.5 pts hold-out, 0 FPs — confounded with the 4 Oct fix.
+3. ~~**Label join.**~~ Resolved: alerts join to CIC flows by 5-tuple + time window (±120 s;
+   labels are minute-resolution, 12-hour clock, ADT) and to UNSW events by endpoints + time
+   (±2 s). See `src/eval/cic_score.py`, `src/eval/unsw_score.py`.
+4. ~~**Network-based vs host-based IDS.**~~ Decided 4 Oct 2026: network-based; host-based is
+   future work. State it in the report.
 5. **Project charter and management plan.** Assigned in meeting 01, not mentioned since,
    now overdue. Confirm whether still required.
 

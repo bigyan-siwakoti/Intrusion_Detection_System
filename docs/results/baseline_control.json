@@ -1,0 +1,58 @@
+{
+  "baseline": {
+    "tcpudp": 14935,
+    "det": 3720,
+    "alerts": 33200,
+    "no_attacker": 809,
+    "matching": 19181,
+    "detected_by_cat": {
+      "Exploits": 1465,
+      "Reconnaissance": 540,
+      "DoS": 134,
+      "Shellcode": 71,
+      "Generic": 195,
+      "Fuzzers": 1279,
+      "Backdoor": 30,
+      "Worms": 6
+    },
+    "tcpudp_by_cat": {
+      "Exploits": 5057,
+      "Fuzzers": 3942,
+      "Reconnaissance": 2142,
+      "DoS": 670,
+      "Generic": 2677,
+      "Shellcode": 279,
+      "Backdoor": 74,
+      "Worms": 32,
+      "Analysis": 62
+    }
+  },
+  "allon": {
+    "tcpudp": 14935,
+    "det": 4660,
+    "alerts": 71941,
+    "no_attacker": 37405,
+    "matching": 20445,
+    "detected_by_cat": {
+      "Exploits": 2052,
+      "Generic": 257,
+      "Reconnaissance": 576,
+      "DoS": 208,
+      "Shellcode": 71,
+      "Backdoor": 38,
+      "Fuzzers": 1450,
+      "Worms": 8
+    },
+    "tcpudp_by_cat": {
+      "Exploits": 5057,
+      "Fuzzers": 3942,
+      "Reconnaissance": 2142,
+      "DoS": 670,
+      "Generic": 2677,
+      "Shellcode": 279,
+      "Backdoor": 74,
+      "Worms": 32,
+      "Analysis": 62
+    }
+  }
+}

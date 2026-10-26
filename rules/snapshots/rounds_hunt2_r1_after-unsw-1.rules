@@ -1,0 +1,51 @@
+# AI rules from the hunt2 condition (profile unsw-v2-hunt2). Every rule here passed test_rule before it was saved.
+# Goal: Detect DNS CHAOS TXT queries for BIND version.bind | Blind spots: other DNS info queries (authors.bind separately), non-TXT version queries | False positives: rare legitimate BIND version queries from monitoring tools
+alert dns $EXTERNAL_NET any -> $HOME_NET 53 (msg:"DNS BIND version.bind TXT query"; dns.query.name; content:"VERSION.BIND"; nocase; sid:7900001; rev:1;)
+# Goal: Detect DNS CHAOS TXT queries for BIND authors.bind | Blind spots: other DNS info queries, non-TXT authors queries | False positives: rare legitimate BIND authors queries
+alert dns $EXTERNAL_NET any -> $HOME_NET 53 (msg:"DNS BIND authors.bind TXT query"; dns.query.name; content:"AUTHORS.BIND"; nocase; sid:7900002; rev:1;)
+# Goal: Detect DNS AXFR zone-transfer requests regardless of TCP/UDP | Blind spots: AXFR queries with rrtype not parsed as 252 | False positives: authorized zone transfers from known secondary servers
+alert dns $EXTERNAL_NET any -> $HOME_NET 53 (msg:"DNS AXFR zone transfer request"; dns.rrtype:252; sid:7900003; rev:1;)
+# Goal: Detect WebDAV PROPFIND retrieval of Windows DLLs from outside | Blind spots: other executable/script extensions, non-MiniRedir clients | False positives: legitimate WebDAV clients browsing a share containing DLL files
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"WebDAV PROPFIND for Windows DLL"; flow:to_server,established; http.method; content:"PROPFIND"; http.uri; content:".dll"; nocase; http.user_agent; content:"Microsoft-WebDAV-MiniRedir"; nocase; sid:7900004; rev:1;)
+# Goal: Detect obfuscated/percent-encoded XSS using a javascript: URI and alert() | Blind spots: XSS without javascript: or alert, encoded with other schemes | False positives: web applications that legitimately accept javascript: alert strings in a URL
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"Encoded obfuscated XSS with JavaScript URI"; flow:to_server,established; http.uri; content:"<"; content:"JavaScrIpt"; nocase; content:"alert"; nocase; sid:7900008; rev:1;)
+# Goal: Detect HTTP URI directory traversal with repeated parent segments | Blind spots: backslash-only traversal, fewer than four parent segments, encoded %2e%2e | False positives: rare legitimate apps that send four or more ../ in a request URI
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP URI directory traversal"; flow:to_server,established; http.uri; content:"../../../../"; sid:7900006; rev:1;)
+# Goal: Detect percent-encoded backslash traversal in raw HTTP URI | Blind spots: raw backslash traversal (separate rule), mixed encodings | False positives: rare legitimate URLs containing ..%5c.. sequences
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP URI percent-encoded backslash traversal"; flow:to_server,established; http.uri.raw; content:"%5c"; content:"..%5c"; sid:7900012; rev:1;)
+# Goal: Detect raw backslash directory traversal in HTTP URI | Blind spots: percent-encoded backslash traversal (separate rule) | False positives: rare legitimate Windows UNC-style request paths with ..\.. segments
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"HTTP URI raw backslash directory traversal"; flow:to_server,established; http.uri.raw; content:"..|5C|..|5C|"; sid:7900013; rev:1;)
+# Goal: Detect LDAP SASL CRAM-MD5 bind with oversized space padding | Blind spots: other SASL mechanisms, padding with other bytes | False positives: none expected for a CRAM-MD5 bind carrying 40 consecutive spaces
+alert tcp $EXTERNAL_NET any -> $HOME_NET 389 (msg:"LDAP SASL CRAM-MD5 bind with oversized space padding"; flow:to_server,established; content:"CRAM-MD5"; content:"|20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20 20|"; sid:7900010; rev:1;)
+# Goal: Detect HTTP URI format string probes using %99999999 | Blind spots: other large-width format specifiers | False positives: none expected; invalid percent-encoding is not used by browsers
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"WEB-ATTACK HTTP URI format string probe (%99999999)"; flow:to_server,established; http.uri.raw; content:"%99999999"; sid:7900101; rev:1;)
+# Goal: Detect HTTP URI repeated %n format string probes | Blind spots: shorter %n runs | False positives: none expected
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"WEB-ATTACK HTTP URI repeated %n format string"; flow:to_server,established; http.uri.raw; content:"%n%n%n%n"; sid:7900102; rev:1;)
+# Goal: Detect HTTP URI repeated %s format string probes | Blind spots: shorter %s runs | False positives: none expected
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"WEB-ATTACK HTTP URI repeated %s format string"; flow:to_server,established; http.uri.raw; content:"%s%s%s%s"; sid:7900103; rev:1;)
+# Goal: Detect HTTP URI overlong UTF-8 dot encoding used for directory traversal | Blind spots: single %c0%ae, other overlong encodings | False positives: none expected
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"WEB-ATTACK HTTP URI overlong UTF-8 traversal"; flow:to_server,established; http.uri.raw; content:"%c0%ae%c0%ae"; nocase; sid:7900104; rev:1;)
+# Goal: Detect FTP path traversal in RETR commands | Blind spots: STOR or single-level traversal | False positives: rare legitimate FTP clients retrieving paths with multiple parent levels
+alert ftp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"FTP path traversal in RETR command"; flow:to_server,established; ftp.command; content:"RETR"; ftp.command_data; content:"/../../"; sid:7900105; rev:1;)
+# Goal: Detect LDAP modify DN write operation from external | Blind spots: other LDAP write operations | False positives: legitimate external LDAP administrators performing a rename
+alert ldap $EXTERNAL_NET any -> $HOME_NET 389 (msg:"LDAP modify DN request from external"; flow:to_server,established; ldap.request.operation:mod_dn_request; sid:7900106; rev:1;)
+# Goal: Detect LDAP bind as domain administrator from external | Blind spots: other privileged account names | False positives: legitimate external LDAP administration using the domain administrator account
+alert ldap $EXTERNAL_NET any -> $HOME_NET 389 (msg:"LDAP bind as domain administrator from external"; flow:to_server,established; ldap.request.dn; content:"dc\\administrator"; nocase; sid:7900107; rev:1;)
+# Goal: Detect SMB duplicate negotiate flood | Blind spots: rate below threshold | False positives: none expected for repeated duplicate negotiate on one flow
+alert smb $EXTERNAL_NET any -> $HOME_NET any (msg:"SMB duplicate negotiate flood"; flow:to_server,established; app-layer-event:smb.duplicate_negotiate; threshold:type both, track by_src, count 10, seconds 60; sid:7900108; rev:1;)
+# Goal: Detect FTP path traversal in SIZE commands | Blind spots: RETR already covered separately, STOR uncovered | False positives: rare legitimate FTP SIZE with multiple parent levels
+alert ftp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"FTP path traversal in SIZE command"; flow:to_server,established; ftp.command; content:"SIZE"; ftp.command_data; content:"/../../"; sid:7900109; rev:1;)
+# Goal: Detect HTTP URI traversal targeting boot.ini | Blind spots: other sensitive Windows files | False positives: none expected for a URI containing both .. and boot.ini
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"WEB-ATTACK HTTP URI traversal for boot.ini"; flow:to_server,established; http.uri.raw; content:"boot.ini"; nocase; content:".."; sid:7900110; rev:1;)
+# Goal: Detect Novell eDirectory LDAP extended request with anomalous BER payload | Blind spots: other delRequest payload lengths/OIDs | False positives: legitimate Novell delRequest use is rare
+alert ldap $EXTERNAL_NET any -> $HOME_NET 389 (msg:"Novell eDirectory LDAP extended request exploit attempt"; flow:to_server,established; content:"|30 56 02 02 01 00 31 50|"; sid:7900111; rev:1;)
+# Goal: Detect HTTP URI repeated %%n format string probes | Blind spots: shorter runs | False positives: none expected
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"WEB-ATTACK HTTP URI repeated %%n format string"; flow:to_server,established; http.uri.raw; content:"%%n%%n%%n%%n"; sid:7900112; rev:1;)
+# Goal: Detect HTTP URI repeated %%s format string probes | Blind spots: shorter runs | False positives: none expected
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"WEB-ATTACK HTTP URI repeated %%s format string"; flow:to_server,established; http.uri.raw; content:"%%s%%s%%s%%s"; sid:7900113; rev:1;)
+# Goal: Detect PHP code injection in HTTP User-Agent | Blind spots: other server-side scripting tags | False positives: none expected
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"WEB-ATTACK PHP code in HTTP User-Agent"; flow:to_server,established; http.user_agent; content:"<? phpinfo() ?>"; nocase; sid:7900114; rev:1;)
+# Goal: Detect obfuscated script tag with alert() in HTTP User-Agent | Blind spots: other XSS payloads in UA | False positives: none expected
+alert http $EXTERNAL_NET any -> $HOME_NET any (msg:"WEB-ATTACK XSS payload in HTTP User-Agent"; flow:to_server,established; http.user_agent; content:"<<ScrIPt"; nocase; content:"alert"; nocase; sid:7900115; rev:1;)
+# Goal: Detect FTP PASS command format string probe using %99999999 | Blind spots: other format specifiers in FTP commands | False positives: none expected; normal FTP passwords do not contain invalid %99999999 percent-encoding
+alert ftp $EXTERNAL_NET any -> $HOME_NET 21 (msg:"FTP PASS format string probe (%99999999)"; flow:to_server,established; ftp.command; content:"PASS"; ftp.command_data; content:"%99999999"; sid:7900116; rev:1;)

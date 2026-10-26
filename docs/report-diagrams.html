@@ -1,0 +1,657 @@
+<title>Report Diagrams</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --navy: #1B2A4A;
+    --navy-light: #2D4166;
+    --teal: #2779A7;
+    --teal-fill: #E8F4FA;
+    --amber: #D4832F;
+    --amber-fill: #FDF3E7;
+    --green: #3D7A5F;
+    --green-fill: #EAF5EF;
+    --red: #B84233;
+    --red-fill: #FCEAE8;
+    --purple: #6B5B95;
+    --purple-fill: #F0EDF5;
+    --grey-100: #F7F8FA;
+    --grey-200: #E8EBF0;
+    --grey-300: #CDD2DA;
+    --grey-500: #7A8494;
+    --grey-700: #3D4555;
+    --bg: #FFFFFF;
+    --text: #1B2A4A;
+    --text-secondary: #5A6577;
+    --border: #D0D5DD;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0F1420;
+      --text: #E2E6ED;
+      --text-secondary: #9AA3B4;
+      --border: #2D3548;
+      --grey-100: #171D2C;
+      --grey-200: #1E2538;
+      --grey-300: #2D3548;
+      --grey-500: #6B7589;
+      --grey-700: #C5CAD4;
+      --navy: #C5D0E6;
+      --navy-light: #8A9BC0;
+      --teal-fill: #132A38;
+      --amber-fill: #2C2118;
+      --green-fill: #162A20;
+      --red-fill: #2C1A17;
+      --purple-fill: #231F30;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0F1420;
+    --text: #E2E6ED;
+    --text-secondary: #9AA3B4;
+    --border: #2D3548;
+    --grey-100: #171D2C;
+    --grey-200: #1E2538;
+    --grey-300: #2D3548;
+    --grey-500: #6B7589;
+    --grey-700: #C5CAD4;
+    --navy: #C5D0E6;
+    --navy-light: #8A9BC0;
+    --teal-fill: #132A38;
+    --amber-fill: #2C2118;
+    --green-fill: #162A20;
+    --red-fill: #2C1A17;
+    --purple-fill: #231F30;
+  }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+    padding: 40px 24px;
+    max-width: 960px;
+    margin: 0 auto;
+  }
+
+  .diagram-section {
+    margin-bottom: 72px;
+    page-break-inside: avoid;
+  }
+
+  .fig-label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  .fig-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 28px;
+    line-height: 1.4;
+  }
+
+  /* ── TAXONOMY DIAGRAM ── */
+  .taxonomy {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .taxonomy-root {
+    background: var(--navy);
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    padding: 12px 28px;
+    border-radius: 6px;
+    text-align: center;
+    position: relative;
+  }
+
+  :root[data-theme="dark"] .taxonomy-root,
+  :root:not([data-theme="light"]) .taxonomy-root {
+    background: var(--teal);
+  }
+  @media (prefers-color-scheme: light) {
+    :root:not([data-theme="dark"]) .taxonomy-root {
+      background: var(--navy);
+    }
+  }
+
+  .taxonomy-connector {
+    width: 2px;
+    height: 32px;
+    background: var(--border);
+    position: relative;
+  }
+
+  .taxonomy-branch-line {
+    height: 2px;
+    background: var(--border);
+    width: 80%;
+    max-width: 700px;
+    position: relative;
+  }
+
+  .taxonomy-branches {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 20px;
+    width: 100%;
+    max-width: 840px;
+    position: relative;
+  }
+
+  .taxonomy-branch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+  }
+
+  .branch-stem {
+    width: 2px;
+    height: 24px;
+    background: var(--border);
+  }
+
+  .branch-box {
+    border: 2px solid;
+    border-radius: 6px;
+    padding: 14px 16px;
+    text-align: center;
+    width: 100%;
+  }
+
+  .branch-box h3 {
+    font-size: 13px;
+    font-weight: 600;
+    margin: 0 0 10px 0;
+    line-height: 1.3;
+  }
+
+  .branch-box ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .branch-box li {
+    font-size: 11px;
+    color: var(--text-secondary);
+    padding: 3px 0;
+    line-height: 1.4;
+  }
+
+  .branch-box li::before {
+    content: "·";
+    margin-right: 6px;
+    font-weight: 700;
+  }
+
+  .branch-sig { border-color: var(--teal); background: var(--teal-fill); }
+  .branch-sig h3 { color: var(--teal); }
+  .branch-anom { border-color: var(--amber); background: var(--amber-fill); }
+  .branch-anom h3 { color: var(--amber); }
+  .branch-spec { border-color: var(--green); background: var(--green-fill); }
+  .branch-spec h3 { color: var(--green); }
+
+  .branch-example {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 10px;
+    color: var(--grey-500);
+    margin-top: 8px;
+    text-align: center;
+  }
+
+  .taxonomy-highlight {
+    display: inline-block;
+    background: var(--teal);
+    color: #fff;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  /* ── ARCHITECTURE DIAGRAM ── */
+  .arch {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .arch-row {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .arch-box {
+    border: 2px solid var(--border);
+    border-radius: 6px;
+    padding: 14px 18px;
+    text-align: center;
+    background: var(--grey-100);
+    min-width: 120px;
+    flex-shrink: 0;
+  }
+
+  .arch-box-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+    margin-bottom: 4px;
+  }
+
+  .arch-box-sub {
+    font-size: 10px;
+    color: var(--text-secondary);
+    line-height: 1.4;
+  }
+
+  .arch-arrow {
+    display: flex;
+    align-items: center;
+    padding: 0 6px;
+    flex-shrink: 0;
+  }
+
+  .arch-arrow svg {
+    width: 36px;
+    height: 20px;
+  }
+
+  .arch-arrow-label {
+    font-size: 9px;
+    color: var(--grey-500);
+    text-align: center;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  .arch-stage {
+    border: 2px solid;
+    border-radius: 8px;
+    padding: 16px 20px;
+    flex: 1;
+    min-width: 200px;
+  }
+
+  .arch-stage-header {
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .arch-stage-1 { border-color: var(--teal); background: var(--teal-fill); }
+  .arch-stage-1 .arch-stage-header { color: var(--teal); }
+  .arch-stage-2 { border-color: var(--purple); background: var(--purple-fill); }
+  .arch-stage-2 .arch-stage-header { color: var(--purple); }
+
+  .arch-tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-top: 8px;
+  }
+
+  .arch-tool-tag {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 9px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 3px;
+    padding: 2px 6px;
+    color: var(--text-secondary);
+  }
+
+  .arch-outputs {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .arch-output {
+    border: 2px solid;
+    border-radius: 6px;
+    padding: 12px 16px;
+    text-align: center;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .arch-output-detect {
+    border-color: var(--green);
+    background: var(--green-fill);
+  }
+  .arch-output-detect .arch-box-label { color: var(--green); }
+
+  .arch-output-suppress {
+    border-color: var(--amber);
+    background: var(--amber-fill);
+  }
+  .arch-output-suppress .arch-box-label { color: var(--amber); }
+
+  .arch-badge {
+    display: inline-block;
+    font-size: 9px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 3px;
+    margin-top: 6px;
+    letter-spacing: 0.04em;
+  }
+
+  .badge-auto {
+    background: var(--green);
+    color: #fff;
+  }
+
+  .badge-approval {
+    background: var(--amber);
+    color: #fff;
+  }
+
+  /* ── CHART ── */
+  .chart-container {
+    width: 100%;
+    overflow-x: auto;
+  }
+
+  .chart-svg {
+    width: 100%;
+    max-width: 820px;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .chart-legend {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .legend-swatch {
+    width: 14px;
+    height: 14px;
+    border-radius: 3px;
+  }
+
+  .chart-note {
+    font-size: 11px;
+    color: var(--grey-500);
+    text-align: center;
+    margin-top: 12px;
+    font-style: italic;
+  }
+
+  @media (max-width: 600px) {
+    .taxonomy-branches {
+      grid-template-columns: 1fr;
+      max-width: 300px;
+    }
+    .taxonomy-branch-line { display: none; }
+    .branch-stem { display: none; }
+    .arch-row { flex-direction: column; }
+    .arch-arrow { transform: rotate(90deg); padding: 4px 0; }
+  }
+</style>
+
+<!-- ═══════════════════════════════════════════════════════
+     FIG. 2-1: IDS TAXONOMY
+     ═══════════════════════════════════════════════════════ -->
+<div class="diagram-section">
+  <div class="fig-label">Fig. 2-1</div>
+  <div class="fig-title">Taxonomy of intrusion detection approaches, with key characteristics and representative systems</div>
+
+  <div class="taxonomy">
+    <div class="taxonomy-root">Intrusion Detection Systems</div>
+    <div class="taxonomy-connector"></div>
+    <div class="taxonomy-branch-line"></div>
+
+    <div class="taxonomy-branches">
+      <div class="taxonomy-branch">
+        <div class="branch-stem"></div>
+        <div class="branch-box branch-sig">
+          <h3>Signature-Based<br>(Misuse Detection)</h3>
+          <ul>
+            <li>Matches traffic against known attack patterns</li>
+            <li>Deterministic, auditable alerts</li>
+            <li>Low false-positive rate when tuned</li>
+            <li>Cannot detect unknown attacks</li>
+            <li>Requires human-authored rules</li>
+          </ul>
+          <div class="branch-example">Snort, Suricata, ET Open</div>
+          <div class="taxonomy-highlight">THIS PROJECT</div>
+        </div>
+      </div>
+
+      <div class="taxonomy-branch">
+        <div class="branch-stem"></div>
+        <div class="branch-box branch-anom">
+          <h3>Anomaly-Based<br>(Statistical Detection)</h3>
+          <ul>
+            <li>Flags deviations from baseline behaviour</li>
+            <li>Can detect novel / zero-day attacks</li>
+            <li>High false-positive rates</li>
+            <li>Difficult to interpret or audit</li>
+            <li>Base-rate fallacy problem (Axelsson 2000)</li>
+          </ul>
+          <div class="branch-example">ML classifiers, neural networks</div>
+        </div>
+      </div>
+
+      <div class="taxonomy-branch">
+        <div class="branch-stem"></div>
+        <div class="branch-box branch-spec">
+          <h3>Specification-Based<br>(Policy Detection)</h3>
+          <ul>
+            <li>Defines acceptable behaviour via specs</li>
+            <li>Low false-positive rate</li>
+            <li>Some novel-attack capability</li>
+            <li>Labour-intensive specification maintenance</li>
+            <li>Limited practical adoption</li>
+          </ul>
+          <div class="branch-example">Ko et al. 1997, Sekar et al. 2002</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     FIG. 3-1: SYSTEM ARCHITECTURE
+     ═══════════════════════════════════════════════════════ -->
+<div class="diagram-section">
+  <div class="fig-label">Fig. 3-1</div>
+  <div class="fig-title">System architecture: Suricata detection pipeline with AI-driven triage engine</div>
+
+  <div class="arch">
+    <!-- Row 1: Input → Suricata → eve.json -->
+    <div class="arch-row">
+      <div class="arch-box">
+        <div class="arch-box-label">pcap Files</div>
+        <div class="arch-box-sub">CIC-IDS2017 dataset<br>Mon–Fri captures</div>
+      </div>
+
+      <div class="arch-arrow">
+        <svg viewBox="0 0 36 20"><line x1="0" y1="10" x2="28" y2="10" stroke="var(--border)" stroke-width="2"/><polygon points="28,5 36,10 28,15" fill="var(--border)"/></svg>
+      </div>
+
+      <div class="arch-stage arch-stage-1">
+        <div class="arch-stage-header">Stage 1 — Detection</div>
+        <div class="arch-box-label">Suricata 8.0.6</div>
+        <div class="arch-box-sub">ET Open ruleset (52,647 rules)<br>+ threshold.config (80 suppressions)</div>
+      </div>
+
+      <div class="arch-arrow">
+        <svg viewBox="0 0 36 20"><line x1="0" y1="10" x2="28" y2="10" stroke="var(--border)" stroke-width="2"/><polygon points="28,5 36,10 28,15" fill="var(--border)"/></svg>
+        <div class="arch-arrow-label">eve.json<br>(NDJSON)</div>
+      </div>
+
+      <div class="arch-stage arch-stage-2">
+        <div class="arch-stage-header">Stage 2 — AI Triage</div>
+        <div class="arch-box-label">Agentic Triage Engine</div>
+        <div class="arch-box-sub">Claude Opus 5 / DeepSeek V4 Pro<br>6-step investigative procedure</div>
+        <div class="arch-tools">
+          <span class="arch-tool-tag">count_alerts</span>
+          <span class="arch-tool-tag">count_by</span>
+          <span class="arch-tool-tag">jq_query</span>
+          <span class="arch-tool-tag">read_file</span>
+          <span class="arch-tool-tag">write_file</span>
+          <span class="arch-tool-tag">append_file</span>
+          <span class="arch-tool-tag">run_suricata</span>
+          <span class="arch-tool-tag">list_dir</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Row 2: Outputs -->
+    <div style="display:flex;justify-content:flex-end;width:100%;">
+      <div style="width:50%;max-width:440px;">
+        <div style="display:flex;justify-content:center;margin-bottom:8px;">
+          <div class="arch-arrow" style="transform:rotate(90deg);padding:0;">
+            <svg viewBox="0 0 36 20"><line x1="0" y1="10" x2="28" y2="10" stroke="var(--border)" stroke-width="2"/><polygon points="28,5 36,10 28,15" fill="var(--border)"/></svg>
+          </div>
+        </div>
+        <div class="arch-outputs">
+          <div class="arch-output arch-output-detect">
+            <div class="arch-box-label">Detection Rules</div>
+            <div class="arch-box-sub">rules/generated/*.rules</div>
+            <div class="arch-badge badge-auto">AUTO-DEPLOY</div>
+          </div>
+          <div class="arch-output arch-output-suppress">
+            <div class="arch-box-label">Suppress Proposals</div>
+            <div class="arch-box-sub">threshold.config entries</div>
+            <div class="arch-badge badge-approval">HUMAN APPROVAL</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════
+     FIG. 4-2: ALERT COUNT COMPARISON
+     ═══════════════════════════════════════════════════════ -->
+<div class="diagram-section">
+  <div class="fig-label">Fig. 4-2</div>
+  <div class="fig-title">Alert counts across all attack days: tuned (baseline-suppressed) versus raw (unsuppressed)</div>
+
+  <div class="chart-container">
+    <svg class="chart-svg" viewBox="0 0 820 380" xmlns="http://www.w3.org/2000/svg">
+      <!-- Background -->
+      <rect x="0" y="0" width="820" height="380" fill="var(--bg)"/>
+
+      <!-- Chart area -->
+      <g transform="translate(100, 30)">
+        <!-- Y-axis gridlines and labels (log scale) -->
+        <!-- Max: ~2.3M, using log10 scale from 100 to 10,000,000 -->
+        <!-- y positions: log10(val) mapped to 0-280 range -->
+        <!-- log10(100)=2, log10(10M)=7, range=5 -->
+        <!-- y = 280 - (log10(val)-2) * 56 -->
+
+        <!-- Grid lines -->
+        <line x1="0" y1="280" x2="660" y2="280" stroke="var(--grey-200)" stroke-width="1"/>
+        <line x1="0" y1="224" x2="660" y2="224" stroke="var(--grey-200)" stroke-width="1" stroke-dasharray="4,4"/>
+        <line x1="0" y1="168" x2="660" y2="168" stroke="var(--grey-200)" stroke-width="1" stroke-dasharray="4,4"/>
+        <line x1="0" y1="112" x2="660" y2="112" stroke="var(--grey-200)" stroke-width="1" stroke-dasharray="4,4"/>
+        <line x1="0" y1="56" x2="660" y2="56" stroke="var(--grey-200)" stroke-width="1" stroke-dasharray="4,4"/>
+        <line x1="0" y1="0" x2="660" y2="0" stroke="var(--grey-200)" stroke-width="1" stroke-dasharray="4,4"/>
+
+        <!-- Y-axis labels -->
+        <text x="-12" y="284" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--grey-500)">100</text>
+        <text x="-12" y="228" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--grey-500)">1,000</text>
+        <text x="-12" y="172" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--grey-500)">10,000</text>
+        <text x="-12" y="116" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--grey-500)">100,000</text>
+        <text x="-12" y="60" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--grey-500)">1,000,000</text>
+        <text x="-12" y="4" text-anchor="end" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--grey-500)">10,000,000</text>
+
+        <!-- Y-axis title -->
+        <text x="-75" y="140" text-anchor="middle" transform="rotate(-90,-75,140)" font-family="IBM Plex Sans, sans-serif" font-size="11" fill="var(--text-secondary)" font-weight="500">Alert Count (log scale)</text>
+
+        <!-- Axes -->
+        <line x1="0" y1="0" x2="0" y2="280" stroke="var(--grey-300)" stroke-width="1.5"/>
+        <line x1="0" y1="280" x2="660" y2="280" stroke="var(--grey-300)" stroke-width="1.5"/>
+
+        <!-- TUESDAY: tuned=2,404 → log10=3.38 → y=280-(1.38*56)=202.7 -->
+        <!-- Only tuned, no raw run -->
+        <g transform="translate(60, 0)">
+          <rect x="0" y="202.7" width="50" height="77.3" rx="3" fill="var(--teal)" opacity="0.85"/>
+          <text x="25" y="197" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="var(--teal)" font-weight="600">2,404</text>
+          <text x="25" y="300" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--text)" font-weight="500">Tuesday</text>
+          <text x="25" y="314" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--grey-500)">FTP/SSH Brute Force</text>
+        </g>
+
+        <!-- WEDNESDAY: tuned=381 → log10=2.58 → y=280-(0.58*56)=247.5 -->
+        <!-- raw=2,310,105 → log10=6.36 → y=280-(4.36*56)=35.8 -->
+        <g transform="translate(210, 0)">
+          <rect x="0" y="247.5" width="24" height="32.5" rx="3" fill="var(--teal)" opacity="0.85"/>
+          <rect x="30" y="35.8" width="24" height="244.2" rx="3" fill="var(--red)" opacity="0.75"/>
+          <text x="12" y="242" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--teal)" font-weight="600">381</text>
+          <text x="42" y="30" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--red)" font-weight="600">2.3M</text>
+          <text x="27" y="300" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--text)" font-weight="500">Wednesday</text>
+          <text x="27" y="314" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--grey-500)">DoS / Heartbleed</text>
+        </g>
+
+        <!-- THURSDAY: tuned=25,399 → log10=4.40 → y=280-(2.40*56)=145.6 -->
+        <!-- raw=1,346,596 → log10=6.13 → y=280-(4.13*56)=48.7 -->
+        <g transform="translate(380, 0)">
+          <rect x="0" y="145.6" width="24" height="134.4" rx="3" fill="var(--teal)" opacity="0.85"/>
+          <rect x="30" y="48.7" width="24" height="231.3" rx="3" fill="var(--red)" opacity="0.75"/>
+          <text x="12" y="140" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--teal)" font-weight="600">25,399</text>
+          <text x="42" y="43" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--red)" font-weight="600">1.35M</text>
+          <text x="27" y="300" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--text)" font-weight="500">Thursday</text>
+          <text x="27" y="314" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--grey-500)">Web Attacks / Infiltration</text>
+        </g>
+
+        <!-- FRIDAY: tuned=525 → log10=2.72 → y=280-(0.72*56)=239.7 -->
+        <!-- raw=1,412,449 → log10=6.15 → y=280-(4.15*56)=47.6 -->
+        <g transform="translate(540, 0)">
+          <rect x="0" y="239.7" width="24" height="40.3" rx="3" fill="var(--teal)" opacity="0.85"/>
+          <rect x="30" y="47.6" width="24" height="232.4" rx="3" fill="var(--red)" opacity="0.75"/>
+          <text x="12" y="234" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--teal)" font-weight="600">525</text>
+          <text x="42" y="42" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="var(--red)" font-weight="600">1.41M</text>
+          <text x="27" y="300" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12" fill="var(--text)" font-weight="500">Friday</text>
+          <text x="27" y="314" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="var(--grey-500)">DDoS / PortScan / Bot</text>
+        </g>
+      </g>
+    </svg>
+  </div>
+
+  <div class="chart-legend">
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--teal);opacity:0.85;"></div>
+      Tuned (Monday baseline suppressions applied)
+    </div>
+    <div class="legend-item">
+      <div class="legend-swatch" style="background:var(--red);opacity:0.75;"></div>
+      Raw (no suppressions — full Suricata output)
+    </div>
+  </div>
+  <div class="chart-note">Tuesday was run tuned only; Wednesday–Friday were run in both configurations. Note logarithmic scale.</div>
+</div>

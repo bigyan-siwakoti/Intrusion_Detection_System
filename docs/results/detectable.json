@@ -1,0 +1,59 @@
+{
+  "dev": {
+    "tcpudp": 14935,
+    "content": 11783,
+    "ever": 4999,
+    "base": {
+      "all": 3720,
+      "content": 2796,
+      "ever": 3720
+    },
+    "gains": {
+      "plain": {
+        "all": 12,
+        "content": 10
+      },
+      "research": {
+        "all": 50,
+        "content": 50
+      },
+      "hunt": {
+        "all": 180,
+        "content": 176
+      },
+      "hunt2": {
+        "all": 136,
+        "content": 135
+      }
+    }
+  },
+  "holdout": {
+    "tcpudp": 4634,
+    "content": 3495,
+    "ever": 1469,
+    "base": {
+      "all": 1368,
+      "content": 995,
+      "ever": 1368
+    },
+    "gains": {
+      "plain": {
+        "all": 5,
+        "content": 5
+      },
+      "research": {
+        "all": 13,
+        "content": 13
+      },
+      "hunt": {
+        "all": 71,
+        "content": 67
+      },
+      "hunt2": {
+        "all": 49,
+        "content": 47
+      }
+    }
+  },
+  "definitions": "Detection measured against what a signature IDS could plausibly detect, not against every labelled event.\n\nTwo narrower denominators for UNSW-NB15 TCP/UDP attack events:\n  content-detectable  the attacker sent application data in a matching flow (more TCP bytes than headers can\n                      account for \u2014 74 B per packet \u2014 or any UDP datagram). Conservative: tiny probes may be missed. Events without data \u2014 SYN probes, refused connections \u2014 can\n                      only be caught by rate or topology logic, never by content.\n  ever-detected       detected by at least one configuration we ran: baseline v2, the all-disabled-rules-enabled control\n                      (dev only), or a genuine (signature/behavioural) AI rule of any round. A practical ceiling."
+}

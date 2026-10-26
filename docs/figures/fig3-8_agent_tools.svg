@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="640" viewBox="0 0 1100 640" font-family="DejaVu Sans, Arial, sans-serif">
+<title>Agent tools</title>
+<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+<path d="M0,0 L10,5 L0,10 z" fill="#5b6774"/></marker></defs>
+<rect width="1100" height="640" fill="white"/>
+<text x="40" y="44" font-size="22" font-weight="700" fill="#1d2733">The agent&#8217;s toolkit: what DeepSeek can do, and only that</text>
+<text x="40" y="70" font-size="13" fill="#5b6774">The model only proposes a tool call (JSON); the engine checks it and runs it. 13 tools, selected per experiment profile.</text>
+<rect x="420" y="95" width="260" height="74" rx="10" fill="#f4f6f8" stroke="#9aa3ad" stroke-width="2"/>
+<text x="550.0" y="121" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733">DeepSeek V4 Pro / Claude</text>
+<text x="550.0" y="143" text-anchor="middle" font-size="11" fill="#5b6774">proposes the next tool call</text>
+<rect x="400" y="205" width="300" height="84" rx="10" fill="#eef4fa" stroke="#1f4e79" stroke-width="2"/>
+<text x="550.0" y="231" text-anchor="middle" font-size="13" font-weight="700" fill="#1d2733">Triage engine (src/engine.py)</text>
+<text x="550.0" y="253" text-anchor="middle" font-size="11" fill="#5b6774">validates paths, applies the profile,</text>
+<text x="550.0" y="270" text-anchor="middle" font-size="11" fill="#5b6774">runs the tool, returns the result</text>
+<line x1="550" y1="169" x2="550" y2="203" stroke="#5b6774" stroke-width="2" marker-end="url(#ah)"/>
+<line x1="530" y1="205" x2="530" y2="171" stroke="#5b6774" stroke-width="2" marker-end="url(#ah)"/>
+<rect x="40" y="330" width="190" height="192" rx="10" fill="white" stroke="#1f4e79" stroke-width="2.2"/>
+<rect x="40" y="330" width="190" height="34" rx="10" fill="#1f4e79"/><rect x="40" y="350" width="190" height="14" fill="#1f4e79"/>
+<text x="135" y="352" text-anchor="middle" font-size="13" font-weight="700" fill="white">Investigate</text>
+<text x="52" y="386" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">count_alerts</text>
+<text x="52" y="401" font-size="10.5" fill="#5b6774">alerts per signature</text>
+<text x="52" y="420" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">count_by</text>
+<text x="52" y="435" font-size="10.5" fill="#5b6774">count any field</text>
+<text x="52" y="454" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">query_eve_json</text>
+<text x="52" y="469" font-size="10.5" fill="#5b6774">jq query, capped</text>
+<text x="52" y="488" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">read_file</text>
+<text x="52" y="503" font-size="10.5" fill="#5b6774">+ list_directory: allowlisted</text>
+<line x1="550" y1="289" x2="135" y2="330" stroke="#9aa3ad" stroke-width="1.2"/>
+<rect x="250" y="330" width="190" height="192" rx="10" fill="white" stroke="#4f86b8" stroke-width="2.2"/>
+<rect x="250" y="330" width="190" height="34" rx="10" fill="#4f86b8"/><rect x="250" y="350" width="190" height="14" fill="#4f86b8"/>
+<text x="345" y="352" text-anchor="middle" font-size="13" font-weight="700" fill="white">Hunt</text>
+<text x="262" y="386" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">stack_values</text>
+<text x="262" y="401" font-size="10.5" fill="#5b6774">rarest values first</text>
+<text x="262" y="420" font-size="10.5" fill="#5b6774">hunt, hunt2 only</text>
+<line x1="550" y1="289" x2="345" y2="330" stroke="#9aa3ad" stroke-width="1.2"/>
+<rect x="460" y="330" width="190" height="192" rx="10" fill="white" stroke="#d9822b" stroke-width="2.2"/>
+<rect x="460" y="330" width="190" height="34" rx="10" fill="#d9822b"/><rect x="460" y="350" width="190" height="14" fill="#d9822b"/>
+<text x="555" y="352" text-anchor="middle" font-size="13" font-weight="700" fill="white">Research</text>
+<text x="472" y="386" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">search_rules</text>
+<text x="472" y="401" font-size="10.5" fill="#5b6774">already covered?</text>
+<text x="472" y="420" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">lookup_vulnerability</text>
+<text x="472" y="435" font-size="10.5" fill="#5b6774">local NVD copy</text>
+<text x="472" y="454" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">suricata_keywords</text>
+<text x="472" y="469" font-size="10.5" fill="#5b6774">valid keywords (hunt2)</text>
+<line x1="550" y1="289" x2="555" y2="330" stroke="#9aa3ad" stroke-width="1.2"/>
+<rect x="670" y="330" width="190" height="192" rx="10" fill="white" stroke="#2e7d4f" stroke-width="2.2"/>
+<rect x="670" y="330" width="190" height="34" rx="10" fill="#2e7d4f"/><rect x="670" y="350" width="190" height="14" fill="#2e7d4f"/>
+<text x="765" y="352" text-anchor="middle" font-size="13" font-weight="700" fill="white">Validate</text>
+<text x="682" y="386" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">run_suricata</text>
+<text x="682" y="401" font-size="10.5" fill="#5b6774">replay with the rules</text>
+<text x="682" y="420" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">test_rule</text>
+<text x="682" y="435" font-size="10.5" fill="#5b6774">anti-topology gate</text>
+<text x="682" y="454" font-size="10.5" fill="#5b6774">(hunt, hunt2)</text>
+<line x1="550" y1="289" x2="765" y2="330" stroke="#9aa3ad" stroke-width="1.2"/>
+<rect x="880" y="330" width="190" height="192" rx="10" fill="white" stroke="#b03a2e" stroke-width="2.2"/>
+<rect x="880" y="330" width="190" height="34" rx="10" fill="#b03a2e"/><rect x="880" y="350" width="190" height="14" fill="#b03a2e"/>
+<text x="975" y="352" text-anchor="middle" font-size="13" font-weight="700" fill="white">Write</text>
+<text x="892" y="386" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">write_file</text>
+<text x="892" y="401" font-size="10.5" fill="#5b6774">rules/generated/ only</text>
+<text x="892" y="420" font-size="11.5" font-weight="700" font-family="DejaVu Sans Mono, monospace" fill="#1d2733">append_to_file</text>
+<text x="892" y="435" font-size="10.5" fill="#5b6774">suppressions need</text>
+<text x="892" y="454" font-size="10.5" fill="#5b6774">human approval</text>
+<line x1="550" y1="289" x2="975" y2="330" stroke="#9aa3ad" stroke-width="1.2"/>
+<rect x="40" y="535" width="1030" height="80" rx="10" fill="#f4f6f8" stroke="#9aa3ad" stroke-width="1.5"/>
+<text x="60" y="562" font-size="13" font-weight="700" fill="#1d2733">Engine-enforced safeguards</text>
+<text x="60" y="584" font-size="11.5" fill="#5b6774">Read allowlist (logs/, config/, rules/, data/pcaps/) — labels, notes, transcripts refused · per-profile blocked files and log allowlist ·</text>
+<text x="60" y="603" font-size="11.5" fill="#5b6774">suppressions need human approval · hunt profiles: append-only and only rules that passed test_rule unchanged · output caps and timeouts</text>
+</svg>
