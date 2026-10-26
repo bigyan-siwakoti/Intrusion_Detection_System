@@ -28,3 +28,6 @@ demo-runs/
 
 # ET rule with a public malware IOC that GitHub push protection flags as a token
 rules/extra/et_disabled_all.rules
+
+# Windows download metadata
+*:Zone.Identifier

@@ -160,7 +160,7 @@ PROFILES.update({
         "suricata_config": "config/demo/cic.yaml",
         "rule_file": "rules/generated/demo/cic.rules",
         "extra_tools": ["search_rules", "lookup_vulnerability"],
-        "max_turns": 30,
+        "max_turns": 150,
         "logs_allow": r"demo-cic.*",
         "extra_blocked": _other_rule_files("rules/generated/demo/cic.rules"),
         "context": DEMO_CONTEXT.format(
@@ -174,7 +174,7 @@ PROFILES.update({
         "suricata_config": "config/demo/unsw.yaml",
         "rule_file": "rules/generated/demo/unsw.rules",
         "extra_tools": ["search_rules", "lookup_vulnerability"],
-        "max_turns": 30,
+        "max_turns": 150,
         "logs_allow": r"demo-unsw.*",
         "extra_blocked": _other_rule_files("rules/generated/demo/unsw.rules"),
         "context": DEMO_CONTEXT.format(
