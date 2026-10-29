@@ -108,14 +108,14 @@ def _public_live(request: Request, eve_path: str):
 
 
 @app.get("/api/replay")
-async def replay(demo_id: str, speed: float = 1.0):
-    """Stream the latest recorded run of a demo, with long pauses shortened."""
+async def replay(demo_id: str, seconds: float = 90.0):
+    """Stream the latest recorded run of a demo, compressed to about `seconds` (30-600)."""
     if demo_id not in demo.DEMOS:
         raise HTTPException(404, "Unknown demo.")
-    speed = min(max(speed, 0.5), 8.0)
+    seconds = min(max(seconds, 30.0), 600.0)
 
     async def event_stream():
-        for delay, ev in demo.replay_events(demo_id, speed=speed):
+        for delay, ev in demo.replay_events(demo_id, target_s=seconds):
             if delay:
                 await asyncio.sleep(delay)
             yield _sse(ev)

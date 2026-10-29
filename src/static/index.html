@@ -101,6 +101,35 @@
     display: flex; gap: 6px 16px; flex-wrap: wrap; align-items: center; }
   .downloads:empty { display: none; }
   .model-fixed { font-size: 13px; color: var(--text); }
+  details.how { border-bottom: 1px solid var(--border); background: var(--bg); }
+  details.how > summary { padding: 10px 24px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--accent); }
+  .how-body { padding: 4px 24px 16px; display: grid; gap: 14px; font-size: 13px; color: var(--text-dim); }
+  .how-h { color: var(--text); font-weight: 600; margin-bottom: 6px; }
+  .flow { display: flex; align-items: stretch; gap: 6px; flex-wrap: wrap; }
+  .flow .box { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 8px 10px; flex: 1 1 130px; }
+  .flow .box b { display: block; color: var(--text); font-size: 13px; }
+  .flow .box.ai { border-color: var(--accent); }
+  .flow .box.ai b { color: var(--accent); }
+  .flow .box.threat { border-color: var(--red); } .flow .box.threat b { color: var(--red); }
+  .flow .box.benign { border-color: var(--yellow); } .flow .box.benign b { color: var(--yellow); }
+  .flow .arr { align-self: center; color: var(--accent); font-weight: 700; }
+  .exits { display: flex; flex-direction: column; gap: 6px; flex: 1 1 170px; }
+  .exits .box { flex: 0 0 auto; }
+  .flow { align-items: center; }
+  .loop-note { margin-top: 6px; }
+  .how-cols { display: grid; grid-template-columns: 1.4fr 1fr; gap: 14px; }
+  .tools-list div { margin: 2px 0; }
+  .tools-list b { color: var(--green); display: inline-block; min-width: 82px; }
+  .tools-list code { font-family: var(--font-mono); font-size: 12px; color: var(--text); }
+  .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+  .chips span { background: var(--surface); border: 1px solid var(--border); border-radius: 999px; padding: 3px 10px; color: var(--text); font-size: 12px; }
+  .guards { display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  .guards span::before { content: "\2713  "; color: var(--green); }
+  @media (max-width: 640px) {
+    .how-cols { grid-template-columns: 1fr; }
+    details.how > summary, .how-body { padding-left: 12px; padding-right: 12px; }
+    .flow .arr { display: none; }
+  }
   @media (max-width: 640px) {
     .controls { padding: 10px 12px; gap: 8px; }
     .controls select { flex: 1 1 100%; }
@@ -363,7 +392,8 @@
 <div class="public-bar public-only" id="publicBar">
   <b>Live demo of our capstone project</b> (HIT401, Charles Darwin University). An AI analyst investigates
   Suricata intrusion alerts from a public attack dataset and writes detection rules.
-  Press <b>Replay</b> to watch a recorded run instantly, or <b>Start Triage</b> for a live run (up to about 30 minutes).
+  <b>Replay</b> shows a full recorded investigation in about 90 seconds. Got 10&ndash;30 minutes?
+  Press <b>Start Triage</b> to watch the AI analyst work live on the same data.
   The AI never sees the datasets' answer labels.
   <span id="reportLink" style="display:none">&nbsp;·&nbsp; <a href="/report.pdf" target="_blank" rel="noopener">Project report (PDF)</a></span>
   &nbsp;·&nbsp; <a href="https://github.com/bigyan-siwakoti/Intrusion_Detection_System" target="_blank" rel="noopener">Source code</a>
@@ -400,6 +430,68 @@
 
 <div class="profile-info" id="profileInfo"></div>
 <div class="downloads" id="downloads"></div>
+<details class="how public-only" id="howPanel" open>
+  <summary>How the AI analyst works</summary>
+  <div class="how-body">
+    <div>
+      <div class="how-h">The pipeline</div>
+      <div class="flow">
+        <div class="box"><b>1 · Network traffic</b>Recorded attacks from public datasets</div>
+        <div class="arr">&rarr;</div>
+        <div class="box"><b>2 · Suricata IDS</b>Open-source engine and rules raise alerts</div>
+        <div class="arr">&rarr;</div>
+        <div class="box ai"><b>3 · AI analyst</b>Investigates every alert with 13 tools</div>
+        <div class="arr">&rarr;</div>
+        <div class="exits">
+          <div class="box threat"><b>Threat &rarr; new detection rule</b>Tested by replaying the traffic, then deployed</div>
+          <div class="box benign"><b>Harmless &rarr; silence the alert</b>Only after a human approves</div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="how-h">Why it is "agentic": the model acts, the engine checks</div>
+      <div class="flow">
+        <div class="box"><b>Think</b>plans its next step</div>
+        <div class="arr">&rarr;</div>
+        <div class="box"><b>Call a tool</b>picks one of 13</div>
+        <div class="arr">&rarr;</div>
+        <div class="box ai"><b>Engine checks</b>then runs it</div>
+        <div class="arr">&rarr;</div>
+        <div class="box"><b>Read result</b>and repeats</div>
+      </div>
+      <div class="loop-note">&#8635; It loops until it reaches a verdict. The model never touches the system directly: every tool call goes through the engine, which enforces the rules below.</div>
+    </div>
+    <div class="how-cols">
+      <div>
+        <div class="how-h">The 13 tools</div>
+        <div class="tools-list">
+          <div><b>Investigate</b><code>query_eve_json · count_alerts · count_by · read_file · list_directory</code></div>
+          <div><b>Hunt</b><code>stack_values</code></div>
+          <div><b>Research</b><code>search_rules · lookup_vulnerability · suricata_keywords</code></div>
+          <div><b>Validate</b><code>run_suricata · test_rule</code></div>
+          <div><b>Write</b><code>write_file · append_to_file</code></div>
+        </div>
+        <div class="loop-note">This public demo runs the triage workflow with 10 of them; <code>stack_values</code>, <code>suricata_keywords</code> and <code>test_rule</code> belong to the threat-hunting workflow from our experiments.</div>
+      </div>
+      <div>
+        <div class="how-h">Tech stack</div>
+        <div class="chips">
+          <span>Suricata 8 IDS</span><span>ET Open + open rulesets</span><span>Python agentic engine</span>
+          <span>DeepSeek V4 Pro &amp; Claude</span><span>FastAPI + live streaming</span><span>Local NVD database</span>
+          <span>Docker on Azure</span><span>GitHub Actions CI/CD</span>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="how-h">Safety rules the engine enforces</div>
+      <div class="guards">
+        <span>The AI never sees the datasets' answer labels</span>
+        <span>Detection stays rule-based: the AI writes rules, it never classifies traffic itself</span>
+        <span>Silencing any alert needs human approval</span>
+      </div>
+    </div>
+  </div>
+</details>
 
 <div class="status-bar" id="statusBar">
   <div class="stat"><span class="label">Status:</span> <span class="value" id="statusText">Ready</span></div>
@@ -599,6 +691,7 @@ function startTriage() {
 }
 
 function startStream(url, label) {
+  const how = document.getElementById('howPanel'); if (how) how.open = false;
   const evePath = runSelect.value;
   const model = publicMode ? 'deepseek-v4-pro' : modelSelect.value;
   const profile = profileSelect.value;

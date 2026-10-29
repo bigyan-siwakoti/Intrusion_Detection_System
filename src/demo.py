@@ -156,19 +156,33 @@ def latest_recording(demo_id: str):
     return shipped if (shipped / "events.jsonl").exists() else None
 
 
-def replay_events(demo_id: str, speed: float = 1.0, max_gap: float = 1.2):
-    """Yield (delay_s, event) from the latest recording; long model pauses are shortened to max_gap."""
+def replay_events(demo_id: str, target_s: float = 90.0, max_gap: float = 1.2):
+    """Yield (delay_s, event) from the latest recording, squeezed into about target_s seconds.
+
+    Streamed text arrives as thousands of tiny deltas, so consecutive thinking/text deltas are merged into chunks
+    (same text, far fewer events). Gaps longer than max_gap (the model waiting on the API) are cut to max_gap, then
+    all gaps are scaled so the whole replay lasts about target_s, keeping the order and the rhythm of the run.
+    """
     rec = latest_recording(demo_id)
     if not rec:
         yield 0, {"type": "error", "message": "No recorded run is available yet for this demo."}
         return
-    last = 0.0
+    merged = []  # [t, event]
     with open(rec / "events.jsonl") as f:
         for line in f:
             row = json.loads(line)
-            gap = max(0.0, row["t"] - last) / speed
-            last = row["t"]
-            yield min(gap, max_gap), row["event"]
+            ev = row["event"]
+            prev = merged[-1][1] if merged else None
+            if (prev and ev.get("type") in ("thinking", "text") and prev.get("type") == ev["type"]
+                    and len(prev.get("text", "")) < 600):
+                prev["text"] += ev.get("text", "")
+                continue
+            merged.append([row["t"], dict(ev)])
+    gaps = [min(max(0.0, b[0] - a[0]), max_gap) for a, b in zip(merged, merged[1:])]
+    scale = min(1.0, target_s / (sum(gaps) or 1.0))
+    yield 0, merged[0][1]
+    for gap, (_, ev) in zip(gaps, merged[1:]):
+        yield gap * scale, ev
 
 
 def write_transcript(run_dir: Path):
