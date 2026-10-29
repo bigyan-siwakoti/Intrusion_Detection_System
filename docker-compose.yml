@@ -23,6 +23,7 @@ services:
       - ${DATA_DIR:-../triage-data}/slices:/home/bigyan/capstone-ids/data/slices:ro
       - ${DATA_DIR:-../triage-data}/report:/home/bigyan/capstone-ids/demo/report:ro
       - ${DATA_DIR:-../triage-data}/runs:/home/bigyan/capstone-ids/demo-runs
+      - ${DATA_DIR:-../triage-data}/logs:/home/bigyan/capstone-ids/logs
     mem_limit: 1500m
     cpus: 1.5
     networks:
